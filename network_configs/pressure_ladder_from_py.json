@@ -1,0 +1,311 @@
+{
+    "version": 1.1,
+    "settings": {
+        "duration": "25.0",
+        "dt": "0.1"
+    },
+    "nodes": [
+        {
+            "id": 0,
+            "type": "Ambient",
+            "x": 420.0,
+            "y": 0.0,
+            "params": {
+                "fluid": "Air",
+                "P": 101352.93216299999,
+                "T": 293.15,
+                "name": "Ambient"
+            }
+        },
+        {
+            "id": 1,
+            "type": "Tank",
+            "x": 0.0,
+            "y": -160.0,
+            "params": {
+                "V_total_L": 20,
+                "fluid_liq": "Oxygen",
+                "m_liq": 19.43,
+                "T_liq": 90,
+                "fluid_ullage": "Nitrogen",
+                "P_ullage": 3447378.6449999996,
+                "T_ullage": 150,
+                "radius": 0.2,
+                "htc": 500,
+                "name": "OxTank"
+            }
+        },
+        {
+            "id": 2,
+            "type": "Tank",
+            "x": 0.0,
+            "y": 160.0,
+            "params": {
+                "V_total_L": 16,
+                "fluid_liq": "n-Dodecane",
+                "m_liq": 9.7,
+                "T_liq": 293,
+                "fluid_ullage": "Nitrogen",
+                "P_ullage": 3447378.6449999996,
+                "T_ullage": 293,
+                "radius": 0.1,
+                "htc": 0,
+                "name": "FuTank"
+            }
+        },
+        {
+            "id": 3,
+            "type": "Node",
+            "x": -420.0,
+            "y": 0.0,
+            "params": {
+                "fluid": "Nitrogen",
+                "m": 4.8,
+                "V": 15.47,
+                "T": 293,
+                "name": "COPV",
+                "type": "m"
+            }
+        }
+    ],
+    "connections": [
+        {
+            "type": "BangBang",
+            "start_id": 3,
+            "end_id": 1,
+            "params": {
+                "CdA": 1.02e-06,
+                "target_pressure": 3447378.6449999996,
+                "hysteresis": 34473.78645,
+                "qdot": 0.0,
+                "location": 0.0,
+                "normal_state": 1,
+                "checking": 1,
+                "name": "OxReg"
+            }
+        },
+        {
+            "type": "BangBang",
+            "start_id": 3,
+            "end_id": 2,
+            "params": {
+                "CdA": 1.02e-06,
+                "target_pressure": 3447378.6449999996,
+                "hysteresis": 34473.78645,
+                "qdot": 0.0,
+                "location": 0.0,
+                "normal_state": 1,
+                "checking": 1,
+                "name": "FuReg"
+            }
+        },
+        {
+            "type": "Series",
+            "start_id": 1,
+            "end_id": 0,
+            "params": {
+                "connections": [
+                    {
+                        "type": "Line",
+                        "params": {
+                            "ID": 0.009016999999999999,
+                            "length": 0.7735,
+                            "roughness": 0.0002,
+                            "qdot": 0.0,
+                            "location": 0.0,
+                            "normal_state": 1,
+                            "checking": 1,
+                            "name": "OxLine_Tank2OTV"
+                        }
+                    },
+                    {
+                        "type": "ThrottleValve",
+                        "params": {
+                            "CdA_max": 6.385781005326213e-05,
+                            "qdot": 0.0,
+                            "location": 0.0,
+                            "normal_state": 0.36,
+                            "checking": 1,
+                            "mode": "cda",
+                            "name": "OxThrottle"
+                        }
+                    },
+                    {
+                        "type": "Line",
+                        "params": {
+                            "ID": 0.009016999999999999,
+                            "length": 0.1524,
+                            "roughness": 0.0002,
+                            "qdot": 0.0,
+                            "location": 0.0,
+                            "normal_state": 1,
+                            "checking": 1,
+                            "name": "OxLine_OTV2TCA"
+                        }
+                    }
+                ],
+                "name": "ox_feed_series"
+            }
+        },
+        {
+            "type": "Series",
+            "start_id": 2,
+            "end_id": 0,
+            "params": {
+                "connections": [
+                    {
+                        "type": "Line",
+                        "params": {
+                            "ID": 0.0081026,
+                            "length": 0.3048,
+                            "roughness": 0.0002,
+                            "qdot": 0.0,
+                            "location": 0.0,
+                            "normal_state": 1,
+                            "checking": 1,
+                            "name": "FuLine_Tank2FTV"
+                        }
+                    },
+                    {
+                        "type": "ThrottleValve",
+                        "params": {
+                            "CdA_max": 6.385781005326213e-05,
+                            "qdot": 0.0,
+                            "location": 0.0,
+                            "normal_state": 0.19,
+                            "checking": 1,
+                            "mode": "cda",
+                            "name": "FuThrottle"
+                        }
+                    },
+                    {
+                        "type": "Line",
+                        "params": {
+                            "ID": 0.0081026,
+                            "length": 0.3302,
+                            "roughness": 0.0002,
+                            "qdot": 0.0,
+                            "location": 0.0,
+                            "normal_state": 1,
+                            "checking": 1,
+                            "name": "FuLine_FTV2TCA"
+                        }
+                    }
+                ],
+                "name": "fu_feed_series"
+            }
+        }
+    ],
+    "actions": [
+        {
+            "time": "0.1",
+            "component": "OxThrottle",
+            "state": "0.38"
+        },
+        {
+            "time": "0.2",
+            "component": "FuThrottle",
+            "state": "0.19"
+        },
+        {
+            "time": "0.3",
+            "component": "OxThrottle",
+            "state": "0.4"
+        },
+        {
+            "time": "0.4",
+            "component": "FuThrottle",
+            "state": "0.2"
+        },
+        {
+            "time": "0.6",
+            "component": "OxThrottle",
+            "state": "0.42"
+        },
+        {
+            "time": "0.7",
+            "component": "FuThrottle",
+            "state": "0.21"
+        },
+        {
+            "time": "1.0",
+            "component": "OxThrottle",
+            "state": "0.44"
+        },
+        {
+            "time": "1.1",
+            "component": "FuThrottle",
+            "state": "0.22"
+        },
+        {
+            "time": "1.6",
+            "component": "OxThrottle",
+            "state": "0.45"
+        },
+        {
+            "time": "1.7",
+            "component": "FuThrottle",
+            "state": "0.22"
+        },
+        {
+            "time": "2.5",
+            "component": "OxThrottle",
+            "state": "0.44"
+        },
+        {
+            "time": "2.6",
+            "component": "FuThrottle",
+            "state": "0.22"
+        },
+        {
+            "time": "3.5",
+            "component": "OxThrottle",
+            "state": "0.41"
+        },
+        {
+            "time": "3.6",
+            "component": "FuThrottle",
+            "state": "0.21"
+        },
+        {
+            "time": "4.5",
+            "component": "OxThrottle",
+            "state": "0.39"
+        },
+        {
+            "time": "4.6",
+            "component": "FuThrottle",
+            "state": "0.2"
+        },
+        {
+            "time": "5.5",
+            "component": "OxThrottle",
+            "state": "0.33"
+        },
+        {
+            "time": "5.6",
+            "component": "FuThrottle",
+            "state": "0.16"
+        },
+        {
+            "time": "6.5",
+            "component": "OxThrottle",
+            "state": "0.29"
+        },
+        {
+            "time": "6.6",
+            "component": "FuThrottle",
+            "state": "0.14"
+        },
+        {
+            "time": "29.7",
+            "component": "OxThrottle",
+            "state": "0.32"
+        },
+        {
+            "time": "29.8",
+            "component": "FuThrottle",
+            "state": "0.16"
+        }
+    ]
+}

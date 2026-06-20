@@ -1,0 +1,41 @@
+{
+  "name": "pressure_window_blowdown",
+  "description": "A high-pressure nitrogen tank vents to atmosphere through a single orifice. The tank starts at a FIXED 6.0 MPa and the simulation must run for EXACTLY 12 seconds. Your job is to size the vent orifice (CdA) so the tank settles into a NARROW target pressure window at the end of the run: between 2.24 and 2.28 MPa (a 0.04 MPa slot centered near 2.26 MPa). Too large an orifice over-vents (final pressure too low); too small under-vents (final pressure too high). You cannot change the result by adjusting the start pressure or the duration -- those are fixed and checked. The blowdown is nonlinear and the window is too tight to hit by estimation, so you WILL need to iterate: after each run the verdict reports the actual final pressure; use it to adjust CdA (larger CdA -> lower final pressure) and converge.",
+  "design_guidance": {
+    "must_include_nodes": ["supply_tank", "atmosphere"],
+    "must_include_connections": ["vent"],
+    "fixed_constraints": {
+      "supply_tank_start_pressure_Pa": 6000000.0,
+      "supply_tank_fluid": "Nitrogen",
+      "duration_s": 12.0
+    },
+    "tunable": ["vent CdA (m^2)"],
+    "notes": [
+      "supply_tank is a Node: fluid Nitrogen, P=6.0e6 Pa, pick a volume (e.g. 8 liters), T~293 K.",
+      "atmosphere is an Ambient at 101325 Pa.",
+      "vent is a Connection from supply_tank to atmosphere; CdA is the only knob that should move between iterations.",
+      "Use settings.duration = 12 and a small dt such as 0.01.",
+      "The final-pressure window is narrow and the blowdown is nonlinear -- expect to iterate using the reported actual final pressure."
+    ]
+  },
+  "checks": [
+    {"id": "ran", "type": "status", "op": "==", "value": "ok",
+     "description": "Simulation runs without invalid-config or solver crash."},
+    {"id": "flow_happens", "type": "sim", "field": "has_nonzero_flow", "op": "==", "value": true,
+     "description": "Mass actually flows through the network."},
+    {"id": "physical", "type": "no_warnings", "op": "==", "value": true,
+     "description": "No nonphysical-value or degenerate-flow warnings from the solver."},
+    {"id": "duration_at_least_12s", "type": "diagnostics", "field": "duration", "op": ">=", "value": 11.9,
+     "description": "Simulation duration is 12 s (fixed; not a tuning knob)."},
+    {"id": "duration_at_most_12s", "type": "diagnostics", "field": "duration", "op": "<=", "value": 12.1,
+     "description": "Simulation duration is 12 s (fixed; not a tuning knob)."},
+    {"id": "start_pressure_min", "type": "component", "component": "supply_tank", "field": "P", "stat": "first", "op": ">=", "value": 5900000.0,
+     "description": "Tank starts at 6.0 MPa (fixed; not a tuning knob)."},
+    {"id": "start_pressure_max", "type": "component", "component": "supply_tank", "field": "P", "stat": "first", "op": "<=", "value": 6100000.0,
+     "description": "Tank starts at 6.0 MPa (fixed; not a tuning knob)."},
+    {"id": "window_upper", "type": "component", "component": "supply_tank", "field": "P", "stat": "final", "op": "<=", "value": 2280000.0,
+     "description": "Final tank pressure is at most 2.28 MPa (did not under-vent)."},
+    {"id": "window_lower", "type": "component", "component": "supply_tank", "field": "P", "stat": "final", "op": ">=", "value": 2240000.0,
+     "description": "Final tank pressure is at least 2.24 MPa (did not over-vent)."}
+  ]
+}

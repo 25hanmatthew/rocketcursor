@@ -1,0 +1,550 @@
+{
+  "gn2_to_lox_tank_regulator": {
+    "component": "gn2_to_lox_tank_regulator",
+    "kind": "BangBang",
+    "time": {
+      "first": 0.0,
+      "final": 20.0,
+      "sample_count": 400
+    },
+    "fields": {
+      "CdA": {
+        "first": 2.04e-06,
+        "final": 2.04e-06,
+        "min": 2.04e-06,
+        "max": 2.04e-06,
+        "delta": 0.0,
+        "range": 0.0,
+        "nonzero_count": 400,
+        "sample_count": 400
+      },
+      "qdot": {
+        "first": 0.0,
+        "final": 0.0,
+        "min": 0.0,
+        "max": 0.0,
+        "delta": 0.0,
+        "range": 0.0,
+        "nonzero_count": 0,
+        "sample_count": 400
+      },
+      "state": {
+        "first": 1.0,
+        "final": 1.0,
+        "min": 1.0,
+        "max": 1.0,
+        "delta": 0.0,
+        "range": 0.0,
+        "nonzero_count": 1,
+        "sample_count": 1
+      },
+      "mdot": {
+        "first": 0.11322425815427917,
+        "final": 0.07109276481505879,
+        "min": 0.07109276481505879,
+        "max": 0.11322425815427917,
+        "delta": -0.04213149333922038,
+        "range": 0.04213149333922038,
+        "nonzero_count": 400,
+        "sample_count": 400
+      },
+      "Hdot": {
+        "first": 29792.832313245395,
+        "final": 15610.142807789445,
+        "min": 15610.142807789445,
+        "max": 29792.832313245395,
+        "delta": -14182.68950545595,
+        "range": 14182.68950545595,
+        "nonzero_count": 400,
+        "sample_count": 400
+      },
+      "dP": {
+        "first": 27579029.172671862,
+        "final": 15362857.412614383,
+        "min": 15362857.412614383,
+        "max": 27579029.172671862,
+        "delta": -12216171.76005748,
+        "range": 12216171.76005748,
+        "nonzero_count": 400,
+        "sample_count": 400
+      }
+    }
+  },
+  "gn2_to_kerosene_tank_regulator": {
+    "component": "gn2_to_kerosene_tank_regulator",
+    "kind": "BangBang",
+    "time": {
+      "first": 0.0,
+      "final": 20.0,
+      "sample_count": 400
+    },
+    "fields": {
+      "CdA": {
+        "first": 1.02e-06,
+        "final": 1.02e-06,
+        "min": 1.02e-06,
+        "max": 1.02e-06,
+        "delta": 0.0,
+        "range": 0.0,
+        "nonzero_count": 400,
+        "sample_count": 400
+      },
+      "qdot": {
+        "first": 0.0,
+        "final": 0.0,
+        "min": 0.0,
+        "max": 0.0,
+        "delta": 0.0,
+        "range": 0.0,
+        "nonzero_count": 0,
+        "sample_count": 400
+      },
+      "state": {
+        "first": 1.0,
+        "final": 1.0,
+        "min": 1.0,
+        "max": 1.0,
+        "delta": 0.0,
+        "range": 0.0,
+        "nonzero_count": 2,
+        "sample_count": 2
+      },
+      "mdot": {
+        "first": 0.056612129077139584,
+        "final": 0.035409194317903146,
+        "min": 0.035409194317903146,
+        "max": 0.056612129077139584,
+        "delta": -0.021202934759236437,
+        "range": 0.021202934759236437,
+        "nonzero_count": 400,
+        "sample_count": 400
+      },
+      "Hdot": {
+        "first": 14896.416156622698,
+        "final": 7763.717087404991,
+        "min": 7763.717087404991,
+        "max": 14896.416156622698,
+        "delta": -7132.699069217707,
+        "range": 7132.699069217707,
+        "nonzero_count": 400,
+        "sample_count": 400
+      },
+      "dP": {
+        "first": 27579029.17267068,
+        "final": 15283347.193355829,
+        "min": 15283347.193355829,
+        "max": 27579029.17267068,
+        "delta": -12295681.979314853,
+        "range": 12295681.979314853,
+        "nonzero_count": 400,
+        "sample_count": 400
+      }
+    }
+  },
+  "lox_feed_series": {
+    "component": "lox_feed_series",
+    "kind": "Series",
+    "time": {
+      "first": 0.0,
+      "final": 20.0,
+      "sample_count": 400
+    },
+    "fields": {
+      "CdA": {
+        "first": 1.3623846948879485e-05,
+        "final": 1.3612130706814988e-05,
+        "min": 1.3611534034718928e-05,
+        "max": 1.3623846948879485e-05,
+        "delta": -1.1716242064496981e-08,
+        "range": 1.2312914160556701e-08,
+        "nonzero_count": 400,
+        "sample_count": 400
+      },
+      "qdot": {
+        "first": 0.0,
+        "final": 0.0,
+        "min": 0.0,
+        "max": 0.0,
+        "delta": 0.0,
+        "range": 0.0,
+        "nonzero_count": 0,
+        "sample_count": 400
+      },
+      "mdot": {
+        "first": 1.1948436351355785,
+        "final": 0.47442251751024955,
+        "min": 0.45551730360873716,
+        "max": 1.1948436351355785,
+        "delta": -0.7204211176253289,
+        "range": 0.7393263315268412,
+        "nonzero_count": 400,
+        "sample_count": 400
+      },
+      "Hdot": {
+        "first": -157587.81333937883,
+        "final": -62582.334854550296,
+        "min": -157587.81333937883,
+        "max": -60097.24181495791,
+        "delta": 95005.47848482853,
+        "range": 97490.57152442093,
+        "nonzero_count": 400,
+        "sample_count": 400
+      },
+      "dP": {
+        "first": 3346053.6465840875,
+        "final": 528445.7274403647,
+        "min": 487153.04997126944,
+        "max": 3346053.6465840875,
+        "delta": -2817607.919143723,
+        "range": 2858900.596612818,
+        "nonzero_count": 400,
+        "sample_count": 400
+      }
+    }
+  },
+  "lox_feed_series/lox_tank_to_engine_line": {
+    "component": "lox_feed_series/lox_tank_to_engine_line",
+    "kind": "Line",
+    "time": {
+      "first": 0.0,
+      "final": 20.0,
+      "sample_count": 400
+    },
+    "fields": {
+      "CdA": {
+        "first": 2.9936865319740544e-05,
+        "final": 2.9813165160247333e-05,
+        "min": 2.9806897964635655e-05,
+        "max": 2.9936865319740544e-05,
+        "delta": -1.237001594932108e-07,
+        "range": 1.299673551048888e-07,
+        "nonzero_count": 400,
+        "sample_count": 400
+      },
+      "qdot": {
+        "first": 0.0,
+        "final": 0.0,
+        "min": 0.0,
+        "max": 0.0,
+        "delta": 0.0,
+        "range": 0.0,
+        "nonzero_count": 0,
+        "sample_count": 400
+      },
+      "state": {
+        "first": 1.0,
+        "final": 1.0,
+        "min": 1.0,
+        "max": 1.0,
+        "delta": 0.0,
+        "range": 0.0,
+        "nonzero_count": 400,
+        "sample_count": 400
+      },
+      "mdot": {
+        "first": 1.1948436351355785,
+        "final": 0.47442251751024955,
+        "min": 0.45551730360873716,
+        "max": 1.1948436351355785,
+        "delta": -0.7204211176253289,
+        "range": 0.7393263315268412,
+        "nonzero_count": 400,
+        "sample_count": 400
+      },
+      "Hdot": {
+        "first": -157587.81333937883,
+        "final": -62582.334854550296,
+        "min": -157587.81333937883,
+        "max": -60097.24181495791,
+        "delta": 95005.47848482853,
+        "range": 97490.57152442093,
+        "nonzero_count": 400,
+        "sample_count": 400
+      },
+      "dP": {
+        "first": 692978.5065658662,
+        "final": 110163.17398062743,
+        "min": 101533.67605742402,
+        "max": 692978.5065658662,
+        "delta": -582815.3325852387,
+        "range": 591444.8305084421,
+        "nonzero_count": 400,
+        "sample_count": 400
+      }
+    }
+  },
+  "lox_feed_series/lox_engine_injector": {
+    "component": "lox_feed_series/lox_engine_injector",
+    "kind": "Connection",
+    "time": {
+      "first": 0.0,
+      "final": 20.0,
+      "sample_count": 400
+    },
+    "fields": {
+      "CdA": {
+        "first": 1.53e-05,
+        "final": 1.53e-05,
+        "min": 1.53e-05,
+        "max": 1.53e-05,
+        "delta": 0.0,
+        "range": 0.0,
+        "nonzero_count": 400,
+        "sample_count": 400
+      },
+      "qdot": {
+        "first": 0.0,
+        "final": 0.0,
+        "min": 0.0,
+        "max": 0.0,
+        "delta": 0.0,
+        "range": 0.0,
+        "nonzero_count": 0,
+        "sample_count": 400
+      },
+      "state": {
+        "first": 1.0,
+        "final": 1.0,
+        "min": 1.0,
+        "max": 1.0,
+        "delta": 0.0,
+        "range": 0.0,
+        "nonzero_count": 400,
+        "sample_count": 400
+      },
+      "mdot": {
+        "first": 1.1948436351355785,
+        "final": 0.47442251751024955,
+        "min": 0.45551730360873716,
+        "max": 1.1948436351355785,
+        "delta": -0.7204211176253289,
+        "range": 0.7393263315268412,
+        "nonzero_count": 400,
+        "sample_count": 400
+      },
+      "Hdot": {
+        "first": -157587.81333937883,
+        "final": -62582.334854550296,
+        "min": -157587.81333937883,
+        "max": -60097.24181495791,
+        "delta": 95005.47848482853,
+        "range": 97490.57152442093,
+        "nonzero_count": 400,
+        "sample_count": 400
+      },
+      "dP": {
+        "first": 2653075.1400182215,
+        "final": 418282.5534597373,
+        "min": 385619.3739138454,
+        "max": 2653075.1400182215,
+        "delta": -2234792.586558484,
+        "range": 2267455.766104376,
+        "nonzero_count": 400,
+        "sample_count": 400
+      }
+    }
+  },
+  "kerosene_feed_series": {
+    "component": "kerosene_feed_series",
+    "kind": "Series",
+    "time": {
+      "first": 0.0,
+      "final": 20.0,
+      "sample_count": 400
+    },
+    "fields": {
+      "CdA": {
+        "first": 9.59089672391414e-06,
+        "final": 9.575709667799568e-06,
+        "min": 9.573202613357036e-06,
+        "max": 9.59089672391414e-06,
+        "delta": -1.5187056114572992e-08,
+        "range": 1.7694110557105297e-08,
+        "nonzero_count": 400,
+        "sample_count": 400
+      },
+      "qdot": {
+        "first": 0.0,
+        "final": 0.0,
+        "min": 0.0,
+        "max": 0.0,
+        "delta": 0.0,
+        "range": 0.0,
+        "nonzero_count": 0,
+        "sample_count": 400
+      },
+      "mdot": {
+        "first": 0.6802913486554641,
+        "final": 0.2841576715828552,
+        "min": 0.2455811370364266,
+        "max": 0.6802913486554641,
+        "delta": -0.39613367707260894,
+        "range": 0.43471021161903756,
+        "nonzero_count": 400,
+        "sample_count": 400
+      },
+      "Hdot": {
+        "first": -340381.84127388283,
+        "final": -142165.81681247897,
+        "min": -340381.84127388283,
+        "max": -122891.17131666359,
+        "delta": 198216.02446140387,
+        "range": 217490.66995721924,
+        "nonzero_count": 400,
+        "sample_count": 400
+      },
+      "dP": {
+        "first": 3346053.646585267,
+        "final": 585636.3261166867,
+        "min": 437569.84374403954,
+        "max": 3346053.646585267,
+        "delta": -2760417.3204685804,
+        "range": 2908483.8028412275,
+        "nonzero_count": 400,
+        "sample_count": 400
+      }
+    }
+  },
+  "kerosene_feed_series/kerosene_tank_to_engine_line": {
+    "component": "kerosene_feed_series/kerosene_tank_to_engine_line",
+    "kind": "Line",
+    "time": {
+      "first": 0.0,
+      "final": 20.0,
+      "sample_count": 400
+    },
+    "fields": {
+      "CdA": {
+        "first": 2.2522648962724808e-05,
+        "final": 2.2328054757031747e-05,
+        "min": 2.229632639655986e-05,
+        "max": 2.2522648962724808e-05,
+        "delta": -1.9459420569306084e-07,
+        "range": 2.263225661649484e-07,
+        "nonzero_count": 400,
+        "sample_count": 400
+      },
+      "qdot": {
+        "first": 0.0,
+        "final": 0.0,
+        "min": 0.0,
+        "max": 0.0,
+        "delta": 0.0,
+        "range": 0.0,
+        "nonzero_count": 0,
+        "sample_count": 400
+      },
+      "state": {
+        "first": 1.0,
+        "final": 1.0,
+        "min": 1.0,
+        "max": 1.0,
+        "delta": 0.0,
+        "range": 0.0,
+        "nonzero_count": 400,
+        "sample_count": 400
+      },
+      "mdot": {
+        "first": 0.6802913486554641,
+        "final": 0.2841576715828552,
+        "min": 0.2455811370364266,
+        "max": 0.6802913486554641,
+        "delta": -0.39613367707260894,
+        "range": 0.43471021161903756,
+        "nonzero_count": 400,
+        "sample_count": 400
+      },
+      "Hdot": {
+        "first": -340381.84127388283,
+        "final": -142165.81681247897,
+        "min": -340381.84127388283,
+        "max": -122891.17131666359,
+        "delta": 198216.02446140387,
+        "range": 217490.66995721924,
+        "nonzero_count": 400,
+        "sample_count": 400
+      },
+      "dP": {
+        "first": 606753.6430893671,
+        "final": 107713.011994879,
+        "min": 80580.43595518648,
+        "max": 606753.6430893671,
+        "delta": -499040.6310944881,
+        "range": 526173.2071341806,
+        "nonzero_count": 400,
+        "sample_count": 400
+      }
+    }
+  },
+  "kerosene_feed_series/kerosene_engine_injector": {
+    "component": "kerosene_feed_series/kerosene_engine_injector",
+    "kind": "Connection",
+    "time": {
+      "first": 0.0,
+      "final": 20.0,
+      "sample_count": 400
+    },
+    "fields": {
+      "CdA": {
+        "first": 1.06e-05,
+        "final": 1.06e-05,
+        "min": 1.06e-05,
+        "max": 1.06e-05,
+        "delta": 0.0,
+        "range": 0.0,
+        "nonzero_count": 400,
+        "sample_count": 400
+      },
+      "qdot": {
+        "first": 0.0,
+        "final": 0.0,
+        "min": 0.0,
+        "max": 0.0,
+        "delta": 0.0,
+        "range": 0.0,
+        "nonzero_count": 0,
+        "sample_count": 400
+      },
+      "state": {
+        "first": 1.0,
+        "final": 1.0,
+        "min": 1.0,
+        "max": 1.0,
+        "delta": 0.0,
+        "range": 0.0,
+        "nonzero_count": 400,
+        "sample_count": 400
+      },
+      "mdot": {
+        "first": 0.6802913486554641,
+        "final": 0.2841576715828552,
+        "min": 0.2455811370364266,
+        "max": 0.6802913486554641,
+        "delta": -0.39613367707260894,
+        "range": 0.43471021161903756,
+        "nonzero_count": 400,
+        "sample_count": 400
+      },
+      "Hdot": {
+        "first": -340381.84127388283,
+        "final": -142165.81681247897,
+        "min": -340381.84127388283,
+        "max": -122891.17131666359,
+        "delta": 198216.02446140387,
+        "range": 217490.66995721924,
+        "nonzero_count": 400,
+        "sample_count": 400
+      },
+      "dP": {
+        "first": 2739300.0034959004,
+        "final": 477923.3141218077,
+        "min": 356989.4077888529,
+        "max": 2739300.0034959004,
+        "delta": -2261376.689374093,
+        "range": 2382310.5957070477,
+        "nonzero_count": 400,
+        "sample_count": 400
+      }
+    }
+  }
+}

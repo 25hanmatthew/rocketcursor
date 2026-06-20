@@ -1,0 +1,335 @@
+{
+  "gn2_supply_4500psi": {
+    "component": "gn2_supply_4500psi",
+    "kind": "Node",
+    "time": {
+      "first": 0.0,
+      "final": 20.0,
+      "sample_count": 400
+    },
+    "fields": {
+      "P": {
+        "first": 30988948.566250604,
+        "final": 29936430.897410233,
+        "min": 29936430.897410233,
+        "max": 30988948.566250604,
+        "delta": -1052517.668840371,
+        "range": 1052517.668840371,
+        "nonzero_count": 400,
+        "sample_count": 400
+      },
+      "T": {
+        "first": 293.0527741081666,
+        "final": 290.2831704180968,
+        "min": 290.2831704180968,
+        "max": 293.0527741081666,
+        "delta": -2.7696036900698005,
+        "range": 2.7696036900698005,
+        "nonzero_count": 400,
+        "sample_count": 400
+      },
+      "U": {
+        "first": 908782.7255240566,
+        "final": 887686.6579379288,
+        "min": 887686.6579379288,
+        "max": 908782.7255240566,
+        "delta": -21096.067586127785,
+        "range": 21096.067586127785,
+        "nonzero_count": 400,
+        "sample_count": 400
+      },
+      "h": {
+        "first": 263010.2572013483,
+        "final": 259587.12027150858,
+        "min": 259587.12027150858,
+        "max": 263010.2572013483,
+        "delta": -3423.136929839733,
+        "range": 3423.136929839733,
+        "nonzero_count": 400,
+        "sample_count": 400
+      },
+      "d": {
+        "first": 309.78593241577005,
+        "final": 305.30157372797976,
+        "min": 305.30157372797976,
+        "max": 309.78593241577005,
+        "delta": -4.484358687790291,
+        "range": 4.484358687790291,
+        "nonzero_count": 400,
+        "sample_count": 400
+      },
+      "m": {
+        "first": 5.5761467834838605,
+        "final": 5.495428327103635,
+        "min": 5.495428327103635,
+        "max": 5.5761467834838605,
+        "delta": -0.08071845638022523,
+        "range": 0.08071845638022523,
+        "nonzero_count": 400,
+        "sample_count": 400
+      },
+      "m_l": {
+        "first": 0.0,
+        "final": 0.0,
+        "min": 0.0,
+        "max": 0.0,
+        "delta": 0.0,
+        "range": 0.0,
+        "nonzero_count": 0,
+        "sample_count": 400
+      },
+      "m_v": {
+        "first": 5.5761467834838605,
+        "final": 5.495428327103635,
+        "min": 5.495428327103635,
+        "max": 5.5761467834838605,
+        "delta": -0.08071845638022523,
+        "range": 0.08071845638022523,
+        "nonzero_count": 400,
+        "sample_count": 400
+      },
+      "fill_level": {
+        "first": 0.0,
+        "final": 0.0,
+        "min": 0.0,
+        "max": 0.0,
+        "delta": 0.0,
+        "range": 0.0,
+        "nonzero_count": 0,
+        "sample_count": 400
+      },
+      "s": {
+        "first": 4966.171452162963,
+        "final": 4966.168501179328,
+        "min": 4966.168501179328,
+        "max": 4966.171452162963,
+        "delta": -0.0029509836349461693,
+        "range": 0.0029509836349461693,
+        "nonzero_count": 400,
+        "sample_count": 400
+      }
+    }
+  },
+  "kerosene_tank_500psi": {
+    "component": "kerosene_tank_500psi",
+    "kind": "Tank",
+    "time": {
+      "first": 0.0,
+      "final": 20.0,
+      "sample_count": 400
+    },
+    "fields": {
+      "P": {
+        "first": 3541039.321575402,
+        "final": 3446698.653568863,
+        "min": 3405993.2478125263,
+        "max": 3541039.321575402,
+        "delta": -94340.66800653888,
+        "range": 135046.07376287552,
+        "nonzero_count": 400,
+        "sample_count": 400
+      },
+      "T": {
+        "first": 293.1659681082856,
+        "final": 293.14988401956873,
+        "min": 293.1429399646379,
+        "max": 293.1659681082856,
+        "delta": -0.016084088716866063,
+        "range": 0.02302814364770711,
+        "nonzero_count": 400,
+        "sample_count": 400
+      },
+      "U": {
+        "first": -4897846.115829227,
+        "final": -4897846.115829227,
+        "min": -4897846.115829227,
+        "max": -4897846.115829227,
+        "delta": 0.0,
+        "range": 0.0,
+        "nonzero_count": 400,
+        "sample_count": 400
+      },
+      "h": {
+        "first": -500222.9120148929,
+        "final": -500348.0576867761,
+        "min": -500402.06009801454,
+        "max": -500222.9120148929,
+        "delta": -125.14567188319052,
+        "range": 179.14808312163223,
+        "nonzero_count": 400,
+        "sample_count": 400
+      },
+      "d": {
+        "first": 751.8645411839353,
+        "final": 751.8104299119352,
+        "min": 751.7870706655893,
+        "max": 751.8645411839353,
+        "delta": -0.054111272000113786,
+        "range": 0.07747051834599006,
+        "nonzero_count": 400,
+        "sample_count": 400
+      },
+      "m": {
+        "first": 9.7,
+        "final": 9.7,
+        "min": 9.7,
+        "max": 9.7,
+        "delta": 0.0,
+        "range": 0.0,
+        "nonzero_count": 400,
+        "sample_count": 400
+      },
+      "m_l": {
+        "first": 9.7,
+        "final": 9.7,
+        "min": 9.7,
+        "max": 9.7,
+        "delta": 0.0,
+        "range": 0.0,
+        "nonzero_count": 400,
+        "sample_count": 400
+      },
+      "m_v": {
+        "first": 0.0,
+        "final": 0.0,
+        "min": 0.0,
+        "max": 0.0,
+        "delta": 0.0,
+        "range": 0.0,
+        "nonzero_count": 0,
+        "sample_count": 400
+      },
+      "fill_level": {
+        "first": 0.8063287557694353,
+        "final": 0.8063867909773668,
+        "min": 0.8063287557694353,
+        "max": 0.8064118467257767,
+        "delta": 5.803520793146166e-05,
+        "range": 8.309095634140284e-05,
+        "nonzero_count": 400,
+        "sample_count": 400
+      },
+      "s": {
+        "first": -1302.3904920083116,
+        "final": -1302.3893511180072,
+        "min": -1302.3904920083116,
+        "max": -1302.388868056882,
+        "delta": 0.0011408903044412,
+        "range": 0.0016239514295648405,
+        "nonzero_count": 400,
+        "sample_count": 400
+      }
+    }
+  },
+  "ambient": {
+    "component": "ambient",
+    "kind": "Ambient",
+    "time": {
+      "first": 0.0,
+      "final": 20.0,
+      "sample_count": 400
+    },
+    "fields": {
+      "P": {
+        "first": 101325.00000000001,
+        "final": 101325.00000000001,
+        "min": 101325.00000000001,
+        "max": 101325.00000000001,
+        "delta": 0.0,
+        "range": 0.0,
+        "nonzero_count": 400,
+        "sample_count": 400
+      },
+      "T": {
+        "first": 293.15,
+        "final": 293.15,
+        "min": 293.15,
+        "max": 293.15,
+        "delta": 0.0,
+        "range": 0.0,
+        "nonzero_count": 400,
+        "sample_count": 400
+      },
+      "U": {
+        "first": 335286.11406320863,
+        "final": 335286.11406320863,
+        "min": 335286.11406320863,
+        "max": 335286.11406320863,
+        "delta": 0.0,
+        "range": 0.0,
+        "nonzero_count": 400,
+        "sample_count": 400
+      },
+      "h": {
+        "first": 419402.3979453135,
+        "final": 419402.3979453135,
+        "min": 419402.3979453135,
+        "max": 419402.3979453135,
+        "delta": 0.0,
+        "range": 0.0,
+        "nonzero_count": 400,
+        "sample_count": 400
+      },
+      "d": {
+        "first": 1.2045824580412334,
+        "final": 1.2045824580412334,
+        "min": 1.2045824580412334,
+        "max": 1.2045824580412334,
+        "delta": 0.0,
+        "range": 0.0,
+        "nonzero_count": 400,
+        "sample_count": 400
+      },
+      "m": {
+        "first": 1.0,
+        "final": 1.0,
+        "min": 1.0,
+        "max": 1.0,
+        "delta": 0.0,
+        "range": 0.0,
+        "nonzero_count": 400,
+        "sample_count": 400
+      },
+      "m_l": {
+        "first": 0.0,
+        "final": 0.0,
+        "min": 0.0,
+        "max": 0.0,
+        "delta": 0.0,
+        "range": 0.0,
+        "nonzero_count": 0,
+        "sample_count": 400
+      },
+      "m_v": {
+        "first": 1.0,
+        "final": 1.0,
+        "min": 1.0,
+        "max": 1.0,
+        "delta": 0.0,
+        "range": 0.0,
+        "nonzero_count": 400,
+        "sample_count": 400
+      },
+      "fill_level": {
+        "first": 0.0,
+        "final": 0.0,
+        "min": 0.0,
+        "max": 0.0,
+        "delta": 0.0,
+        "range": 0.0,
+        "nonzero_count": 0,
+        "sample_count": 400
+      },
+      "s": {
+        "first": 3863.4461071371,
+        "final": 3863.4461071371,
+        "min": 3863.4461071371,
+        "max": 3863.4461071371,
+        "delta": 0.0,
+        "range": 0.0,
+        "nonzero_count": 400,
+        "sample_count": 400
+      }
+    }
+  }
+}

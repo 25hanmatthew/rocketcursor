@@ -1,0 +1,32 @@
+{
+  "step_count": 400,
+  "duration": 20.0,
+  "dt": 0.05,
+  "action_count": 0,
+  "action_times": [],
+  "out_of_window_actions": [],
+  "node_count": 3,
+  "connection_count": 2,
+  "warnings": [
+    {
+      "message": "Node 'kerosene_tank_500psi' has nonphysical P values.",
+      "component": "kerosene_tank_500psi",
+      "field": "P"
+    },
+    {
+      "message": "Node 'kerosene_tank_500psi' has nonphysical T values.",
+      "component": "kerosene_tank_500psi",
+      "field": "T"
+    },
+    {
+      "message": "Node 'kerosene_tank_500psi' has nonphysical d values.",
+      "component": "kerosene_tank_500psi",
+      "field": "d"
+    }
+  ],
+  "checks": {
+    "has_node_samples": true,
+    "has_connection_samples": true,
+    "has_nonzero_flow": true
+  }
+}

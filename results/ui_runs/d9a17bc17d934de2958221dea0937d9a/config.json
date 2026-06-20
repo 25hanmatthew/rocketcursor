@@ -1,0 +1,83 @@
+{
+  "version": 1.1,
+  "settings": {
+    "duration": "20",
+    "dt": "0.05"
+  },
+  "nodes": [
+    {
+      "id": 0,
+      "type": "Node",
+      "x": 0.0,
+      "y": -320.0,
+      "params": {
+        "fluid": "Nitrogen",
+        "P": 31026407.819256,
+        "V": 5.0,
+        "T": 293.15,
+        "name": "gn2_supply_4500psi"
+      }
+    },
+    {
+      "id": 1,
+      "type": "Tank",
+      "x": 0.0,
+      "y": 0.0,
+      "params": {
+        "V_total_L": 16.0,
+        "fluid_liq": "n-Dodecane",
+        "m_liq": 9.7,
+        "T_liq": 293.15,
+        "fluid_ullage": "Nitrogen",
+        "P_ullage": 3447378.646584,
+        "T_ullage": 293.15,
+        "radius": 0.1,
+        "htc": 0.0,
+        "name": "kerosene_tank_500psi"
+      }
+    },
+    {
+      "id": 2,
+      "type": "Ambient",
+      "x": 0.0,
+      "y": 320.0,
+      "params": {
+        "fluid": "Air",
+        "P": 101325.0,
+        "T": 293.15,
+        "name": "ambient"
+      }
+    }
+  ],
+  "connections": [
+    {
+      "type": "BangBang",
+      "start_id": 0,
+      "end_id": 1,
+      "params": {
+        "CdA": 1.02e-06,
+        "target_pressure": 3447378.646584,
+        "hysteresis": 34473.78646584,
+        "qdot": 0.0,
+        "location": 1.0,
+        "normal_state": 1,
+        "checking": 1,
+        "name": "gn2_pressurant_regulator"
+      }
+    },
+    {
+      "type": "Connection",
+      "start_id": 1,
+      "end_id": 2,
+      "params": {
+        "CdA": 5e-06,
+        "qdot": 0.0,
+        "location": 0.0,
+        "normal_state": 1,
+        "checking": 1,
+        "name": "ullage_vent_to_atmosphere"
+      }
+    }
+  ],
+  "actions": []
+}
