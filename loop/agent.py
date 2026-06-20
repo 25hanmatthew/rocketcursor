@@ -34,6 +34,7 @@ from loop.session_state import (
     requirements_view,
 )
 from loop.simulator_adapter import run_design
+from loop.tracing import enable_tracing
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 
@@ -166,6 +167,35 @@ Rules:
 - The verdict is produced by Python, not by you. Do not argue with it; satisfy it.
 """
 
+# Engineering-soundness guidance, derived from recurring LLM-as-judge findings
+# (loop/judge.py). Appended to the system prompt to (hypothetically) lift design
+# QUALITY beyond merely passing the numeric checks. Toggleable so we can measure it.
+# NOTE: default OFF. The eval-driven experiment (loop/experiment.py) showed this
+# guidance REGRESSED both pass-rate and judged soundness on our spec suite, so we
+# don't ship it on by default — a worked example of an eval catching a bad change.
+SOUNDNESS_GUIDANCE = """\
+
+Engineering soundness (a reviewer will judge design QUALITY, not just whether the
+checks pass — so get these right):
+- Propellant thermal state: store each liquid at a temperature that is actually
+  liquid at its tank pressure, and above its freezing point. Cryogens (LOX ~90 K,
+  liquid methane ~110 K) are fine but keep them in their liquid range, not subcooled
+  to implausible temperatures.
+- Pressure-fed reality: with no separate pressurant, a tank blows down as it drains.
+  Size tank volume so pressure stays adequate across the burn (or keep the burn short
+  relative to tank volume); don't assume constant pressure from an empty-ing tank.
+- Nozzle expansion ratio: choose Ae/At sensibly for the chamber pressure and ambient.
+  At sea level a very low Ae/At over-expands and a very high one under-expands; pick a
+  ratio that isn't grossly mismatched to Pc.
+- Right-size components: propellant tanks should be commensurate with the burn (don't
+  store orders of magnitude more propellant than the burn consumes); feed orifices
+  should not choke flow far below what the engine throat passes.
+"""
+
+
+def effective_system_prompt(soundness_guidance: bool = True) -> str:
+    return SYSTEM_PROMPT + (SOUNDNESS_GUIDANCE if soundness_guidance else "")
+
 
 def _first_user_message(spec: dict, protect=lambda s: s) -> str:
     return (
@@ -196,14 +226,17 @@ def _verdict_feedback(verdict, result) -> str:
 
 def run_loop(spec_path: str | Path, max_iters: int = 4, use_compression: bool = False,
              store: SessionStore | None = None, session_id: str | None = None,
-             request: str | None = None, max_restarts: int = 2) -> dict:
+             request: str | None = None, max_restarts: int = 2,
+             soundness_guidance: bool = False) -> dict:
     _load_dotenv()
+    enable_tracing()  # Arize AX: auto-traces ASI1/OpenAI calls if ARIZE_* creds are set
+    system_prompt = effective_system_prompt(soundness_guidance)
     spec = json.loads(Path(spec_path).read_text(encoding="utf-8"))
     run_root = REPO_ROOT / "results" / "loop_runs" / spec["name"]
     run_root.mkdir(parents=True, exist_ok=True)
 
     protect = _get_protect(use_compression)
-    session = ToolLoopSession(SYSTEM_PROMPT, SUBMIT_DESIGN_TOOL, tool_name="submit_design")
+    session = ToolLoopSession(system_prompt, SUBMIT_DESIGN_TOOL, tool_name="submit_design")
     _maybe_enable_compression(session, use_compression)
     trace = {"spec": spec["name"], "provider": session.provider, "model": session.model,
              "compression": use_compression, "restarts": 0, "iterations": []}
@@ -272,7 +305,7 @@ def run_loop(spec_path: str | Path, max_iters: int = 4, use_compression: bool = 
             line = []
             state["stage"] = "design"; store.write(state)
             # fresh design line, but tell the model which approaches already failed
-            session = ToolLoopSession(SYSTEM_PROMPT, SUBMIT_DESIGN_TOOL, tool_name="submit_design")
+            session = ToolLoopSession(system_prompt, SUBMIT_DESIGN_TOOL, tool_name="submit_design")
             _maybe_enable_compression(session, use_compression)
             restart_msg = first_msg + "\n\n" + protect(
                 "Your earlier design approaches FAILED — do NOT repeat them; try a "
@@ -295,6 +328,24 @@ def run_loop(spec_path: str | Path, max_iters: int = 4, use_compression: bool = 
         trace["passed"], final_verdict.to_dict() if final_verdict else None,
         final_design, trace["iterations_used"])
     store.write(state)
+
+    # optional LLM-as-judge layer (Arize eval track): scores design *soundness*
+    # beyond the deterministic pass/fail. Opt-in via env LOOP_JUDGE=1 (extra LLM call).
+    if os.environ.get("LOOP_JUDGE") == "1" and final_design is not None:
+        try:
+            from loop.judge import judge_design
+
+            outcome = (f"Deterministic verdict: "
+                       f"{final_verdict.summary if final_verdict else 'n/a'}; passed={trace['passed']} "
+                       f"after {trace['iterations_used']} iteration(s), {trace['restarts']} restart(s).")
+            quality = judge_design(requirements_view(spec), final_design, outcome)
+            trace["quality"] = quality
+            state["quality"] = quality
+            store.write(state)
+            (run_root / "loop_trace.json").write_text(json.dumps(trace, indent=2), encoding="utf-8")
+            print(f"[judge] soundness: {quality['label']} ({quality['score']}) — {quality['explanation'][:120]}")
+        except Exception as exc:  # noqa: BLE001 - eval must never break the run
+            print(f"[judge] skipped ({type(exc).__name__}: {exc})")
 
     print(f"\n{'PASSED' if trace['passed'] else 'DID NOT PASS'} "
           f"after {trace['iterations_used']} iteration(s). Trace: {run_root / 'loop_trace.json'}")

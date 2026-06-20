@@ -287,6 +287,10 @@ def main(argv=None) -> int:
         _run_selftest()
         return 0
 
+    from loop.agent import _load_dotenv
+    from loop.tracing import enable_tracing
+    _load_dotenv()
+    enable_tracing(project_name="rocketcursor-service")
     agent = build_agent()
     print(f"agent address: {agent.address}")
     print(f"mailbox={MAILBOX} port={PORT} compress={COMPRESS} max_iters={MAX_ITERS}")

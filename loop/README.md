@@ -114,6 +114,37 @@ inspector link, then **Connect → Mailbox → Finish** on agentverse.ai. On-cha
 Almanac registration is optional (needs testnet funds); the Almanac **API**
 registration that powers Agentverse discovery is automatic.
 
+## Arize AX — tracing + LLM-as-judge evaluation
+
+Two-layer observability/eval (Arize track):
+
+**1. Tracing (`loop/tracing.py`).** The loop reasons via the OpenAI SDK (ASI1 is
+OpenAI-compatible), so OpenInference's OpenAI instrumentor auto-captures every
+design/spec/revise call — prompt, response, tokens, latency, tool calls — with no
+change to the call sites. Set `ARIZE_SPACE_ID` + `ARIZE_API_KEY` (from your Arize
+space settings) and it turns on automatically; without them it's a clean no-op.
+
+```bash
+pip install arize-otel openinference-instrumentation-openai   # already in requirements
+# add ARIZE_SPACE_ID / ARIZE_API_KEY to .env, then just run the loop — calls are traced
+```
+
+**2. LLM-as-judge (`loop/judge.py`).** A second evaluation layer that complements the
+deterministic verdict: Python checks *"meets spec"*, the judge scores *"is this good
+engineering"* — catching designs that pass every numeric check yet are physically
+questionable (subcooled propellants, an orifice an order of magnitude off, a missing
+pressurization system). Returns `{label: sound|questionable|unsound, score, explanation}`.
+
+```bash
+.venv/bin/python -m loop.judge results/loop_runs/<spec>/loop_trace.json   # judge a run
+LOOP_JUDGE=1 .venv/bin/python -m loop.agent loop/specs/lox_methane_engine.json  # judge inline
+```
+
+The `EVAL_PROMPT` in `judge.py` uses `{requirements}`/`{design}`/`{outcome}`
+placeholders so it can be pasted straight into Arize's Evaluator Hub for online evals
+over traced spans. Improving that prompt (e.g. teaching it the unit conventions) is
+the "use feedback to make the app better" step.
+
 ## Failure classifier (revise vs scrap-and-restart)
 
 On each failed iteration the loop runs a **deterministic** classifier

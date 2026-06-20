@@ -10,12 +10,9 @@ __pycache__/
 
 # Loop run artifacts
 results/loop_runs/
+results/experiments/
 
-# Memory layer (ingest caches & downloaded PDFs)
-memory/pdfs/
-memory/ntrs_sources.json
-memory/ntrs_fields.json
-pdfs/
-
-# Editor
+# Local tooling / agent skills / editor state (not for the shared repo)
+.agents/
 .claude/
+skills-lock.json
