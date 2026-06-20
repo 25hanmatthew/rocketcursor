@@ -300,5 +300,14 @@ class TestClassifier(unittest.TestCase):
         self.assertEqual(classify(line, 2, 2).action, "revise")
 
 
+class TestAgentPrompt(unittest.TestCase):
+    def test_design_prompt_mentions_top_down_coordinates(self):
+        from loop.agent import SYSTEM_PROMPT
+
+        self.assertNotIn("AGENT_JSON_BEST_PRACTICES.md", SYSTEM_PROMPT)
+        self.assertIn("optional x/y coordinates", SYSTEM_PROMPT)
+        self.assertIn("top-down", SYSTEM_PROMPT)
+
+
 if __name__ == "__main__":
     unittest.main()

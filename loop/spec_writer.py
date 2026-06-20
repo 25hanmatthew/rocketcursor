@@ -99,6 +99,10 @@ Rules:
   MPa->Pa (x1e6), psi->Pa (x6894.76), liters stay liters in design guidance.
 - A target "about X" or "between A and B" becomes a WINDOW: two component checks
   (>= low and <= high) on the relevant field's final/min/max as appropriate.
+- Do NOT use "==" for numeric component or diagnostics checks. Exact equality is
+  only appropriate for status strings and booleans. Fixed numeric quantities must
+  be checked with a tolerance window. For atmospheric pressure, use 101325 Pa +/-
+  100 Pa unless the user gives a different tolerance.
 - A fixed start condition becomes a check on stat "first" (e.g. tank starts at 6 MPa
   -> two checks bracketing P.first). A fixed duration becomes diagnostics duration checks.
 - Name every component explicitly, list them in design_guidance.must_include_nodes /

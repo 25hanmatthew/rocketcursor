@@ -1,0 +1,37 @@
+{
+  "session_id": "6ea6ab5765de4d638da40f7f895e39c3",
+  "request": "{\"name\": \"artifact_block\", \"checks\": []}",
+  "provider": "test",
+  "model": "test",
+  "status": "passed",
+  "stage": "report",
+  "requirements": null,
+  "current_iteration": -1,
+  "iterations": [
+    {
+      "iteration": 0,
+      "status": "ok",
+      "verdict": {
+        "passed": true,
+        "summary": "1/1 checks passed",
+        "checks": [
+          {
+            "id": "ran",
+            "description": "ran",
+            "passed": true,
+            "op": "==",
+            "expected": "ok",
+            "actual": "ok",
+            "detail": ""
+          }
+        ]
+      }
+    }
+  ],
+  "passed": true,
+  "iterations_used": 1,
+  "report": null,
+  "error": null,
+  "created_at": 1781998690.0561888,
+  "updated_at": 1781998690.0562038
+}

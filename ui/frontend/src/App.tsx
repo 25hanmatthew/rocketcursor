@@ -5,11 +5,14 @@ import {
   CheckCircle2,
   Circle,
   Cylinder,
+  FileJson,
   Flame,
   Gauge,
+  MessageSquare,
   Pause,
   Play,
   RotateCcw,
+  Send,
   Spline,
   Upload,
   Wind,
@@ -22,10 +25,14 @@ import { interpolateSample, numericValue, rowsByComponent, timeRange } from "./l
 import type {
   DiagramModel,
   DiagramNode,
+  DesignRunStartResponse,
+  DesignRunStatusResponse,
+  LatestPlayableRun,
   NetworkConfig,
   RunReport,
   RunResponse,
   SampleRow,
+  SessionState,
   StatusItem
 } from "./types";
 
@@ -114,6 +121,8 @@ function messageText(item: unknown): string {
 }
 
 type Tone = "ok" | "warn" | "danger" | "idle";
+type InputMode = "chat" | "json";
+type ActivityTone = "done" | "current" | "upcoming" | "danger";
 
 function StatusBadge({ tone, label }: { tone: Tone; label: string }) {
   return (
@@ -124,6 +133,90 @@ function StatusBadge({ tone, label }: { tone: Tone; label: string }) {
   );
 }
 
+function stageLabel(stage: string): string {
+  if (stage === "requirements") return "Understanding request";
+  if (stage === "design") return "Designing";
+  if (stage === "simulate") return "Simulating";
+  if (stage === "evaluate") return "Evaluating";
+  if (stage === "report") return "Reporting";
+  return stage || "Queued";
+}
+
+function currentActivity(state: SessionState | null): string {
+  if (!state) return "";
+  if (state.status === "error") return "Run failed";
+  if (state.status === "passed") return "Design passed";
+  if (state.status === "failed") return "Iteration budget finished";
+  const iteration = state.current_iteration >= 0 ? `iteration ${state.current_iteration + 1}` : "first pass";
+  if (state.stage === "requirements") return "Turning the request into deterministic checks";
+  if (state.stage === "design") return `Designing ${iteration}`;
+  if (state.stage === "simulate") return `Running simulator for ${iteration}`;
+  if (state.stage === "evaluate") return `Checking simulator output for ${iteration}`;
+  return stageLabel(state.stage);
+}
+
+function activitySteps(state: SessionState | null): Array<{ key: string; label: string; detail: string; tone: ActivityTone }> {
+  if (!state) return [];
+  const latest = state.iterations[state.iterations.length - 1];
+  const failed = state.status === "error";
+  const passed = state.status === "passed" || state.passed;
+  const finished = passed || state.status === "failed" || failed;
+  const activeStage = state.stage;
+  const toneFor = (stage: string): ActivityTone => {
+    if (failed && stage === activeStage) return "danger";
+    if (activeStage === stage && !finished) return "current";
+    const order = ["requirements", "design", "simulate", "evaluate", "report"];
+    return order.indexOf(activeStage) > order.indexOf(stage) || finished ? "done" : "upcoming";
+  };
+
+  const steps = [
+    {
+      key: "requirements",
+      label: "Requirements",
+      detail: state.requirements?.name ? `Spec: ${state.requirements.name}` : "Deriving checks",
+      tone: toneFor("requirements")
+    },
+    {
+      key: "design",
+      label: "Designing",
+      detail: state.current_iteration >= 0 ? `Candidate ${state.current_iteration + 1}` : "Waiting for first design",
+      tone: toneFor("design")
+    },
+    {
+      key: "simulate",
+      label: "Simulating",
+      detail: latest?.status ? `Simulator status: ${latest.status}` : "No simulation result yet",
+      tone: toneFor("simulate")
+    },
+    {
+      key: "evaluate",
+      label: "Evaluating",
+      detail: latest?.verdict?.summary ?? "Waiting for verdict",
+      tone: toneFor("evaluate")
+    }
+  ];
+
+  if (latest?.decision && !latest.verdict?.passed) {
+    steps.push({
+      key: "revise",
+      label: latest.decision.action === "scrap" ? "Restarting" : "Revising",
+      detail: latest.decision.reason,
+      tone: state.status === "running" ? "current" : "done"
+    });
+  }
+
+  if (finished) {
+    steps.push({
+      key: "report",
+      label: failed ? "Error" : passed ? "Passed" : "Stopped",
+      detail: state.error || state.report?.headline || "Final report ready",
+      tone: failed ? "danger" : passed ? "done" : "current"
+    });
+  }
+
+  return steps;
+}
+
 function NodeGlyph({ type }: { type: DiagramNode["type"] }) {
   if (type === "Tank") return <Cylinder size={14} />;
   if (type === "Engine") return <Flame size={14} />;
@@ -132,6 +225,12 @@ function NodeGlyph({ type }: { type: DiagramNode["type"] }) {
 }
 
 export default function App() {
+  const [inputMode, setInputMode] = useState<InputMode>("chat");
+  const [chatText, setChatText] = useState("");
+  const [designSessionId, setDesignSessionId] = useState<string | null>(null);
+  const [designState, setDesignState] = useState<SessionState | null>(null);
+  const [latestLoadedDesignKey, setLatestLoadedDesignKey] = useState<string | null>(null);
+  const lastConsoleState = useRef<string>("");
   const [config, setConfig] = useState<NetworkConfig | null>(null);
   const [diagram, setDiagram] = useState<DiagramModel | null>(null);
   const [report, setReport] = useState<RunReport | null>(null);
@@ -152,6 +251,18 @@ export default function App() {
   const connectionSamples = useMemo(() => rowsByComponent(connectionRows), [connectionRows]);
   const range = useMemo(() => timeRange(nodeRows, connectionRows), [nodeRows, connectionRows]);
 
+  function loadRunArtifacts(parsed: NetworkConfig, runReport: RunReport, nodesCsv: string, connectionsCsv: string) {
+    const built = buildDiagram(parsed);
+    setConfig(parsed);
+    setDiagram(built);
+    setReport(runReport);
+    setNodeRows(parseSamplesCsv(nodesCsv));
+    setConnectionRows(parseSamplesCsv(connectionsCsv));
+    setSelectedId(built.nodes[0] ? `node:${built.nodes[0].name}` : null);
+    setTime(0);
+    setPhase(0);
+  }
+
   useEffect(() => {
     if (!playing) return;
     let previous = performance.now();
@@ -171,10 +282,97 @@ export default function App() {
     return () => cancelAnimationFrame(frame);
   }, [playing, range.max, range.min, speed]);
 
+  async function loadDesignIteration(sessionId: string, latest: LatestPlayableRun) {
+    const key = `${sessionId}:${latest.iteration}`;
+    if (latestLoadedDesignKey === key) return;
+    const artifactBase = `/api/design-runs/${sessionId}/artifact/${latest.iteration}`;
+    const [designJson, reportJson, nodesCsv, connectionsCsv] = await Promise.all([
+      fetch(`${artifactBase}/design.json`).then((res) => res.json() as Promise<NetworkConfig>),
+      fetch(`${artifactBase}/report.json`).then((res) => res.json() as Promise<RunReport>),
+      fetch(`${artifactBase}/nodes.csv`).then((res) => res.text()),
+      fetch(`${artifactBase}/connections.csv`).then((res) => res.text())
+    ]);
+    loadRunArtifacts(designJson, reportJson, nodesCsv, connectionsCsv);
+    setLatestLoadedDesignKey(key);
+    console.info(
+      `[design-loop ${sessionId.slice(0, 8)}] loaded iteration ${latest.iteration + 1} artifacts`,
+      { artifacts: latest.artifacts }
+    );
+  }
+
+  async function refreshDesignRun(sessionId: string) {
+    const response = await fetch(`/api/design-runs/${sessionId}`);
+    const payload = (await response.json()) as DesignRunStatusResponse;
+    if (!response.ok || !payload.ok) {
+      throw new Error(payload.message || "Could not load design run");
+    }
+    setDesignState(payload.state);
+    const latest = payload.state.iterations[payload.state.iterations.length - 1];
+    const consoleKey = [
+      payload.state.status,
+      payload.state.stage,
+      payload.state.current_iteration,
+      latest?.status ?? "",
+      latest?.verdict?.summary ?? "",
+      latest?.decision?.action ?? "",
+      payload.latest_playable?.iteration ?? "",
+      payload.state.error ?? ""
+    ].join("|");
+    if (lastConsoleState.current !== consoleKey) {
+      lastConsoleState.current = consoleKey;
+      console.info(`[design-loop ${sessionId.slice(0, 8)}] ${currentActivity(payload.state)}`, {
+        status: payload.state.status,
+        stage: payload.state.stage,
+        current_iteration: payload.state.current_iteration,
+        latest_verdict: latest?.verdict?.summary,
+        decision: latest?.decision,
+        latest_playable: payload.latest_playable,
+        error: payload.state.error
+      });
+    }
+    if (payload.latest_playable) {
+      await loadDesignIteration(sessionId, payload.latest_playable);
+    }
+    return payload.state;
+  }
+
+  useEffect(() => {
+    if (!designSessionId) return;
+    let cancelled = false;
+    let timer = 0;
+
+    const poll = async () => {
+      try {
+        const state = await refreshDesignRun(designSessionId);
+        if (cancelled) return;
+        if (state.status === "running") {
+          timer = window.setTimeout(poll, 2000);
+        } else {
+          setBusy(false);
+        }
+      } catch (exc) {
+        if (!cancelled) {
+          setBusy(false);
+          setError(exc instanceof Error ? exc.message : String(exc));
+        }
+      }
+    };
+
+    void poll();
+    return () => {
+      cancelled = true;
+      window.clearTimeout(timer);
+    };
+  }, [designSessionId, latestLoadedDesignKey]);
+
   async function submitFile(file: File) {
     setBusy(true);
     setError(null);
     setPlaying(false);
+    setDesignSessionId(null);
+    setDesignState(null);
+    setLatestLoadedDesignKey(null);
+    lastConsoleState.current = "";
     try {
       const text = await file.text();
       const parsed = JSON.parse(text) as NetworkConfig;
@@ -192,19 +390,37 @@ export default function App() {
         fetch(`/api/runs/${payload.run_id}/artifact/connections.csv`).then((res) => res.text())
       ]);
 
-      const built = buildDiagram(parsed);
-      setConfig(parsed);
-      setDiagram(built);
-      setReport(payload.report);
-      setNodeRows(parseSamplesCsv(nodesCsv));
-      setConnectionRows(parseSamplesCsv(connectionsCsv));
-      setSelectedId(built.nodes[0] ? `node:${built.nodes[0].name}` : null);
-      setTime(0);
-      setPhase(0);
+      loadRunArtifacts(parsed, payload.report, nodesCsv, connectionsCsv);
     } catch (exc) {
       setError(exc instanceof Error ? exc.message : String(exc));
     } finally {
       setBusy(false);
+    }
+  }
+
+  async function submitChatRequest() {
+    const message = chatText.trim();
+    if (!message) return;
+    setBusy(true);
+    setError(null);
+    setPlaying(false);
+    setDesignState(null);
+    setLatestLoadedDesignKey(null);
+    try {
+      const response = await fetch("/api/design-runs", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message })
+      });
+      const payload = (await response.json()) as DesignRunStartResponse;
+      if (!response.ok || !payload.ok) {
+        throw new Error(payload.message || "Could not start design run");
+      }
+      console.info(`[design-loop ${payload.session_id.slice(0, 8)}] started from chat`, { message });
+      setDesignSessionId(payload.session_id);
+    } catch (exc) {
+      setBusy(false);
+      setError(exc instanceof Error ? exc.message : String(exc));
     }
   }
 
@@ -217,8 +433,28 @@ export default function App() {
     : undefined;
   const selectedFillLevel = selectedNode?.type === "Tank" ? numericValue(selectedSample, "fill_level") : undefined;
 
-  const statusTone: Tone = report?.status?.passed ? "ok" : report ? "warn" : "idle";
-  const statusLabel = report?.status?.passed ? "Nominal" : report ? "Review" : "Idle";
+  const latestIteration = designState?.iterations?.[designState.iterations.length - 1];
+  const latestVerdict = latestIteration?.verdict;
+  const loopActivity = currentActivity(designState);
+  const loopSteps = activitySteps(designState);
+  const statusTone: Tone = designState?.status === "error"
+    ? "danger"
+    : designState?.status === "running"
+    ? "warn"
+    : report?.status?.passed || designState?.passed
+    ? "ok"
+    : report || designState
+    ? "warn"
+    : "idle";
+  const statusLabel = designState?.status === "error"
+    ? "Error"
+    : designState?.status === "running"
+    ? `${designState.stage} ${designState.current_iteration >= 0 ? `#${designState.current_iteration}` : ""}`.trim()
+    : report?.status?.passed || designState?.passed
+    ? "Nominal"
+    : report || designState
+    ? "Review"
+    : "Idle";
   const observations = report?.interpretation?.important_observations ?? [];
   const failures = report?.status?.failures ?? [];
   const warnings = report?.status?.warnings ?? [];
@@ -252,12 +488,99 @@ export default function App() {
             if (file) void submitFile(file);
           }}
         />
-        <button className="primary-action" type="button" onClick={() => fileInput.current?.click()} disabled={busy}>
-          <Upload size={18} />
-          {busy ? "Running simulation..." : "Submit network JSON"}
-        </button>
+        <div className="mode-switch" role="tablist" aria-label="Input mode">
+          <button
+            type="button"
+            className={inputMode === "chat" ? "selected" : ""}
+            onClick={() => setInputMode("chat")}
+          >
+            <MessageSquare size={15} />
+            Chat
+          </button>
+          <button
+            type="button"
+            className={inputMode === "json" ? "selected" : ""}
+            onClick={() => setInputMode("json")}
+          >
+            <FileJson size={15} />
+            JSON
+          </button>
+        </div>
+
+        {inputMode === "chat" ? (
+          <form
+            className="chat-runner"
+            onSubmit={(event) => {
+              event.preventDefault();
+              void submitChatRequest();
+            }}
+          >
+            <textarea
+              value={chatText}
+              onChange={(event) => setChatText(event.target.value)}
+              placeholder="Describe the system to design, or enter a spec name like pressure_window_blowdown."
+              disabled={busy}
+              rows={5}
+            />
+            <button className="primary-action" type="submit" disabled={busy || !chatText.trim()}>
+              <Send size={18} />
+              {busy && designSessionId ? "Loop running..." : "Run design loop"}
+            </button>
+          </form>
+        ) : (
+          <button className="primary-action" type="button" onClick={() => fileInput.current?.click()} disabled={busy}>
+            <Upload size={18} />
+            {busy ? "Running simulation..." : "Submit network JSON"}
+          </button>
+        )}
 
         {error && <pre className="error-box">{error}</pre>}
+
+        {designState && (
+          <div className="loop-card">
+            <div className="status-card-head">
+              <span className="label">Design loop</span>
+              <StatusBadge tone={statusTone} label={statusLabel} />
+            </div>
+            <div className="loop-body">
+              <div className="loop-request">{designState.request}</div>
+              <div className="loop-meta">
+                <span>{loopActivity || `Stage: ${designState.stage}`}</span>
+                <span>Iterations: {designState.iterations.length}</span>
+              </div>
+              <div className="activity-timeline" aria-label="Design loop progress">
+                {loopSteps.map((step) => (
+                  <div key={step.key} className={`activity-step tone-${step.tone}`}>
+                    <span className="activity-dot" />
+                    <div>
+                      <strong>{step.label}</strong>
+                      <span>{step.detail}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              {latestVerdict && (
+                <div className="loop-verdict">
+                  <strong>{latestVerdict.summary}</strong>
+                  <div className="checks-list compact">
+                    {latestVerdict.checks.map((check) => (
+                      <div key={check.id} className={`check-chip ${check.passed ? "tone-ok" : "tone-danger"}`}>
+                        {check.passed ? <CheckCircle2 size={14} /> : <XCircle size={14} />}
+                        <span>
+                          {check.id}: {check.passed ? "passed" : `actual ${formatValue(check.actual)}`}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+              {latestIteration?.decision && !latestVerdict?.passed && (
+                <div className="decision-note">{latestIteration.decision.reason}</div>
+              )}
+              {designState.error && <div className="decision-note tone-danger">{designState.error}</div>}
+            </div>
+          </div>
+        )}
 
         <div className="status-card">
           <div className="status-card-head">
@@ -363,7 +686,7 @@ export default function App() {
             <span>
               {config
                 ? `${config.nodes.length} nodes · ${config.connections.length} connections`
-                : "Submit a JSON config to run the existing simulator."}
+                : "Start a chat design loop or submit a JSON config."}
             </span>
           </div>
           <div className="toolbar-controls">
@@ -521,7 +844,7 @@ export default function App() {
                 <Gauge size={20} />
               </span>
               <div>
-                <strong>Running simulation</strong>
+                <strong>{designSessionId ? "Running design loop" : "Running simulation"}</strong>
                 <span>Generating result artifacts and P&amp;ID playback data.</span>
               </div>
             </div>

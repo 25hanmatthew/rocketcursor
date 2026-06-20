@@ -6,7 +6,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
-import general_fluid_network as gfn
+from simulator import general_fluid_network as gfn
 
 
 class NetworkConfigError(Exception):

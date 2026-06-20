@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
 import { Gauge, Maximize2, Thermometer, Waves, ZoomIn, ZoomOut } from "lucide-react";
 import type { ConnectionType, DiagramConnection, DiagramModel, DiagramNode, SampleRow, SeriesSubconnection } from "../types";
 import { interpolateSample, numericValue } from "../lib/telemetry";
@@ -421,7 +421,7 @@ export function PidCanvas({
     if (diagram) setViewBox(diagram.bounds);
   }, [diagram]);
 
-  function zoomAt(factor: number, clientX?: number, clientY?: number) {
+  const zoomAt = useCallback((factor: number, clientX?: number, clientY?: number) => {
     setViewBox((current) => {
       const rect = svgRef.current?.getBoundingClientRect();
       const pivotX =
@@ -441,7 +441,19 @@ export function PidCanvas({
         height: nextHeight
       };
     });
-  }
+  }, []);
+
+  useEffect(() => {
+    const element = svgRef.current;
+    if (!element) return;
+
+    const handleWheel = (event: WheelEvent) => {
+      zoomAt(event.deltaY < 0 ? 0.9 : 1.1, event.clientX, event.clientY);
+    };
+
+    element.addEventListener("wheel", handleWheel);
+    return () => element.removeEventListener("wheel", handleWheel);
+  }, [zoomAt]);
 
   if (!diagram) {
     return (
@@ -501,10 +513,6 @@ export function PidCanvas({
         className="pid-canvas"
         viewBox={`${viewBox.minX} ${viewBox.minY} ${viewBox.width} ${viewBox.height}`}
         preserveAspectRatio="xMidYMid meet"
-        onWheel={(event) => {
-          event.preventDefault();
-          zoomAt(event.deltaY < 0 ? 0.9 : 1.1, event.clientX, event.clientY);
-        }}
         onPointerDown={(event) => {
           dragRef.current = { x: event.clientX, y: event.clientY };
           event.currentTarget.setPointerCapture(event.pointerId);

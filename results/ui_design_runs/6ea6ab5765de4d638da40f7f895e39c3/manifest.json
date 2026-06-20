@@ -1,0 +1,13 @@
+{
+  "session_id": "6ea6ab5765de4d638da40f7f895e39c3",
+  "request": "{\"name\": \"artifact_block\", \"checks\": []}",
+  "status": "completed",
+  "created_at": 1781998689.9727983,
+  "source": "inline_json",
+  "original_spec_name": "artifact_block",
+  "spec_name": "artifact_block_6ea6ab57",
+  "spec_path": "C:\\Users\\25han\\OneDrive\\Documents\\GitHub\\rocketcursor\\results\\ui_design_runs\\6ea6ab5765de4d638da40f7f895e39c3\\spec.json",
+  "loop_run_root": "C:\\Users\\25han\\OneDrive\\Documents\\GitHub\\rocketcursor\\results\\loop_runs\\artifact_block_6ea6ab57",
+  "started_at": 1781998689.9935567,
+  "completed_at": 1781998690.059341
+}

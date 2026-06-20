@@ -47,6 +47,75 @@ export interface RunResponse {
   stderr?: string;
 }
 
+export interface DesignRunStartResponse {
+  ok: boolean;
+  session_id: string;
+  message?: string;
+}
+
+export interface LatestPlayableRun {
+  iteration: number;
+  artifacts: string[];
+}
+
+export interface SessionCheckResult {
+  id: string;
+  description: string;
+  passed: boolean;
+  op: string;
+  expected: unknown;
+  actual: unknown;
+  detail?: string;
+}
+
+export interface SessionIteration {
+  iteration: number;
+  status?: string;
+  verdict?: {
+    passed: boolean;
+    summary: string;
+    checks: SessionCheckResult[];
+  };
+  decision?: {
+    action: string;
+    reason: string;
+  };
+}
+
+export interface SessionState {
+  session_id: string;
+  request: string;
+  provider: string;
+  model: string;
+  status: "running" | "passed" | "failed" | "error" | string;
+  stage: "requirements" | "design" | "simulate" | "evaluate" | "report" | string;
+  requirements?: {
+    name?: string;
+    description?: string;
+    checks?: Array<Record<string, unknown>>;
+  } | null;
+  current_iteration: number;
+  iterations: SessionIteration[];
+  passed: boolean;
+  iterations_used: number;
+  error?: string | null;
+  report?: {
+    passed: boolean;
+    headline: string;
+    iterations_used: number;
+    unmet_requirements: Array<Record<string, unknown>>;
+    final_design?: NetworkConfig | null;
+  } | null;
+}
+
+export interface DesignRunStatusResponse {
+  ok: boolean;
+  session_id: string;
+  state: SessionState;
+  latest_playable?: LatestPlayableRun | null;
+  message?: string;
+}
+
 export type StatusItem = string | { check?: string; message?: string; [key: string]: unknown };
 
 export interface RunReport {

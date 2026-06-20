@@ -1,0 +1,13 @@
+{
+  "session_id": "67172363c2a2429681cb0562a7ea1d8d",
+  "request": "{\"name\": \"ambient_exact\", \"checks\": [{\"id\": \"ambient_pressure\", \"description\": \"Ambient node must be at atmospheric pressure\", \"type\": \"component\", \"component\": \"ambient\", \"field\": \"P\", \"stat\": \"final\", \"op\": \"==\", \"value\": 101325.0}]}",
+  "status": "completed",
+  "created_at": 1781998690.354157,
+  "source": "inline_json",
+  "original_spec_name": "ambient_exact",
+  "spec_name": "ambient_exact_67172363",
+  "spec_path": "C:\\Users\\25han\\OneDrive\\Documents\\GitHub\\rocketcursor\\results\\ui_design_runs\\67172363c2a2429681cb0562a7ea1d8d\\spec.json",
+  "loop_run_root": "C:\\Users\\25han\\OneDrive\\Documents\\GitHub\\rocketcursor\\results\\loop_runs\\ambient_exact_67172363",
+  "started_at": 1781998690.3672814,
+  "completed_at": 1781998690.424933
+}

@@ -19,7 +19,7 @@ import json
 from pathlib import Path
 from typing import Any
 
-import network_io
+from simulator import network_io
 
 
 def run_design(

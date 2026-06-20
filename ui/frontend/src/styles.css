@@ -254,6 +254,182 @@ select {
   border-radius: var(--r-sm);
 }
 
+/* ---- Input mode / chat runner ---- */
+.mode-switch {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px;
+  padding: 4px;
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  background: var(--surface-inset);
+}
+
+.mode-switch button {
+  min-height: 34px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--sp-2);
+  color: var(--text-2);
+  border: 1px solid transparent;
+  border-radius: var(--r-sm);
+  background: transparent;
+  cursor: pointer;
+}
+
+.mode-switch button.selected {
+  color: var(--text-1);
+  border-color: var(--accent-line);
+  background: var(--accent-soft);
+}
+
+.chat-runner {
+  display: grid;
+  gap: var(--sp-3);
+}
+
+.chat-runner textarea {
+  width: 100%;
+  resize: vertical;
+  min-height: 118px;
+  max-height: 240px;
+  padding: var(--sp-3);
+  color: var(--text-1);
+  background: var(--surface-inset);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--r-md);
+  line-height: 1.45;
+}
+
+.chat-runner textarea::placeholder {
+  color: var(--text-3);
+}
+
+.loop-card {
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  background: linear-gradient(180deg, var(--surface-2), var(--surface-1));
+  overflow: hidden;
+}
+
+.loop-body {
+  display: grid;
+  gap: var(--sp-3);
+  padding: var(--sp-3) var(--sp-4);
+}
+
+.loop-request {
+  color: var(--text-2);
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.loop-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-2);
+  color: var(--text-3);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.activity-timeline {
+  display: grid;
+  gap: var(--sp-2);
+}
+
+.activity-step {
+  display: grid;
+  grid-template-columns: 14px 1fr;
+  gap: var(--sp-2);
+  align-items: start;
+  color: var(--text-3);
+}
+
+.activity-dot {
+  width: 9px;
+  height: 9px;
+  margin-top: 5px;
+  border-radius: 50%;
+  background: var(--idle);
+  box-shadow: 0 0 0 3px var(--idle-soft);
+}
+
+.activity-step div {
+  display: grid;
+  gap: 2px;
+}
+
+.activity-step strong {
+  color: var(--text-2);
+  font-size: 12px;
+}
+
+.activity-step span:not(.activity-dot) {
+  font-size: 11px;
+  line-height: 1.35;
+}
+
+.activity-step.tone-done .activity-dot {
+  background: var(--ok);
+  box-shadow: 0 0 0 3px var(--ok-soft);
+}
+
+.activity-step.tone-done strong {
+  color: var(--text-1);
+}
+
+.activity-step.tone-current .activity-dot {
+  background: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-soft);
+  animation: pulse-dot 1.6s var(--ease) infinite;
+}
+
+.activity-step.tone-current strong {
+  color: var(--accent);
+}
+
+.activity-step.tone-danger .activity-dot {
+  background: var(--danger);
+  box-shadow: 0 0 0 3px var(--danger-soft);
+}
+
+.activity-step.tone-danger strong {
+  color: var(--danger);
+}
+
+.loop-verdict {
+  display: grid;
+  gap: var(--sp-2);
+}
+
+.loop-verdict strong {
+  font-size: 13px;
+}
+
+.checks-list.compact {
+  max-height: 190px;
+  overflow: auto;
+}
+
+.decision-note {
+  padding: var(--sp-2) var(--sp-3);
+  color: var(--text-2);
+  background: var(--surface-inset);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--r-sm);
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.decision-note.tone-danger {
+  color: color-mix(in srgb, var(--danger) 90%, white);
+  border-color: color-mix(in srgb, var(--danger) 35%, transparent);
+  background: var(--danger-soft);
+}
+
 /* ---- Run status dashboard card ---- */
 .status-card {
   border: 1px solid var(--border);

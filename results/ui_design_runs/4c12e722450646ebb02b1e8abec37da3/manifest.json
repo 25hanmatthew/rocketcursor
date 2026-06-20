@@ -1,0 +1,13 @@
+{
+  "session_id": "4c12e722450646ebb02b1e8abec37da3",
+  "request": "vent a small tank",
+  "status": "completed",
+  "created_at": 1781998690.181047,
+  "source": "natural_language",
+  "original_spec_name": "mocked_spec",
+  "spec_name": "mocked_spec_4c12e722",
+  "spec_path": "C:\\Users\\25han\\OneDrive\\Documents\\GitHub\\rocketcursor\\results\\ui_design_runs\\4c12e722450646ebb02b1e8abec37da3\\spec.json",
+  "loop_run_root": "C:\\Users\\25han\\OneDrive\\Documents\\GitHub\\rocketcursor\\results\\loop_runs\\mocked_spec_4c12e722",
+  "started_at": 1781998690.1923547,
+  "completed_at": 1781998690.2511802
+}

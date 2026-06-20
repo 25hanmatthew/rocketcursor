@@ -160,6 +160,7 @@ Engine designs (liquid rocket engines):
 Rules:
 - You MUST call submit_design exactly once per turn with a full design.
 - Use the EXACT component names the requirements ask for (they are checked by name).
+- When adding optional x/y coordinates for the UI, lay the network out top-down.
 - After each simulation you receive a deterministic verdict listing which
   checks passed/failed with the actual measured values. Revise the design to
   fix the failing checks. Pay attention to the `actual` values: they tell you

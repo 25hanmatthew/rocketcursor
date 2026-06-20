@@ -1,0 +1,37 @@
+{
+  "session_id": "5b72e7d836824c998c84fb3b5cf97a57",
+  "request": "{\"name\": \"ambient_exact\", \"checks\": [{\"id\": \"ambient_pressure\", \"description\": \"Ambient node must be at atmospheric pressure\", \"type\": \"component\", \"component\": \"ambient\", \"field\": \"P\", \"stat\": \"final\", \"op\": \"==\", \"value\": 101325.0}]}",
+  "provider": "test",
+  "model": "test",
+  "status": "passed",
+  "stage": "report",
+  "requirements": null,
+  "current_iteration": -1,
+  "iterations": [
+    {
+      "iteration": 0,
+      "status": "ok",
+      "verdict": {
+        "passed": true,
+        "summary": "1/1 checks passed",
+        "checks": [
+          {
+            "id": "ran",
+            "description": "ran",
+            "passed": true,
+            "op": "==",
+            "expected": "ok",
+            "actual": "ok",
+            "detail": ""
+          }
+        ]
+      }
+    }
+  ],
+  "passed": true,
+  "iterations_used": 1,
+  "report": null,
+  "error": null,
+  "created_at": 1781998653.377666,
+  "updated_at": 1781998653.3776762
+}

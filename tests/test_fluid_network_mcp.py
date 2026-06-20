@@ -3,7 +3,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from fluid_network_mcp import (
+from simulator.fluid_network_mcp import (
     get_network_schema,
     read_result,
     run_network,
@@ -22,7 +22,7 @@ class FluidNetworkMcpTests(unittest.TestCase):
 
     def test_validate_network_succeeds_for_tank_vent(self):
         result = validate_network(
-            config_path=str(ROOT / "network_configs/tank_vent_to_atmosphere.json")
+            config_path=str(ROOT / "simulator/network_configs/tank_vent_to_atmosphere.json")
         )
         self.assertTrue(result["ok"], result)
         self.assertEqual(result["component_counts"]["nodes"], 2)
@@ -32,7 +32,7 @@ class FluidNetworkMcpTests(unittest.TestCase):
 
     def test_validate_network_rejects_both_config_sources(self):
         result = validate_network(
-            config_path=str(ROOT / "network_configs/tank_vent_to_atmosphere.json"),
+            config_path=str(ROOT / "simulator/network_configs/tank_vent_to_atmosphere.json"),
             config_json={"version": 1.1},
         )
         self.assertFalse(result["ok"])
@@ -40,7 +40,7 @@ class FluidNetworkMcpTests(unittest.TestCase):
 
     def test_run_network_inline_json_writes_outputs(self):
         data = json.loads(
-            (ROOT / "network_configs/tank_vent_to_atmosphere.json").read_text(
+            (ROOT / "simulator/network_configs/tank_vent_to_atmosphere.json").read_text(
                 encoding="utf-8"
             )
         )

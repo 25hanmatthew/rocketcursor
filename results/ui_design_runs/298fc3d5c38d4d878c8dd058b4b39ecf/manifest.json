@@ -1,0 +1,13 @@
+{
+  "session_id": "298fc3d5c38d4d878c8dd058b4b39ecf",
+  "request": "{\"name\": \"inline_demo\", \"checks\": []}",
+  "status": "completed",
+  "created_at": 1781998690.5280275,
+  "source": "inline_json",
+  "original_spec_name": "inline_demo",
+  "spec_name": "inline_demo_298fc3d5",
+  "spec_path": "C:\\Users\\25han\\OneDrive\\Documents\\GitHub\\rocketcursor\\results\\ui_design_runs\\298fc3d5c38d4d878c8dd058b4b39ecf\\spec.json",
+  "loop_run_root": "C:\\Users\\25han\\OneDrive\\Documents\\GitHub\\rocketcursor\\results\\loop_runs\\inline_demo_298fc3d5",
+  "started_at": 1781998690.5402076,
+  "completed_at": 1781998690.597366
+}

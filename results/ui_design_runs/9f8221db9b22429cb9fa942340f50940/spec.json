@@ -1,0 +1,98 @@
+{
+  "name": "nitrogen_vent_system_9f8221db",
+  "description": "Design a simple gaseous nitrogen venting system consisting of a nitrogen gas source node connected to ambient through a single orifice. The nitrogen node contains gaseous nitrogen at elevated pressure and vents to ambient conditions (approximately 1 atm = 101325 Pa) through the orifice connection. The system demonstrates gas flow from high to low pressure through a flow restriction. FIXED: nitrogen node initial pressure (elevated above ambient), ambient node pressure (~1 atm), orifice as the single flow path. TUNABLE: exact initial nitrogen pressure, orifice size/flow coefficient, venting duration.",
+  "design_guidance": {
+    "must_include_nodes": [
+      "nitrogen_source",
+      "ambient"
+    ],
+    "must_include_connections": [
+      "orifice"
+    ],
+    "fixed_constraints": {
+      "nitrogen_source": {
+        "fluid": "N2",
+        "phase": "gas"
+      },
+      "ambient": {
+        "P": 101325,
+        "fluid": "air"
+      }
+    },
+    "tunable": [
+      "nitrogen_source.P.initial",
+      "orifice.flow_coefficient",
+      "orifice.area"
+    ],
+    "notes": [
+      "Nitrogen source should start at elevated pressure above ambient to drive flow",
+      "Ambient node represents atmospheric conditions at ~1 bar",
+      "Single orifice connection provides the flow restriction",
+      "System should show mass flow from nitrogen_source to ambient"
+    ]
+  },
+  "checks": [
+    {
+      "id": "ran",
+      "description": "Simulation runs successfully without crashing",
+      "type": "status",
+      "op": "==",
+      "value": "ok"
+    },
+    {
+      "id": "flow_happens",
+      "description": "System exhibits non-zero mass flow through the orifice",
+      "type": "sim",
+      "field": "has_nonzero_flow",
+      "op": "==",
+      "value": true
+    },
+    {
+      "id": "physical",
+      "description": "No nonphysical or degenerate warnings during simulation",
+      "type": "no_warnings",
+      "op": "==",
+      "value": true
+    },
+    {
+      "id": "ambient_pressure",
+      "description": "Ambient node pressure is approximately atmospheric (101325 Pa \u00b1 100 Pa)",
+      "type": "component",
+      "component": "ambient",
+      "field": "P",
+      "stat": "final",
+      "op": ">=",
+      "value": 101225
+    },
+    {
+      "id": "ambient_pressure_upper",
+      "description": "Ambient node pressure is approximately atmospheric (101325 Pa \u00b1 100 Pa)",
+      "type": "component",
+      "component": "ambient",
+      "field": "P",
+      "stat": "final",
+      "op": "<=",
+      "value": 101425
+    },
+    {
+      "id": "nitrogen_elevated",
+      "description": "Nitrogen source starts at elevated pressure above ambient",
+      "type": "component",
+      "component": "nitrogen_source",
+      "field": "P",
+      "stat": "first",
+      "op": ">",
+      "value": 101425
+    },
+    {
+      "id": "orifice_flow",
+      "description": "Orifice connection shows mass flow from nitrogen to ambient",
+      "type": "component",
+      "component": "orifice",
+      "field": "mdot",
+      "stat": "nonzero_count",
+      "op": ">",
+      "value": 0
+    }
+  ]
+}

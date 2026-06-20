@@ -1,0 +1,17 @@
+{
+  "session_id": "f12aeb564b8a4651ac029eb09197b007",
+  "request": "design a simple system that has a gaseous nitrogen node venting to the ambient through a single orifice.",
+  "provider": "pending",
+  "model": "pending",
+  "status": "running",
+  "stage": "requirements",
+  "requirements": null,
+  "current_iteration": -1,
+  "iterations": [],
+  "passed": false,
+  "iterations_used": 0,
+  "report": null,
+  "error": null,
+  "created_at": 1781998034.8639388,
+  "updated_at": 1781998034.86395
+}

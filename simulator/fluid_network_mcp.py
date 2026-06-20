@@ -2,7 +2,7 @@ import json
 import uuid
 from pathlib import Path
 
-from network_io import (
+from simulator.network_io import (
     NetworkConfigError,
     export_results,
     load_network_config,
@@ -10,8 +10,9 @@ from network_io import (
 )
 
 
-ROOT = Path(__file__).resolve().parent
-DEFAULT_RUN_ROOT = ROOT / "results" / "mcp_runs"
+PACKAGE_ROOT = Path(__file__).resolve().parent
+PROJECT_ROOT = PACKAGE_ROOT.parent
+DEFAULT_RUN_ROOT = PROJECT_ROOT / "results" / "mcp_runs"
 ALLOWED_RESULT_FILES = {
     "summary.json",
     "diagnostics.json",
@@ -60,7 +61,7 @@ def _resolve_config_source(config_path=None, config_json=None, run_dir=None):
 
 def get_network_schema():
     """Return the JSON schema used by run_network.py and the MCP tools."""
-    schema_path = ROOT / "network_schema.json"
+    schema_path = PACKAGE_ROOT / "network_schema.json"
     return json.loads(schema_path.read_text(encoding="utf-8"))
 
 

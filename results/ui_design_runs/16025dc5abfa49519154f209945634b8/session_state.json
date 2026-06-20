@@ -1,0 +1,573 @@
+{
+  "session_id": "16025dc5abfa49519154f209945634b8",
+  "request": "design a simple system that has a gaseous nitrogen node venting to the ambient through a single orifice.",
+  "provider": "asi1",
+  "model": "asi1",
+  "status": "passed",
+  "stage": "report",
+  "requirements": {
+    "name": "nitrogen_vent_system_16025dc5",
+    "description": "Design a simple gaseous nitrogen venting system consisting of a nitrogen gas source node connected to ambient through a single orifice. The nitrogen node contains gaseous nitrogen at elevated pressure, which vents through the orifice to ambient conditions. The system must achieve steady flow through the orifice. Components: nitrogen_source (gaseous nitrogen tank/node), orifice_vent (orifice connection to ambient), ambient (ambient environment node). FIXED: ambient pressure at 101325 Pa, nitrogen source initial pressure (tunable but must be > ambient to drive flow). TUNABLE: nitrogen source initial pressure, orifice diameter/area, nitrogen source initial temperature.",
+    "design_guidance": {
+      "must_include_nodes": [
+        "nitrogen_source",
+        "ambient"
+      ],
+      "must_include_connections": [
+        "orifice_vent"
+      ],
+      "fixed_constraints": {
+        "ambient_pressure": 101325,
+        "fluid": "nitrogen_gas"
+      },
+      "tunable": [
+        "nitrogen_source_initial_pressure",
+        "orifice_diameter",
+        "nitrogen_source_initial_temperature"
+      ],
+      "notes": [
+        "Nitrogen source must start at pressure above ambient to drive flow through orifice",
+        "Orifice connects nitrogen_source to ambient",
+        "System should reach steady-state venting"
+      ]
+    },
+    "checks": [
+      {
+        "id": "ran",
+        "description": "Simulation runs successfully without crashing",
+        "target": "status",
+        "op": "==",
+        "value": "ok"
+      },
+      {
+        "id": "flow_happens",
+        "description": "Nonzero mass flow occurs through the system",
+        "target": "has_nonzero_flow",
+        "op": "==",
+        "value": true
+      },
+      {
+        "id": "physical",
+        "description": "No nonphysical or degenerate warnings during simulation",
+        "target": "no_warnings",
+        "op": "==",
+        "value": true
+      },
+      {
+        "id": "ambient_pressure_final",
+        "description": "Ambient node pressure remains at atmospheric pressure (101325 Pa +/- 100 Pa)",
+        "target": "ambient.final",
+        "op": ">=",
+        "value": 101225
+      },
+      {
+        "id": "ambient_pressure_final_upper",
+        "description": "Ambient node pressure remains at atmospheric pressure (101325 Pa +/- 100 Pa)",
+        "target": "ambient.final",
+        "op": "<=",
+        "value": 101425
+      },
+      {
+        "id": "nitrogen_source_pressure_above_ambient",
+        "description": "Nitrogen source starts at pressure above ambient to drive venting flow",
+        "target": "nitrogen_source.first",
+        "op": ">",
+        "value": 101425
+      },
+      {
+        "id": "orifice_flow_positive",
+        "description": "Orifice vent has positive mass flow from nitrogen source to ambient",
+        "target": "orifice_vent.min",
+        "op": ">",
+        "value": 0
+      }
+    ]
+  },
+  "current_iteration": 0,
+  "iterations": [
+    {
+      "iteration": 0,
+      "status": "ok",
+      "design": {
+        "settings": {
+          "duration": 10,
+          "dt": 0.01
+        },
+        "nodes": [
+          {
+            "id": 1,
+            "type": "Node",
+            "params": {
+              "fluid": "Nitrogen",
+              "P": 500000,
+              "V": 100,
+              "T": 300,
+              "name": "nitrogen_source",
+              "x": 0,
+              "y": 0
+            }
+          },
+          {
+            "id": 2,
+            "type": "Ambient",
+            "params": {
+              "fluid": "Nitrogen",
+              "P": 101325,
+              "T": 300,
+              "name": "ambient",
+              "x": 0,
+              "y": 1
+            }
+          }
+        ],
+        "connections": [
+          {
+            "type": "Connection",
+            "start_id": 1,
+            "end_id": 2,
+            "params": {
+              "CdA": 0.0001,
+              "name": "orifice_vent",
+              "normal_state": 1,
+              "checking": 1,
+              "location": 0.5
+            }
+          }
+        ]
+      },
+      "components": {
+        "nitrogen_source": {
+          "component": "nitrogen_source",
+          "kind": "Node",
+          "time": {
+            "first": 0.0,
+            "final": 10.0,
+            "sample_count": 1000
+          },
+          "fields": {
+            "P": {
+              "first": 498577.3924991968,
+              "final": 101324.84170187832,
+              "min": 101324.84170187832,
+              "max": 498577.3924991968,
+              "delta": -397252.55079731846,
+              "range": 397252.55079731846,
+              "nonzero_count": 1000,
+              "sample_count": 1000
+            },
+            "T": {
+              "first": 299.75495753525394,
+              "final": 189.85267115218224,
+              "min": 189.85267115218224,
+              "max": 299.75495753525394,
+              "delta": -109.9022863830717,
+              "range": 109.9022863830717,
+              "nonzero_count": 1000,
+              "sample_count": 1000
+            },
+            "U": {
+              "first": 124051.44382560547,
+              "final": 25277.927164115783,
+              "min": 25277.927164115783,
+              "max": 124051.44382560547,
+              "delta": -98773.51666148969,
+              "range": 98773.51666148969,
+              "nonzero_count": 1000,
+              "sample_count": 1000
+            },
+            "h": {
+              "first": 310063.22762974777,
+              "final": 196404.91368407328,
+              "min": 196404.91368407328,
+              "max": 310063.22762974777,
+              "delta": -113658.31394567448,
+              "range": 113658.31394567448,
+              "nonzero_count": 1000,
+              "sample_count": 1000
+            },
+            "d": {
+              "first": 5.608829670159833,
+              "final": 1.8029289934804253,
+              "min": 1.8029289934804253,
+              "max": 5.608829670159833,
+              "delta": -3.805900676679407,
+              "range": 3.805900676679407,
+              "nonzero_count": 1000,
+              "sample_count": 1000
+            },
+            "m": {
+              "first": 0.5608829670159833,
+              "final": 0.18029289934804255,
+              "min": 0.18029289934804255,
+              "max": 0.5608829670159833,
+              "delta": -0.38059006766794073,
+              "range": 0.38059006766794073,
+              "nonzero_count": 1000,
+              "sample_count": 1000
+            },
+            "m_l": {
+              "first": 0.0,
+              "final": 0.0,
+              "min": 0.0,
+              "max": 0.0,
+              "delta": 0.0,
+              "range": 0.0,
+              "nonzero_count": 0,
+              "sample_count": 1000
+            },
+            "m_v": {
+              "first": 0.5608829670159833,
+              "final": 0.18029289934804255,
+              "min": 0.18029289934804255,
+              "max": 0.5608829670159833,
+              "delta": -0.38059006766794073,
+              "range": 0.38059006766794073,
+              "nonzero_count": 1000,
+              "sample_count": 1000
+            },
+            "fill_level": {
+              "first": 0.0,
+              "final": 0.0,
+              "min": 0.0,
+              "max": 0.0,
+              "delta": 0.0,
+              "range": 0.0,
+              "nonzero_count": 0,
+              "sample_count": 1000
+            },
+            "s": {
+              "first": 6365.239026672009,
+              "final": 6364.874241977631,
+              "min": 6364.874241977631,
+              "max": 6365.239026672009,
+              "delta": -0.364784694377704,
+              "range": 0.364784694377704,
+              "nonzero_count": 1000,
+              "sample_count": 1000
+            }
+          }
+        },
+        "ambient": {
+          "component": "ambient",
+          "kind": "Ambient",
+          "time": {
+            "first": 0.0,
+            "final": 10.0,
+            "sample_count": 1000
+          },
+          "fields": {
+            "P": {
+              "first": 101325.00000000004,
+              "final": 101325.00000000004,
+              "min": 101325.00000000004,
+              "max": 101325.00000000004,
+              "delta": 0.0,
+              "range": 0.0,
+              "nonzero_count": 1000,
+              "sample_count": 1000
+            },
+            "T": {
+              "first": 300.0000000000002,
+              "final": 300.0000000000002,
+              "min": 300.0000000000002,
+              "max": 300.0000000000002,
+              "delta": 0.0,
+              "range": 0.0,
+              "nonzero_count": 1000,
+              "sample_count": 1000
+            },
+            "U": {
+              "first": 222168.54322895597,
+              "final": 222168.54322895597,
+              "min": 222168.54322895597,
+              "max": 222168.54322895597,
+              "delta": 0.0,
+              "range": 0.0,
+              "nonzero_count": 1000,
+              "sample_count": 1000
+            },
+            "h": {
+              "first": 311193.4455148776,
+              "final": 311193.4455148776,
+              "min": 311193.4455148776,
+              "max": 311193.4455148776,
+              "delta": 0.0,
+              "range": 0.0,
+              "nonzero_count": 1000,
+              "sample_count": 1000
+            },
+            "d": {
+              "first": 1.1381646864893382,
+              "final": 1.1381646864893382,
+              "min": 1.1381646864893382,
+              "max": 1.1381646864893382,
+              "delta": 0.0,
+              "range": 0.0,
+              "nonzero_count": 1000,
+              "sample_count": 1000
+            },
+            "m": {
+              "first": 1.0,
+              "final": 1.0,
+              "min": 1.0,
+              "max": 1.0,
+              "delta": 0.0,
+              "range": 0.0,
+              "nonzero_count": 1000,
+              "sample_count": 1000
+            },
+            "m_l": {
+              "first": 0.0,
+              "final": 0.0,
+              "min": 0.0,
+              "max": 0.0,
+              "delta": 0.0,
+              "range": 0.0,
+              "nonzero_count": 0,
+              "sample_count": 1000
+            },
+            "m_v": {
+              "first": 1.0,
+              "final": 1.0,
+              "min": 1.0,
+              "max": 1.0,
+              "delta": 0.0,
+              "range": 0.0,
+              "nonzero_count": 1000,
+              "sample_count": 1000
+            },
+            "fill_level": {
+              "first": 0.0,
+              "final": 0.0,
+              "min": 0.0,
+              "max": 0.0,
+              "delta": 0.0,
+              "range": 0.0,
+              "nonzero_count": 0,
+              "sample_count": 1000
+            },
+            "s": {
+              "first": 6841.734375430022,
+              "final": 6841.734375430022,
+              "min": 6841.734375430022,
+              "max": 6841.734375430022,
+              "delta": 0.0,
+              "range": 0.0,
+              "nonzero_count": 1000,
+              "sample_count": 1000
+            }
+          }
+        },
+        "orifice_vent": {
+          "component": "orifice_vent",
+          "kind": "Connection",
+          "time": {
+            "first": 0.0,
+            "final": 10.0,
+            "sample_count": 1000
+          },
+          "fields": {
+            "CdA": {
+              "first": 0.0001,
+              "final": 0.0001,
+              "min": 0.0001,
+              "max": 0.0001,
+              "delta": 0.0,
+              "range": 0.0,
+              "nonzero_count": 1000,
+              "sample_count": 1000
+            },
+            "qdot": {
+              "first": 0.0,
+              "final": 0.0,
+              "min": 0.0,
+              "max": 0.0,
+              "delta": 0.0,
+              "range": 0.0,
+              "nonzero_count": 0,
+              "sample_count": 1000
+            },
+            "state": {
+              "first": 1.0,
+              "final": 1.0,
+              "min": 1.0,
+              "max": 1.0,
+              "delta": 0.0,
+              "range": 0.0,
+              "nonzero_count": 1000,
+              "sample_count": 1000
+            },
+            "mdot": {
+              "first": 0.11365822696708588,
+              "final": 4.1712924212382e-05,
+              "min": 4.1712924212382e-05,
+              "max": 0.11365822696708588,
+              "delta": -0.1136165140428735,
+              "range": 0.1136165140428735,
+              "nonzero_count": 1000,
+              "sample_count": 1000
+            },
+            "Hdot": {
+              "first": 35270.064647400744,
+              "final": 8.192630879673299,
+              "min": 8.192630879673299,
+              "max": 35270.064647400744,
+              "delta": -35261.87201652107,
+              "range": 35261.87201652107,
+              "nonzero_count": 1000,
+              "sample_count": 1000
+            },
+            "dP": {
+              "first": 398675.0,
+              "final": 0.17020139023952652,
+              "min": 0.17020139023952652,
+              "max": 398675.0,
+              "delta": -398674.8297986098,
+              "range": 398674.8297986098,
+              "nonzero_count": 1000,
+              "sample_count": 1000
+            }
+          }
+        }
+      },
+      "node_status": {
+        "nitrogen_source": "green",
+        "ambient": "green",
+        "orifice_vent": "green"
+      },
+      "verdict": {
+        "passed": true,
+        "summary": "7/7 checks passed",
+        "checks": [
+          {
+            "id": "ran",
+            "description": "Simulation runs successfully without crashing",
+            "passed": true,
+            "op": "==",
+            "expected": "ok",
+            "actual": "ok",
+            "detail": ""
+          },
+          {
+            "id": "flow_happens",
+            "description": "Nonzero mass flow occurs through the system",
+            "passed": true,
+            "op": "==",
+            "expected": true,
+            "actual": true,
+            "detail": ""
+          },
+          {
+            "id": "physical",
+            "description": "No nonphysical or degenerate warnings during simulation",
+            "passed": true,
+            "op": "==",
+            "expected": true,
+            "actual": true,
+            "detail": ""
+          },
+          {
+            "id": "ambient_pressure_final",
+            "description": "Ambient node pressure remains at atmospheric pressure (101325 Pa +/- 100 Pa)",
+            "passed": true,
+            "op": ">=",
+            "expected": 101225,
+            "actual": 101325.00000000004,
+            "detail": "ambient.P.final=101325"
+          },
+          {
+            "id": "ambient_pressure_final_upper",
+            "description": "Ambient node pressure remains at atmospheric pressure (101325 Pa +/- 100 Pa)",
+            "passed": true,
+            "op": "<=",
+            "expected": 101425,
+            "actual": 101325.00000000004,
+            "detail": "ambient.P.final=101325"
+          },
+          {
+            "id": "nitrogen_source_pressure_above_ambient",
+            "description": "Nitrogen source starts at pressure above ambient to drive venting flow",
+            "passed": true,
+            "op": ">",
+            "expected": 101425,
+            "actual": 498577.3924991968,
+            "detail": "nitrogen_source.P.first=498577"
+          },
+          {
+            "id": "orifice_flow_positive",
+            "description": "Orifice vent has positive mass flow from nitrogen source to ambient",
+            "passed": true,
+            "op": ">",
+            "expected": 0,
+            "actual": 4.1712924212382e-05,
+            "detail": "orifice_vent.mdot.min=4.17129e-05"
+          }
+        ],
+        "notes": []
+      },
+      "warnings": [],
+      "decision": {
+        "action": "stop",
+        "reason": "all checks passed"
+      }
+    }
+  ],
+  "passed": true,
+  "iterations_used": 1,
+  "report": {
+    "passed": true,
+    "headline": "PASSED in 1 iteration(s).",
+    "iterations_used": 1,
+    "unmet_requirements": [],
+    "final_design": {
+      "settings": {
+        "duration": 10,
+        "dt": 0.01
+      },
+      "nodes": [
+        {
+          "id": 1,
+          "type": "Node",
+          "params": {
+            "fluid": "Nitrogen",
+            "P": 500000,
+            "V": 100,
+            "T": 300,
+            "name": "nitrogen_source",
+            "x": 0,
+            "y": 0
+          }
+        },
+        {
+          "id": 2,
+          "type": "Ambient",
+          "params": {
+            "fluid": "Nitrogen",
+            "P": 101325,
+            "T": 300,
+            "name": "ambient",
+            "x": 0,
+            "y": 1
+          }
+        }
+      ],
+      "connections": [
+        {
+          "type": "Connection",
+          "start_id": 1,
+          "end_id": 2,
+          "params": {
+            "CdA": 0.0001,
+            "name": "orifice_vent",
+            "normal_state": 1,
+            "checking": 1,
+            "location": 0.5
+          }
+        }
+      ]
+    }
+  },
+  "error": null,
+  "created_at": 1781997899.9597542,
+  "updated_at": 1781997904.506412
+}

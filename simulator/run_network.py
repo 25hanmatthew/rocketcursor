@@ -3,7 +3,7 @@ import json
 import sys
 from pathlib import Path
 
-from network_io import (
+from simulator.network_io import (
     NetworkConfigError,
     export_results,
     load_network_config,

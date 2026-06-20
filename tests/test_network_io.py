@@ -8,8 +8,8 @@ from pathlib import Path
 
 warnings.simplefilter("ignore", ResourceWarning)
 
-import general_fluid_network as gfn
-from network_io import NetworkConfigError, load_network_config
+from simulator import general_fluid_network as gfn
+from simulator.network_io import NetworkConfigError, load_network_config
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -17,11 +17,11 @@ ROOT = Path(__file__).resolve().parents[1]
 class NetworkIoTests(unittest.TestCase):
     def test_load_known_good_configs(self):
         cases = [
-            ("network_configs/impulse_ep.json", 2, 1, 0),
-            ("network_configs/pressure_ladder_from_py.json", 4, 4, 22),
-            ("network_configs/vehicle_sim.json", 4, 4, 40),
-            ("network_configs/tank_sizing_sims.json", 4, 4, 72),
-            ("network_configs/test_1.json", 3, 2, 0),
+            ("simulator/network_configs/impulse_ep.json", 2, 1, 0),
+            ("simulator/network_configs/pressure_ladder_from_py.json", 4, 4, 22),
+            ("simulator/network_configs/vehicle_sim.json", 4, 4, 40),
+            ("simulator/network_configs/tank_sizing_sims.json", 4, 4, 72),
+            ("simulator/network_configs/test_1.json", 3, 2, 0),
         ]
         for rel_path, node_count, conn_count, action_count in cases:
             with self.subTest(rel_path=rel_path):
@@ -31,7 +31,7 @@ class NetworkIoTests(unittest.TestCase):
                 self.assertEqual(sum(len(v) for v in loaded.actions.values()), action_count)
 
     def test_stale_gui_params_do_not_break_construction(self):
-        data = json.loads((ROOT / "network_configs/impulse_ep.json").read_text(encoding="utf-8"))
+        data = json.loads((ROOT / "simulator/network_configs/impulse_ep.json").read_text(encoding="utf-8"))
         data["connections"][0]["type"] = "ThrottleValve"
         data["connections"][0]["params"] = {
             "CdA_max": 1e-6,
@@ -51,7 +51,7 @@ class NetworkIoTests(unittest.TestCase):
         self.assertEqual(len(loaded.connections), 1)
 
     def test_pvt_node_loads_and_computes_mass(self):
-        loaded = load_network_config(ROOT / "network_configs/tank_vent_to_atmosphere.json")
+        loaded = load_network_config(ROOT / "simulator/network_configs/tank_vent_to_atmosphere.json")
         tank = loaded.nodes[0]
         params = loaded.data["nodes"][0]["params"]
         rho = gfn.PropsSI_auto(
@@ -66,7 +66,7 @@ class NetworkIoTests(unittest.TestCase):
         self.assertAlmostEqual(tank.m, expected_mass, places=8)
 
     def test_legacy_mvt_node_still_loads(self):
-        data = json.loads((ROOT / "network_configs/impulse_ep.json").read_text(encoding="utf-8"))
+        data = json.loads((ROOT / "simulator/network_configs/impulse_ep.json").read_text(encoding="utf-8"))
         with tempfile.TemporaryDirectory() as tmp:
             path = Path(tmp) / "legacy.json"
             path.write_text(json.dumps(data), encoding="utf-8")
@@ -74,7 +74,7 @@ class NetworkIoTests(unittest.TestCase):
         self.assertGreater(loaded.nodes[1].m, 0)
 
     def test_pvt_wins_over_legacy_mass_and_warns(self):
-        data = json.loads((ROOT / "network_configs/tank_vent_to_atmosphere.json").read_text(encoding="utf-8"))
+        data = json.loads((ROOT / "simulator/network_configs/tank_vent_to_atmosphere.json").read_text(encoding="utf-8"))
         data["nodes"][0]["params"]["m"] = 999.0
         with tempfile.TemporaryDirectory() as tmp:
             path = Path(tmp) / "conflict.json"
@@ -84,7 +84,7 @@ class NetworkIoTests(unittest.TestCase):
         self.assertTrue(any("ignoring m" in warning for warning in loaded.warnings))
 
     def test_missing_endpoint_fails_validation(self):
-        data = json.loads((ROOT / "network_configs/impulse_ep.json").read_text(encoding="utf-8"))
+        data = json.loads((ROOT / "simulator/network_configs/impulse_ep.json").read_text(encoding="utf-8"))
         data["connections"][0]["end_id"] = 999
         with tempfile.TemporaryDirectory() as tmp:
             path = Path(tmp) / "bad.json"
@@ -94,7 +94,7 @@ class NetworkIoTests(unittest.TestCase):
         self.assertIn("$.connections[0].end_id", str(ctx.exception))
 
     def test_unknown_component_type_fails_validation(self):
-        data = json.loads((ROOT / "network_configs/impulse_ep.json").read_text(encoding="utf-8"))
+        data = json.loads((ROOT / "simulator/network_configs/impulse_ep.json").read_text(encoding="utf-8"))
         data["connections"][0]["type"] = "MadeUpValve"
         with tempfile.TemporaryDirectory() as tmp:
             path = Path(tmp) / "bad.json"
@@ -104,7 +104,7 @@ class NetworkIoTests(unittest.TestCase):
         self.assertIn("unsupported connection type", str(ctx.exception))
 
     def test_unknown_action_target_fails_validation(self):
-        data = json.loads((ROOT / "network_configs/impulse_ep.json").read_text(encoding="utf-8"))
+        data = json.loads((ROOT / "simulator/network_configs/impulse_ep.json").read_text(encoding="utf-8"))
         data["actions"] = [{"time": "0.1", "component": "missing", "state": "1"}]
         with tempfile.TemporaryDirectory() as tmp:
             path = Path(tmp) / "bad.json"
@@ -114,7 +114,7 @@ class NetworkIoTests(unittest.TestCase):
         self.assertIn("unknown action target", str(ctx.exception))
 
     def test_node_missing_p_and_m_fails_validation(self):
-        data = json.loads((ROOT / "network_configs/tank_vent_to_atmosphere.json").read_text(encoding="utf-8"))
+        data = json.loads((ROOT / "simulator/network_configs/tank_vent_to_atmosphere.json").read_text(encoding="utf-8"))
         del data["nodes"][0]["params"]["P"]
         with tempfile.TemporaryDirectory() as tmp:
             path = Path(tmp) / "bad.json"
@@ -124,7 +124,7 @@ class NetworkIoTests(unittest.TestCase):
         self.assertIn("Node requires preferred P/V/T/fluid", str(ctx.exception))
 
     def test_node_non_numeric_pvt_fails_validation(self):
-        data = json.loads((ROOT / "network_configs/tank_vent_to_atmosphere.json").read_text(encoding="utf-8"))
+        data = json.loads((ROOT / "simulator/network_configs/tank_vent_to_atmosphere.json").read_text(encoding="utf-8"))
         data["nodes"][0]["params"]["P"] = "high"
         with tempfile.TemporaryDirectory() as tmp:
             path = Path(tmp) / "bad.json"
@@ -134,7 +134,7 @@ class NetworkIoTests(unittest.TestCase):
         self.assertIn("$.nodes[0].params.P: expected a number", str(ctx.exception))
 
     def test_invalid_engine_wiring_fails_validation(self):
-        data = json.loads((ROOT / "network_configs/vehicle_sim.json").read_text(encoding="utf-8"))
+        data = json.loads((ROOT / "simulator/network_configs/vehicle_sim.json").read_text(encoding="utf-8"))
         data["connections"] = data["connections"][:3]
         with tempfile.TemporaryDirectory() as tmp:
             path = Path(tmp) / "bad.json"
@@ -147,8 +147,9 @@ class NetworkIoTests(unittest.TestCase):
         result = subprocess.run(
             [
                 sys.executable,
-                str(ROOT / "run_network.py"),
-                str(ROOT / "network_configs/impulse_ep.json"),
+                "-m",
+                "simulator.run_network",
+                str(ROOT / "simulator/network_configs/impulse_ep.json"),
                 "--validate-only",
             ],
             cwd=ROOT,
@@ -166,8 +167,9 @@ class NetworkIoTests(unittest.TestCase):
             result = subprocess.run(
                 [
                     sys.executable,
-                    str(ROOT / "run_network.py"),
-                    str(ROOT / "network_configs/tank_vent_to_atmosphere.json"),
+                    "-m",
+                    "simulator.run_network",
+                    str(ROOT / "simulator/network_configs/tank_vent_to_atmosphere.json"),
                     "--duration",
                     "0.2",
                     "--dt",

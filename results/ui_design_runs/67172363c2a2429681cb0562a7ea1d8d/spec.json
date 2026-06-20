@@ -1,0 +1,25 @@
+{
+  "name": "ambient_exact_67172363",
+  "checks": [
+    {
+      "type": "component",
+      "component": "ambient",
+      "field": "P",
+      "stat": "final",
+      "id": "ambient_pressure_min",
+      "description": "Ambient node must be at atmospheric pressure (within +/- 100 Pa lower bound)",
+      "op": ">=",
+      "value": 101225.0
+    },
+    {
+      "type": "component",
+      "component": "ambient",
+      "field": "P",
+      "stat": "final",
+      "id": "ambient_pressure_max",
+      "description": "Ambient node must be at atmospheric pressure (within +/- 100 Pa upper bound)",
+      "op": "<=",
+      "value": 101425.0
+    }
+  ]
+}

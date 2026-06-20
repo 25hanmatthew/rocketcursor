@@ -1,0 +1,103 @@
+{
+  "name": "gn2_vent_orifice_1c11a3d2",
+  "description": "Design a simple fluid network consisting of a gaseous nitrogen source node venting to ambient conditions through a single orifice connection. The nitrogen node contains gaseous nitrogen at elevated pressure, and the orifice provides flow resistance as the gas vents to ambient pressure. The orifice connection handles the mass flow from the nitrogen node to ambient. FIXED: nitrogen node initial pressure (user should specify, typically 1-10 MPa range), ambient pressure (101325 Pa), orifice diameter (user should specify). TUNABLE: orifice diameter, initial nitrogen pressure, venting duration.",
+  "design_guidance": {
+    "must_include_nodes": [
+      "nitrogen",
+      "ambient"
+    ],
+    "must_include_connections": [
+      "orifice"
+    ],
+    "fixed_constraints": {
+      "ambient_pressure": 101325,
+      "nitrogen_fluid": "gaseous nitrogen"
+    },
+    "tunable": [
+      "orifice_diameter",
+      "nitrogen_initial_pressure",
+      "simulation_duration"
+    ],
+    "notes": [
+      "The nitrogen node should start at elevated pressure (e.g., 1-10 MPa)",
+      "The ambient node represents atmospheric conditions at 101325 Pa",
+      "The orifice connection provides flow resistance between nitrogen and ambient",
+      "Mass flows from nitrogen node through orifice to ambient",
+      "Simulation should run until pressure equalizes or for a specified duration"
+    ]
+  },
+  "checks": [
+    {
+      "id": "ran",
+      "description": "Simulation runs successfully without crashing",
+      "type": "status",
+      "op": "==",
+      "value": "ok"
+    },
+    {
+      "id": "flow_happens",
+      "description": "Nonzero mass flow occurs through the orifice",
+      "type": "sim",
+      "field": "has_nonzero_flow",
+      "op": "==",
+      "value": true
+    },
+    {
+      "id": "physical",
+      "description": "No nonphysical or degenerate warnings during simulation",
+      "type": "no_warnings",
+      "op": "==",
+      "value": true
+    },
+    {
+      "id": "ambient_pressure_final",
+      "description": "Ambient node pressure remains at atmospheric pressure (101325 Pa +/- 100 Pa)",
+      "type": "component",
+      "component": "ambient",
+      "field": "P",
+      "stat": "final",
+      "op": ">=",
+      "value": 101225.0
+    },
+    {
+      "id": "ambient_pressure_final_upper",
+      "description": "Ambient node pressure remains at atmospheric pressure (101325 Pa +/- 100 Pa)",
+      "type": "component",
+      "component": "ambient",
+      "field": "P",
+      "stat": "final",
+      "op": "<=",
+      "value": 101425.0
+    },
+    {
+      "id": "orifice_flow_positive",
+      "description": "Orifice mass flow is positive (flowing from nitrogen to ambient)",
+      "type": "component",
+      "component": "orifice",
+      "field": "mdot",
+      "stat": "min",
+      "op": ">=",
+      "value": 0.0
+    },
+    {
+      "id": "nitrogen_pressure_decreases",
+      "description": "Nitrogen node pressure decreases during venting",
+      "type": "component",
+      "component": "nitrogen",
+      "field": "P",
+      "stat": "delta",
+      "op": "<",
+      "value": 0.0
+    },
+    {
+      "id": "nitrogen_pressure_positive",
+      "description": "Nitrogen node pressure remains positive throughout simulation",
+      "type": "component",
+      "component": "nitrogen",
+      "field": "P",
+      "stat": "min",
+      "op": ">",
+      "value": 0.0
+    }
+  ]
+}

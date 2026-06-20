@@ -2,7 +2,7 @@
 
 Transient fluid-network simulation tools for feed systems, tanks, pressurization systems, valves, regulators, pipes, and simple rocket-engine performance coupling.
 
-The core solver lives in `general_fluid_network.py`. Networks can be built directly in Python or run from JSON configs with `run_network.py`.
+The core solver lives in `simulator/general_fluid_network.py`. Networks can be built directly in Python or run from JSON configs with `python -m simulator.run_network`.
 
 ## What This Code Does
 
@@ -16,12 +16,12 @@ The core solver lives in `general_fluid_network.py`. Networks can be built direc
 ## Repository Layout
 
 ```text
-general_fluid_network.py        Core node, connection, tank, engine, network, and plotting classes
-network_io.py                   JSON loader, validator, runner, and result exporter
-run_network.py                  Command-line JSON simulation runner
-fluid_network_mcp.py            MCP server exposing the solver as structured agent tools
-network_schema.json             JSON format reference for agents and tools
-network_configs/                JSON network configurations
+simulator/general_fluid_network.py        Core node, connection, tank, engine, network, and plotting classes
+simulator/network_io.py                   JSON loader, validator, runner, and result exporter
+simulator/run_network.py                  Command-line JSON simulation runner
+simulator/fluid_network_mcp.py            MCP server exposing the solver as structured agent tools
+simulator/network_schema.json             JSON format reference for agents and tools
+simulator/network_configs/                JSON network configurations
 tests/                          Loader, validator, CLI, and export tests
 requirements.txt                Python package pins for the solver stack
 ```
@@ -50,13 +50,13 @@ If `rocketcea` or `ctREFPROP` installation fails, install the solver dependencie
 Validate the tank vent example:
 
 ```powershell
-python run_network.py network_configs\tank_vent_to_atmosphere.json --validate-only
+python -m simulator.run_network simulator\network_configs\tank_vent_to_atmosphere.json --validate-only
 ```
 
 Run it and export CSV, JSON, and PNG plots:
 
 ```powershell
-python run_network.py network_configs\tank_vent_to_atmosphere.json --plots --out results\tank_vent_to_atmosphere
+python -m simulator.run_network simulator\network_configs\tank_vent_to_atmosphere.json --plots --out results\tank_vent_to_atmosphere
 ```
 
 Open the plots on Windows:
@@ -70,12 +70,12 @@ Verify the project after copying or changing support files:
 
 ```powershell
 python -m unittest tests.test_network_io tests.test_fluid_network_mcp
-python run_network.py network_configs\tank_vent_to_atmosphere.json --validate-only
+python -m simulator.run_network simulator\network_configs\tank_vent_to_atmosphere.json --validate-only
 ```
 
 ## Local P&ID Run Viewer
 
-The optional UI lives under `ui/` and keeps the simulator pipeline unchanged. The backend shells out to `run_network.py`, writes runs under `results/ui_runs/<run_id>/`, and the frontend renders the submitted JSON as a generated 2D P&ID with animated flow from `nodes.csv` and `connections.csv`.
+The optional UI lives under `ui/` and keeps the simulator pipeline unchanged. The backend shells out to `python -m simulator.run_network`, writes runs under `results/ui_runs/<run_id>/`, and the frontend renders the submitted JSON as a generated 2D P&ID with animated flow from `nodes.csv` and `connections.csv`.
 
 Install the Python requirements, then start the API:
 
@@ -92,7 +92,7 @@ npm install
 npm run dev
 ```
 
-Open the Vite URL, submit a network JSON such as `network_configs\tank_vent_to_atmosphere.json`, and use the timeline to inspect flow playback.
+Open the Vite URL, submit a network JSON such as `simulator\network_configs\tank_vent_to_atmosphere.json`, and use the timeline to inspect flow playback.
 
 ## Agent Usage
 
@@ -101,7 +101,7 @@ Agents should prefer JSON configs plus machine-readable outputs. Use `report.jso
 For formal agent access, run the MCP server from the repository root:
 
 ```powershell
-python fluid_network_mcp.py
+python -m simulator.fluid_network_mcp
 ```
 
 It exposes these tools:
@@ -113,8 +113,8 @@ It exposes these tools:
 
 Recommended agent workflow:
 
-1. Read `network_schema.json` or call `get_network_schema()` before generating a new config.
-2. Validate before running: `validate_network(...)` or `python run_network.py <config> --validate-only`.
+1. Read `simulator/network_schema.json` or call `get_network_schema()` before generating a new config.
+2. Validate before running: `validate_network(...)` or `python -m simulator.run_network <config> --validate-only`.
 3. Run into an explicit output directory so later steps have stable paths.
 4. Inspect `report.json` first for status, failures, warnings, component roles, key stats, derived stats, interpretation, and artifact paths.
 5. Read `diagnostics.json`, `summary.json`, or CSV files only when detailed follow-up is needed.
@@ -125,25 +125,25 @@ For shell-based agents and debugging, use the JSON runner.
 Validate a config:
 
 ```powershell
-python run_network.py network_configs\tank_vent_to_atmosphere.json --validate-only
+python -m simulator.run_network simulator\network_configs\tank_vent_to_atmosphere.json --validate-only
 ```
 
 Run a config and export machine-readable results:
 
 ```powershell
-python run_network.py network_configs\tank_vent_to_atmosphere.json --out results\tank_vent_to_atmosphere
+python -m simulator.run_network simulator\network_configs\tank_vent_to_atmosphere.json --out results\tank_vent_to_atmosphere
 ```
 
 Run a config and also save plots:
 
 ```powershell
-python run_network.py network_configs\tank_vent_to_atmosphere.json --plots --out results\tank_vent_to_atmosphere
+python -m simulator.run_network simulator\network_configs\tank_vent_to_atmosphere.json --plots --out results\tank_vent_to_atmosphere
 ```
 
 Override the JSON runtime settings:
 
 ```powershell
-python run_network.py network_configs\tank_vent_to_atmosphere.json --duration 5 --dt 0.1 --out results\tank_vent_short
+python -m simulator.run_network simulator\network_configs\tank_vent_to_atmosphere.json --duration 5 --dt 0.1 --out results\tank_vent_short
 ```
 
 The runner writes:
@@ -168,7 +168,7 @@ The runner writes:
 - `interpretation`: deterministic summary, outcome, important observations, and recommended next actions.
 - `artifacts`: paths to the lower-level CSV, JSON, plot, and report files.
 
-The JSON format is documented in `network_schema.json`. Existing GUI-style JSON files remain supported by the loader.
+The JSON format is documented in `simulator/network_schema.json`. Existing GUI-style JSON files remain supported by the loader.
 
 For JSON `Node` configs, prefer pressure/volume/temperature:
 
@@ -198,7 +198,7 @@ python -m unittest tests.test_network_io tests.test_fluid_network_mcp
 Minimal Python example:
 
 ```python
-from general_fluid_network import Node, Ambient, Connection, Network, PropsSI_auto
+from simulator.general_fluid_network import Node, Ambient, Connection, Network, PropsSI_auto
 
 V_liters = 10.0
 rho = PropsSI_auto("D", "P", 5000000.0, "T", 293.15, "Nitrogen")
@@ -244,4 +244,4 @@ Use SI units unless a script explicitly converts for plotting or convenience.
 
 - REFPROP is optional. If REFPROP or `ctREFPROP` is unavailable, the solver falls back to CoolProp.
 - `rocketcea` is required only when instantiating `Engine` nodes.
-- For formal agent workflows, use `fluid_network_mcp.py`; for shell workflows, use JSON configs plus `run_network.py`.
+- For formal agent workflows, use `python -m simulator.fluid_network_mcp`; for shell workflows, use JSON configs plus `python -m simulator.run_network`.

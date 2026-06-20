@@ -33,7 +33,7 @@ verdict  --> Claude revises --> repeat
 | File | Role |
 |---|---|
 | `specs/*.json` | Requirements specs: machine-checkable `checks` + design guidance for the agent |
-| `simulator_adapter.py` | Wraps `network_io`; returns one structured result, classifying `invalid_config` / `crashed` / `ok` |
+| `simulator_adapter.py` | Wraps `simulator.network_io`; returns one structured result, classifying `invalid_config` / `crashed` / `ok` |
 | `evaluator.py` | Deterministic requirements → verdict. **No LLM.** The heart of P2 |
 | `agent.py` | Orchestrates the loop: Claude (design) → adapter → evaluator → revise |
 | `selftest.py` | Offline check of adapter + evaluator (no API key) |
