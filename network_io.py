@@ -667,6 +667,471 @@ def _build_diagnostics(loaded, node_summaries, connection_summaries):
     }
 
 
+REPORT_NODE_FIELDS = ("P", "T", "m", "d", "fill_level")
+REPORT_CONNECTION_FIELDS = ("mdot", "dP", "Hdot", "qdot", "CdA", "state")
+REPORT_REQUIRED_CHECKS = (
+    "has_node_samples",
+    "has_connection_samples",
+    "has_nonzero_flow",
+)
+REPORT_FIELD_METADATA = {
+    "P": {"label": "pressure", "unit": "Pa"},
+    "T": {"label": "temperature", "unit": "K"},
+    "m": {"label": "mass", "unit": "kg"},
+    "d": {"label": "density", "unit": "kg/m^3"},
+    "fill_level": {"label": "fill level", "unit": "fraction"},
+    "mdot": {"label": "mass flow", "unit": "kg/s"},
+    "dP": {"label": "pressure drop", "unit": "Pa"},
+    "Hdot": {"label": "enthalpy flow", "unit": "J/s"},
+    "qdot": {"label": "heat flow", "unit": "J/s"},
+    "CdA": {"label": "effective flow area", "unit": "m^2"},
+    "state": {"label": "valve/component state", "unit": "dimensionless"},
+}
+
+
+def _report_failures(diagnostics):
+    checks = diagnostics.get("checks", {})
+    failures = []
+    if not checks.get("has_node_samples", False):
+        failures.append(
+            {
+                "check": "has_node_samples",
+                "message": "No node history samples were exported.",
+            }
+        )
+    if not checks.get("has_connection_samples", False):
+        failures.append(
+            {
+                "check": "has_connection_samples",
+                "message": "No connection history samples were exported.",
+            }
+        )
+    if not checks.get("has_nonzero_flow", False):
+        failures.append(
+            {
+                "check": "has_nonzero_flow",
+                "message": "No nonzero mass-flow samples were detected.",
+            }
+        )
+    return failures
+
+
+def _key_stats(component_summaries, field_names):
+    stats = {}
+    for name, summary in component_summaries.items():
+        fields = {}
+        for field, field_summary in summary["fields"].items():
+            if field not in field_names:
+                continue
+            enriched = dict(field_summary)
+            enriched.update(REPORT_FIELD_METADATA.get(field, {}))
+            fields[field] = enriched
+        stats[name] = {
+            "component": summary["component"],
+            "kind": summary["kind"],
+            "time": summary["time"],
+            "fields": fields,
+        }
+    return stats
+
+
+def _infer_component_role(name, kind, category):
+    lower_name = name.lower()
+    if kind == "Ambient":
+        return "boundary"
+    if "tank" in lower_name:
+        return "tank"
+    if "engine" in lower_name:
+        return "engine"
+    if "vent" in lower_name:
+        return "vent"
+    if "valve" in lower_name:
+        return "valve"
+    if "regulator" in lower_name:
+        return "regulator"
+    return category
+
+
+def _component_inventory(node_summaries, connection_summaries):
+    components = {}
+    for name, summary in node_summaries.items():
+        components[name] = {
+            "kind": summary["kind"],
+            "role": _infer_component_role(name, summary["kind"], "node"),
+            "category": "node",
+            "sample_count": summary["time"].get("sample_count", 0),
+        }
+    for name, summary in connection_summaries.items():
+        components[name] = {
+            "kind": summary["kind"],
+            "role": _infer_component_role(name, summary["kind"], "connection"),
+            "category": "connection",
+            "sample_count": summary["time"].get("sample_count", 0),
+        }
+    return components
+
+
+def _percent_change(first, delta):
+    if first is None or abs(first) <= 1e-12:
+        return None
+    return (delta / first) * 100.0
+
+
+def _derived_node_stats(node_summaries):
+    derived = {}
+    for name, summary in node_summaries.items():
+        fields = summary["fields"]
+        stats = {"kind": summary["kind"]}
+        pressure = fields.get("P")
+        if pressure:
+            pressure_delta = pressure["delta"]
+            pressure_drop = pressure["first"] - pressure["final"]
+            stats.update(
+                {
+                    "initial_pressure_pa": pressure["first"],
+                    "final_pressure_pa": pressure["final"],
+                    "pressure_change_pa": pressure_delta,
+                    "pressure_change_percent": _percent_change(
+                        pressure["first"], pressure_delta
+                    ),
+                    "pressure_drop_pa": pressure_drop,
+                    "pressure_drop_percent": _percent_change(
+                        pressure["first"], pressure_drop
+                    ),
+                }
+            )
+        mass = fields.get("m")
+        if mass:
+            mass_delta = mass["delta"]
+            stats.update(
+                {
+                    "initial_mass_kg": mass["first"],
+                    "final_mass_kg": mass["final"],
+                    "mass_change_kg": mass_delta,
+                    "mass_change_percent": _percent_change(mass["first"], mass_delta),
+                    "mass_lost_kg": mass["first"] - mass["final"],
+                }
+            )
+        derived[name] = stats
+    return derived
+
+
+def _derived_connection_stats(connection_summaries):
+    derived = {}
+    for name, summary in connection_summaries.items():
+        fields = summary["fields"]
+        stats = {"kind": summary["kind"]}
+        mdot = fields.get("mdot")
+        if mdot:
+            sample_count = mdot["sample_count"]
+            nonzero_count = mdot["nonzero_count"]
+            stats.update(
+                {
+                    "initial_mass_flow_kg_s": mdot["first"],
+                    "final_mass_flow_kg_s": mdot["final"],
+                    "max_mass_flow_kg_s": mdot["max"],
+                    "min_mass_flow_kg_s": mdot["min"],
+                    "mass_flow_change_kg_s": mdot["delta"],
+                    "flow_stayed_nonzero": (
+                        sample_count > 0 and nonzero_count == sample_count
+                    ),
+                    "nonzero_sample_fraction": (
+                        nonzero_count / sample_count if sample_count else 0.0
+                    ),
+                }
+            )
+        pressure_drop = fields.get("dP")
+        if pressure_drop:
+            stats.update(
+                {
+                    "initial_pressure_drop_pa": pressure_drop["first"],
+                    "final_pressure_drop_pa": pressure_drop["final"],
+                    "max_pressure_drop_pa": pressure_drop["max"],
+                    "pressure_drop_change_pa": pressure_drop["delta"],
+                }
+            )
+        derived[name] = stats
+    return derived
+
+
+def _build_derived_stats(node_summaries, connection_summaries):
+    return {
+        "nodes": _derived_node_stats(node_summaries),
+        "connections": _derived_connection_stats(connection_summaries),
+    }
+
+
+def _material_change(value, threshold=1e-12):
+    return value is not None and abs(value) > threshold
+
+
+def _build_interpretation(status, components, derived_stats, artifacts):
+    if not status["passed"]:
+        outcome = "failed"
+    elif status["warnings"]:
+        outcome = "warning"
+    else:
+        outcome = "nominal"
+
+    observations = []
+    recommendations = []
+
+    for name, stats in derived_stats["nodes"].items():
+        role = components.get(name, {}).get("role")
+        pressure_drop = stats.get("pressure_drop_pa")
+        pressure_drop_percent = stats.get("pressure_drop_percent")
+        mass_lost = stats.get("mass_lost_kg")
+        if role == "tank" and _material_change(pressure_drop):
+            observations.append(
+                f"{name} pressure changed from "
+                f"{_format_report_value(stats['initial_pressure_pa'])} Pa to "
+                f"{_format_report_value(stats['final_pressure_pa'])} Pa "
+                f"({_format_report_value(pressure_drop_percent)}% drop)."
+            )
+        if role == "tank" and _material_change(mass_lost):
+            observations.append(
+                f"{name} mass changed from "
+                f"{_format_report_value(stats['initial_mass_kg'])} kg to "
+                f"{_format_report_value(stats['final_mass_kg'])} kg."
+            )
+
+    for name, stats in derived_stats["connections"].items():
+        max_mdot = stats.get("max_mass_flow_kg_s")
+        final_mdot = stats.get("final_mass_flow_kg_s")
+        if max_mdot is not None:
+            stayed_nonzero = stats.get("flow_stayed_nonzero")
+            flow_text = "stayed nonzero" if stayed_nonzero else "included zero samples"
+            observations.append(
+                f"{name} mass flow {flow_text}; max mdot was "
+                f"{_format_report_value(max_mdot)} kg/s and final mdot was "
+                f"{_format_report_value(final_mdot)} kg/s."
+            )
+
+    if not observations:
+        observations.append("No material pressure, mass, or flow changes were detected.")
+
+    if any(key.endswith("_plot") for key in artifacts):
+        recommendations.append("Inspect generated plots for trend shape and transients.")
+    if any(
+        _material_change(stats.get("pressure_change_pa"))
+        or _material_change(stats.get("mass_change_kg"))
+        for stats in derived_stats["nodes"].values()
+    ):
+        recommendations.append("Compare final pressure, mass, and flow against design targets.")
+    if not status["passed"]:
+        recommendations.append("Resolve failed status checks before using the run for analysis.")
+    if status["warnings"]:
+        recommendations.append("Review warnings before comparing this run against requirements.")
+    if not recommendations:
+        recommendations.append("Use the CSV artifacts for detailed time-history analysis.")
+
+    summary = (
+        "Run completed with failed status checks."
+        if outcome == "failed"
+        else "Run completed with warnings."
+        if outcome == "warning"
+        else "Run completed nominally."
+    )
+
+    return {
+        "outcome": outcome,
+        "summary": summary,
+        "important_observations": observations,
+        "recommended_next_actions": recommendations,
+    }
+
+
+def _build_report(summary, node_summaries, connection_summaries):
+    diagnostics = summary["diagnostics"]
+    warnings = summary["warnings"]
+    failures = _report_failures(diagnostics)
+    status = {
+        "passed": not failures,
+        "failures": failures,
+        "warnings": warnings,
+        "checks": diagnostics["checks"],
+    }
+    components = _component_inventory(node_summaries, connection_summaries)
+    derived_stats = _build_derived_stats(node_summaries, connection_summaries)
+    key_stats = {
+        "nodes": _key_stats(node_summaries, REPORT_NODE_FIELDS),
+        "connections": _key_stats(connection_summaries, REPORT_CONNECTION_FIELDS),
+    }
+    artifacts = dict(summary["output_files"])
+    return {
+        "schema_version": "1.1",
+        "ok": not failures,
+        "config_path": summary["config_path"],
+        "duration": summary["duration"],
+        "dt": summary["dt"],
+        "component_counts": summary["component_counts"],
+        "run": {
+            "config_path": summary["config_path"],
+            "duration_s": summary["duration"],
+            "dt_s": summary["dt"],
+            "step_count": diagnostics["step_count"],
+            "component_counts": summary["component_counts"],
+        },
+        "status": status,
+        "status_policy": {
+            "warnings_fail_run": False,
+            "required_checks": list(REPORT_REQUIRED_CHECKS),
+        },
+        "units": {
+            field: metadata["unit"]
+            for field, metadata in REPORT_FIELD_METADATA.items()
+        },
+        "components": components,
+        "diagnostics": diagnostics,
+        "final_nodes": summary["final_nodes"],
+        "key_stats": key_stats,
+        "derived_stats": derived_stats,
+        "interpretation": _build_interpretation(
+            status, components, derived_stats, artifacts
+        ),
+        "artifacts": artifacts,
+    }
+
+
+def _format_report_value(value):
+    if isinstance(value, float):
+        return f"{value:.6g}"
+    return str(value)
+
+
+def _format_report_fields(fields, field_names):
+    parts = []
+    for field in field_names:
+        field_summary = fields.get(field)
+        if not field_summary:
+            continue
+        label = field_summary.get("label", field)
+        unit = field_summary.get("unit", "")
+        display_name = f"{label} ({field}, {unit})" if unit else f"{label} ({field})"
+        parts.append(
+            f"{display_name}: final={_format_report_value(field_summary['final'])}, "
+            f"delta={_format_report_value(field_summary['delta'])}, "
+            f"min={_format_report_value(field_summary['min'])}, "
+            f"max={_format_report_value(field_summary['max'])}"
+        )
+    return "<br>".join(parts) if parts else "n/a"
+
+
+def _markdown_table_row(values):
+    return "| " + " | ".join(str(value) for value in values) + " |"
+
+
+def _build_report_markdown(report):
+    status = "PASS" if report["status"]["passed"] else "FAIL"
+    lines = [
+        f"# Run Report: {Path(report['config_path']).stem}",
+        "",
+        f"Status: {status}",
+        f"Config: `{report['config_path']}`",
+        f"Duration: {report['duration']} s",
+        f"Time step: {report['dt']} s",
+        f"Steps: {report['diagnostics']['step_count']}",
+        "",
+        "## Interpretation",
+        "",
+        report["interpretation"]["summary"],
+        "",
+        f"Outcome: `{report['interpretation']['outcome']}`",
+        "",
+        "### Important Observations",
+        "",
+    ]
+    for observation in report["interpretation"]["important_observations"]:
+        lines.append(f"- {observation}")
+
+    lines.extend(["", "### Recommended Next Actions", ""])
+    for action in report["interpretation"]["recommended_next_actions"]:
+        lines.append(f"- {action}")
+
+    lines.extend(
+        [
+            "",
+            "## Status Policy",
+            "",
+            f"Warnings fail run: `{report['status_policy']['warnings_fail_run']}`",
+            "Required checks: "
+            + ", ".join(f"`{check}`" for check in report["status_policy"]["required_checks"]),
+            "",
+            "## Status Checks",
+            "",
+            _markdown_table_row(["Check", "Result"]),
+            _markdown_table_row(["---", "---"]),
+        ]
+    )
+    for check, passed in report["status"]["checks"].items():
+        lines.append(_markdown_table_row([check, "PASS" if passed else "FAIL"]))
+
+    lines.extend(["", "## Failures", ""])
+    if report["status"]["failures"]:
+        for failure in report["status"]["failures"]:
+            lines.append(f"- {failure['message']} (`{failure['check']}`)")
+    else:
+        lines.append("None.")
+
+    lines.extend(["", "## Warnings", ""])
+    if report["status"]["warnings"]:
+        for warning in report["status"]["warnings"]:
+            if isinstance(warning, dict):
+                lines.append(f"- {warning.get('message', warning)}")
+            else:
+                lines.append(f"- {warning}")
+    else:
+        lines.append("None.")
+
+    lines.extend(
+        [
+            "",
+            "## Key Node Stats",
+            "",
+            _markdown_table_row(["Node", "Kind", "Samples", "Fields"]),
+            _markdown_table_row(["---", "---", "---:", "---"]),
+        ]
+    )
+    for name, stats in report["key_stats"]["nodes"].items():
+        lines.append(
+            _markdown_table_row(
+                [
+                    name,
+                    stats["kind"],
+                    stats["time"].get("sample_count", 0),
+                    _format_report_fields(stats["fields"], REPORT_NODE_FIELDS),
+                ]
+            )
+        )
+
+    lines.extend(
+        [
+            "",
+            "## Key Connection Stats",
+            "",
+            _markdown_table_row(["Connection", "Kind", "Samples", "Fields"]),
+            _markdown_table_row(["---", "---", "---:", "---"]),
+        ]
+    )
+    for name, stats in report["key_stats"]["connections"].items():
+        lines.append(
+            _markdown_table_row(
+                [
+                    name,
+                    stats["kind"],
+                    stats["time"].get("sample_count", 0),
+                    _format_report_fields(stats["fields"], REPORT_CONNECTION_FIELDS),
+                ]
+            )
+        )
+
+    lines.extend(["", "## Artifacts", ""])
+    for key, path in report["artifacts"].items():
+        lines.append(f"- `{key}`: `{path}`")
+
+    return "\n".join(lines) + "\n"
+
+
 def _plot_results(loaded, output_dir):
     import matplotlib
 
@@ -743,6 +1208,8 @@ def export_results(loaded, output_dir, save_plots=False):
     nodes_summary_json = output_dir / "nodes_summary.json"
     connections_summary_json = output_dir / "connections_summary.json"
     diagnostics_json = output_dir / "diagnostics.json"
+    report_json = output_dir / "report.json"
+    report_markdown = output_dir / "report.md"
     _write_history_csv(nodes_csv, node_rows, node_keys)
     _write_history_csv(connections_csv, conn_rows, conn_keys)
 
@@ -759,6 +1226,8 @@ def export_results(loaded, output_dir, save_plots=False):
         "nodes_summary_json": str(nodes_summary_json),
         "connections_summary_json": str(connections_summary_json),
         "diagnostics_json": str(diagnostics_json),
+        "report_json": str(report_json),
+        "report_markdown": str(report_markdown),
     }
     if save_plots:
         output_files.update(_plot_results(loaded, output_dir))
@@ -781,5 +1250,8 @@ def export_results(loaded, output_dir, save_plots=False):
         "output_files": output_files,
     }
     summary_json.write_text(json.dumps(summary, indent=2), encoding="utf-8")
+    report = _build_report(summary, node_summaries, connection_summaries)
+    report_json.write_text(json.dumps(report, indent=2), encoding="utf-8")
+    report_markdown.write_text(_build_report_markdown(report), encoding="utf-8")
     loaded.output_files = output_files
     return summary

@@ -55,12 +55,27 @@ class FluidNetworkMcpTests(unittest.TestCase):
             self.assertTrue(result["ok"], result)
             self.assertEqual(result["duration"], 0.1)
             self.assertEqual(result["dt"], 0.05)
+            self.assertIn("report_json", result["output_files"])
+            self.assertIn("report_markdown", result["output_files"])
             for path in result["output_files"].values():
                 self.assertTrue(Path(path).exists(), path)
 
             summary = read_result(str(out_dir), "summary.json")
             self.assertTrue(summary["ok"], summary)
             self.assertEqual(summary["content"]["duration"], 0.1)
+            report = read_result(str(out_dir), "report.json")
+            self.assertTrue(report["ok"], report)
+            self.assertIn("status", report["content"])
+            self.assertEqual(report["content"]["schema_version"], "1.1")
+            self.assertIn("components", report["content"])
+            self.assertIn("derived_stats", report["content"])
+            self.assertIn("interpretation", report["content"])
+            self.assertEqual(
+                report["content"]["components"]["pressurized_tank"]["role"], "tank"
+            )
+            report_markdown = read_result(str(out_dir), "report.md")
+            self.assertTrue(report_markdown["ok"], report_markdown)
+            self.assertIn("# Run Report:", report_markdown["content"])
 
     def test_read_result_rejects_path_traversal(self):
         with tempfile.TemporaryDirectory() as tmp:

@@ -75,7 +75,7 @@ python run_network.py network_configs\tank_vent_to_atmosphere.json --validate-on
 
 ## Agent Usage
 
-Agents should prefer JSON configs plus machine-readable outputs. Do not scrape plots or console text when the same data is available in `summary.json`, `diagnostics.json`, `nodes.csv`, or `connections.csv`.
+Agents should prefer JSON configs plus machine-readable outputs. Use `report.json` as the one-file run summary before reading lower-level artifacts. Do not scrape plots or console text when the same data is available in `report.json`, `summary.json`, `diagnostics.json`, `nodes.csv`, or `connections.csv`.
 
 For formal agent access, run the MCP server from the repository root:
 
@@ -88,15 +88,16 @@ It exposes these tools:
 - `get_network_schema()`: return the supported JSON schema.
 - `validate_network(config_path=None, config_json=None)`: validate a file config or inline JSON config.
 - `run_network(config_path=None, config_json=None, output_dir=None, duration=None, dt=None, plots=False)`: run and export results.
-- `read_result(output_dir, result_name)`: read known result files such as `summary.json`, `diagnostics.json`, `nodes_summary.json`, `connections_summary.json`, `nodes.csv`, or `connections.csv`.
+- `read_result(output_dir, result_name)`: read known result files such as `report.json`, `report.md`, `summary.json`, `diagnostics.json`, `nodes_summary.json`, `connections_summary.json`, `nodes.csv`, or `connections.csv`.
 
 Recommended agent workflow:
 
 1. Read `network_schema.json` or call `get_network_schema()` before generating a new config.
 2. Validate before running: `validate_network(...)` or `python run_network.py <config> --validate-only`.
 3. Run into an explicit output directory so later steps have stable paths.
-4. Inspect `diagnostics.json` first, then `summary.json`, then CSV files for detailed time histories.
-5. Set `plots=True` or pass `--plots` only when image artifacts are needed for a human review.
+4. Inspect `report.json` first for status, failures, warnings, component roles, key stats, derived stats, interpretation, and artifact paths.
+5. Read `diagnostics.json`, `summary.json`, or CSV files only when detailed follow-up is needed.
+6. Set `plots=True` or pass `--plots` only when image artifacts are needed for a human review.
 
 For shell-based agents and debugging, use the JSON runner.
 
@@ -132,7 +133,19 @@ The runner writes:
 - `connections_summary.json`: per-connection min/max/final/delta summaries, including `Series` subcomponents.
 - `diagnostics.json`: agent-oriented checks such as step count, action window, all-zero flow, and unchanged non-ambient node states.
 - `summary.json`: run metadata, component counts, final node states, diagnostics, warnings, and output paths.
+- `report.json`: canonical one-file agent report with `status`, `status_policy`, `components`, `key_stats`, `derived_stats`, `interpretation`, and `artifacts`.
+- `report.md`: human-readable companion generated from the same report data, including interpretation, recommendations, status checks, and key node/connection tables with units.
 - `nodes.png` and `connections.png`: generated only when `--plots` or `plots=True` is used.
+
+`report.json` is the best starting point for agents:
+
+- `status`: pass/fail result, hard failures, warnings, and required check results.
+- `status_policy`: explains which checks determine pass/fail; warnings are reported but do not fail a run.
+- `components`: node/connection inventory with kind, sample count, and heuristic roles such as `tank`, `boundary`, or `vent`.
+- `key_stats`: min/max/final/delta summaries with field labels and units.
+- `derived_stats`: agent-ready facts such as pressure drop, mass change, max/final flow, and whether flow stayed nonzero.
+- `interpretation`: deterministic summary, outcome, important observations, and recommended next actions.
+- `artifacts`: paths to the lower-level CSV, JSON, plot, and report files.
 
 The JSON format is documented in `network_schema.json`. Existing GUI-style JSON files remain supported by the loader.
 

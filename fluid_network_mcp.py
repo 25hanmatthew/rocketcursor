@@ -17,6 +17,8 @@ ALLOWED_RESULT_FILES = {
     "diagnostics.json",
     "nodes_summary.json",
     "connections_summary.json",
+    "report.json",
+    "report.md",
     "nodes.csv",
     "connections.csv",
 }

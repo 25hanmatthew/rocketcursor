@@ -61,6 +61,8 @@
     "nodes_summary_json": "results\\tank_vent_to_atmosphere\\nodes_summary.json",
     "connections_summary_json": "results\\tank_vent_to_atmosphere\\connections_summary.json",
     "diagnostics_json": "results\\tank_vent_to_atmosphere\\diagnostics.json",
+    "report_json": "results\\tank_vent_to_atmosphere\\report.json",
+    "report_markdown": "results\\tank_vent_to_atmosphere\\report.md",
     "nodes_plot": "results\\tank_vent_to_atmosphere\\nodes.png",
     "connections_plot": "results\\tank_vent_to_atmosphere\\connections.png"
   }

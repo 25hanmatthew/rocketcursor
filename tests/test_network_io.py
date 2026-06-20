@@ -161,12 +161,12 @@ class NetworkIoTests(unittest.TestCase):
 
     def test_cli_run_exports_results_and_honors_overrides(self):
         with tempfile.TemporaryDirectory() as tmp:
-            out_dir = Path(tmp) / "impulse"
+            out_dir = Path(tmp) / "tank_vent"
             result = subprocess.run(
                 [
                     sys.executable,
                     str(ROOT / "run_network.py"),
-                    str(ROOT / "network_configs/impulse_ep.json"),
+                    str(ROOT / "network_configs/tank_vent_to_atmosphere.json"),
                     "--duration",
                     "0.2",
                     "--dt",
@@ -186,6 +186,9 @@ class NetworkIoTests(unittest.TestCase):
             self.assertTrue((out_dir / "connections_summary.json").exists())
             diagnostics_path = out_dir / "diagnostics.json"
             self.assertTrue(diagnostics_path.exists())
+            report_path = out_dir / "report.json"
+            self.assertTrue(report_path.exists())
+            self.assertTrue((out_dir / "report.md").exists())
             summary_path = out_dir / "summary.json"
             self.assertTrue(summary_path.exists())
             summary = json.loads(summary_path.read_text(encoding="utf-8"))
@@ -193,9 +196,33 @@ class NetworkIoTests(unittest.TestCase):
             self.assertEqual(summary["dt"], 0.1)
             self.assertIn("diagnostics", summary)
             self.assertIn("diagnostics_json", summary["output_files"])
+            self.assertIn("report_json", summary["output_files"])
+            self.assertIn("report_markdown", summary["output_files"])
             diagnostics = json.loads(diagnostics_path.read_text(encoding="utf-8"))
             self.assertEqual(diagnostics["step_count"], 2)
             self.assertIn("has_nonzero_flow", diagnostics["checks"])
+            report = json.loads(report_path.read_text(encoding="utf-8"))
+            self.assertEqual(report["schema_version"], "1.1")
+            self.assertIn("status_policy", report)
+            self.assertFalse(report["status_policy"]["warnings_fail_run"])
+            self.assertIn("units", report)
+            self.assertEqual(report["units"]["P"], "Pa")
+            self.assertIn("components", report)
+            self.assertIn("derived_stats", report)
+            self.assertIn("interpretation", report)
+            self.assertIsInstance(report["status"]["passed"], bool)
+            self.assertIn("pressurized_tank", report["key_stats"]["nodes"])
+            self.assertIn("vent_orifice", report["key_stats"]["connections"])
+            self.assertEqual(report["components"]["pressurized_tank"]["role"], "tank")
+            self.assertEqual(report["components"]["atmosphere"]["role"], "boundary")
+            self.assertEqual(report["components"]["vent_orifice"]["role"], "vent")
+            pressure_field = report["key_stats"]["nodes"]["pressurized_tank"]["fields"]["P"]
+            self.assertEqual(pressure_field["unit"], "Pa")
+            self.assertEqual(pressure_field["label"], "pressure")
+            tank_stats = report["derived_stats"]["nodes"]["pressurized_tank"]
+            self.assertIn("pressure_drop_pa", tank_stats)
+            self.assertIn("mass_change_kg", tank_stats)
+            self.assertEqual(report["interpretation"]["outcome"], "nominal")
 
 
 if __name__ == "__main__":
