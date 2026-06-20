@@ -1,0 +1,6 @@
+.env
+__pycache__/
+*.pyc
+pdfs/
+ntrs_sources.json
+ntrs_fields.json

@@ -1,0 +1,5 @@
+numpy
+pypdf
+redis
+stagehand
+voyageai
