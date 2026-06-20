@@ -21,6 +21,7 @@ class NetworkIoTests(unittest.TestCase):
             ("network_configs/pressure_ladder_from_py.json", 4, 4, 22),
             ("network_configs/vehicle_sim.json", 4, 4, 40),
             ("network_configs/tank_sizing_sims.json", 4, 4, 72),
+            ("network_configs/test_1.json", 3, 2, 0),
         ]
         for rel_path, node_count, conn_count, action_count in cases:
             with self.subTest(rel_path=rel_path):

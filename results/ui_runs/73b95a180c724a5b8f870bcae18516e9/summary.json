@@ -1,0 +1,108 @@
+{
+  "config_path": "C:\\Users\\25han\\OneDrive\\Documents\\GitHub\\rocketcursor\\results\\ui_runs\\73b95a180c724a5b8f870bcae18516e9\\config.json",
+  "duration": 20.0,
+  "dt": 0.05,
+  "component_counts": {
+    "nodes": 4,
+    "connections": 4,
+    "actions": 0
+  },
+  "warnings": [
+    {
+      "message": "Non-ambient node 'engine_block' has unchanged m history.",
+      "component": "engine_block",
+      "field": "m"
+    }
+  ],
+  "final_nodes": {
+    "gn2_supply_4500psi": {
+      "time": 20.0,
+      "Q": null,
+      "P": 18748467.608793326,
+      "T": 254.8271776038612,
+      "U": 638412.3751154736,
+      "h": 219193.9054288747,
+      "d": 247.3418304026132,
+      "m": 4.452152947247037,
+      "m_l": 0.0,
+      "m_v": 4.452152947247037,
+      "fill_level": 0.0,
+      "s": 4966.089923081156
+    },
+    "lox_tank_500psi": {
+      "time": 20.0,
+      "Q": null,
+      "P": 3403995.6112741036,
+      "T": 89.9916215158904,
+      "U": -1306844.4016725852,
+      "h": -131927.51730709002,
+      "d": 1149.318234533607,
+      "m": 9.688275487887887,
+      "m_l": 9.688275487887887,
+      "m_v": 0.0,
+      "fill_level": 0.4214792385948434,
+      "s": 2925.8342130205774
+    },
+    "kerosene_tank_500psi": {
+      "time": 20.0,
+      "Q": null,
+      "P": 3469134.816629745,
+      "T": 293.1537103845434,
+      "U": -2100811.436961642,
+      "h": -500318.2938447845,
+      "d": 751.8233021300426,
+      "m": 4.160578028915443,
+      "m_l": 4.160578028915443,
+      "m_v": 0.0,
+      "fill_level": 0.3458739920277661,
+      "s": -1302.3896197459478
+    },
+    "engine_block": {
+      "time": 20.0,
+      "P": 2880281.726357328,
+      "T": 2832.8547559756516,
+      "m": 0.0,
+      "d": 1.2,
+      "Q": null,
+      "fill_level": 0.0,
+      "mdot_ox": 0.47442251751024955,
+      "mdot_fu": 0.2841576715828552,
+      "MR": 1.6695749049024586,
+      "cstar": 1577.4815183256435,
+      "thrust": 1645.7698720782794,
+      "Isp": 221.15593758718947
+    }
+  },
+  "diagnostics": {
+    "step_count": 400,
+    "duration": 20.0,
+    "dt": 0.05,
+    "action_count": 0,
+    "action_times": [],
+    "out_of_window_actions": [],
+    "node_count": 4,
+    "connection_count": 4,
+    "warnings": [
+      {
+        "message": "Non-ambient node 'engine_block' has unchanged m history.",
+        "component": "engine_block",
+        "field": "m"
+      }
+    ],
+    "checks": {
+      "has_node_samples": true,
+      "has_connection_samples": true,
+      "has_nonzero_flow": true
+    }
+  },
+  "output_files": {
+    "nodes_csv": "C:\\Users\\25han\\OneDrive\\Documents\\GitHub\\rocketcursor\\results\\ui_runs\\73b95a180c724a5b8f870bcae18516e9\\nodes.csv",
+    "connections_csv": "C:\\Users\\25han\\OneDrive\\Documents\\GitHub\\rocketcursor\\results\\ui_runs\\73b95a180c724a5b8f870bcae18516e9\\connections.csv",
+    "summary_json": "C:\\Users\\25han\\OneDrive\\Documents\\GitHub\\rocketcursor\\results\\ui_runs\\73b95a180c724a5b8f870bcae18516e9\\summary.json",
+    "nodes_summary_json": "C:\\Users\\25han\\OneDrive\\Documents\\GitHub\\rocketcursor\\results\\ui_runs\\73b95a180c724a5b8f870bcae18516e9\\nodes_summary.json",
+    "connections_summary_json": "C:\\Users\\25han\\OneDrive\\Documents\\GitHub\\rocketcursor\\results\\ui_runs\\73b95a180c724a5b8f870bcae18516e9\\connections_summary.json",
+    "diagnostics_json": "C:\\Users\\25han\\OneDrive\\Documents\\GitHub\\rocketcursor\\results\\ui_runs\\73b95a180c724a5b8f870bcae18516e9\\diagnostics.json",
+    "report_json": "C:\\Users\\25han\\OneDrive\\Documents\\GitHub\\rocketcursor\\results\\ui_runs\\73b95a180c724a5b8f870bcae18516e9\\report.json",
+    "report_markdown": "C:\\Users\\25han\\OneDrive\\Documents\\GitHub\\rocketcursor\\results\\ui_runs\\73b95a180c724a5b8f870bcae18516e9\\report.md"
+  }
+}

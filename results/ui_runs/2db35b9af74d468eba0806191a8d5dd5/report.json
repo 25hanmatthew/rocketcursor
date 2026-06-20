@@ -1,0 +1,630 @@
+{
+  "schema_version": "1.1",
+  "ok": true,
+  "config_path": "C:\\Users\\25han\\OneDrive\\Documents\\GitHub\\rocketcursor\\results\\ui_runs\\2db35b9af74d468eba0806191a8d5dd5\\config.json",
+  "duration": 20.0,
+  "dt": 0.05,
+  "component_counts": {
+    "nodes": 3,
+    "connections": 2,
+    "actions": 0
+  },
+  "run": {
+    "config_path": "C:\\Users\\25han\\OneDrive\\Documents\\GitHub\\rocketcursor\\results\\ui_runs\\2db35b9af74d468eba0806191a8d5dd5\\config.json",
+    "duration_s": 20.0,
+    "dt_s": 0.05,
+    "step_count": 400,
+    "component_counts": {
+      "nodes": 3,
+      "connections": 2,
+      "actions": 0
+    }
+  },
+  "status": {
+    "passed": true,
+    "failures": [],
+    "warnings": [],
+    "checks": {
+      "has_node_samples": true,
+      "has_connection_samples": true,
+      "has_nonzero_flow": true
+    }
+  },
+  "status_policy": {
+    "warnings_fail_run": false,
+    "required_checks": [
+      "has_node_samples",
+      "has_connection_samples",
+      "has_nonzero_flow"
+    ]
+  },
+  "units": {
+    "P": "Pa",
+    "T": "K",
+    "m": "kg",
+    "d": "kg/m^3",
+    "fill_level": "fraction",
+    "mdot": "kg/s",
+    "dP": "Pa",
+    "Hdot": "J/s",
+    "qdot": "J/s",
+    "CdA": "m^2",
+    "state": "dimensionless"
+  },
+  "components": {
+    "gn2_supply_4500psi": {
+      "kind": "Node",
+      "role": "node",
+      "category": "node",
+      "sample_count": 400
+    },
+    "kerosene_tank_500psi": {
+      "kind": "Tank",
+      "role": "tank",
+      "category": "node",
+      "sample_count": 400
+    },
+    "ambient": {
+      "kind": "Ambient",
+      "role": "boundary",
+      "category": "node",
+      "sample_count": 400
+    },
+    "gn2_pressurant_regulator": {
+      "kind": "BangBang",
+      "role": "regulator",
+      "category": "connection",
+      "sample_count": 400
+    },
+    "ullage_vent_to_atmosphere": {
+      "kind": "Connection",
+      "role": "vent",
+      "category": "connection",
+      "sample_count": 400
+    }
+  },
+  "diagnostics": {
+    "step_count": 400,
+    "duration": 20.0,
+    "dt": 0.05,
+    "action_count": 0,
+    "action_times": [],
+    "out_of_window_actions": [],
+    "node_count": 3,
+    "connection_count": 2,
+    "warnings": [],
+    "checks": {
+      "has_node_samples": true,
+      "has_connection_samples": true,
+      "has_nonzero_flow": true
+    }
+  },
+  "final_nodes": {
+    "gn2_supply_4500psi": {
+      "time": 20.0,
+      "Q": null,
+      "P": 13899765.22364578,
+      "T": 234.03058939544792,
+      "U": 141796.59663774158,
+      "h": 198135.17763841694,
+      "d": 213.2841076222921,
+      "m": 1.0664205381114606,
+      "m_l": 0.0,
+      "m_v": 1.0664205381114606,
+      "fill_level": 0.0,
+      "s": 4965.983511713246
+    },
+    "kerosene_tank_500psi": {
+      "time": 20.0,
+      "Q": null,
+      "P": 3422779.07045625,
+      "T": 293.1458038154143,
+      "U": -1317216.4305642967,
+      "h": -500379.79054388555,
+      "d": 751.7967042518528,
+      "m": 2.608697593658564,
+      "m_l": 2.608697593658564,
+      "m_v": 0.0,
+      "fill_level": 0.2168719265215619,
+      "s": -1302.3890665858003
+    },
+    "ambient": {
+      "time": 20.0,
+      "Q": null,
+      "P": 101325.00000000001,
+      "T": 293.15,
+      "U": 335286.11406320863,
+      "h": 419402.3979453135,
+      "d": 1.2045824580412334,
+      "m": 1.0,
+      "m_l": 0.0,
+      "m_v": 1.0,
+      "fill_level": 0.0,
+      "s": 3863.4461071371
+    }
+  },
+  "key_stats": {
+    "nodes": {
+      "gn2_supply_4500psi": {
+        "component": "gn2_supply_4500psi",
+        "kind": "Node",
+        "time": {
+          "first": 0.0,
+          "final": 20.0,
+          "sample_count": 400
+        },
+        "fields": {
+          "P": {
+            "first": 30891672.16776428,
+            "final": 13899765.22364578,
+            "min": 13899765.22364578,
+            "max": 30891672.16776428,
+            "delta": -16991906.9441185,
+            "range": 16991906.9441185,
+            "nonzero_count": 400,
+            "sample_count": 400,
+            "label": "pressure",
+            "unit": "Pa"
+          },
+          "T": {
+            "first": 292.79965874613504,
+            "final": 234.03058939544792,
+            "min": 234.03058939544792,
+            "max": 292.79965874613504,
+            "delta": -58.76906935068712,
+            "range": 58.76906935068712,
+            "nonzero_count": 400,
+            "sample_count": 400,
+            "label": "temperature",
+            "unit": "K"
+          },
+          "d": {
+            "first": 309.37706703910186,
+            "final": 213.2841076222921,
+            "min": 213.2841076222921,
+            "max": 309.37706703910186,
+            "delta": -96.09295941680975,
+            "range": 96.09295941680975,
+            "nonzero_count": 400,
+            "sample_count": 400,
+            "label": "density",
+            "unit": "kg/m^3"
+          },
+          "m": {
+            "first": 1.5468853351955092,
+            "final": 1.0664205381114606,
+            "min": 1.0664205381114606,
+            "max": 1.5468853351955092,
+            "delta": -0.48046479708404854,
+            "range": 0.48046479708404854,
+            "nonzero_count": 400,
+            "sample_count": 400,
+            "label": "mass",
+            "unit": "kg"
+          },
+          "fill_level": {
+            "first": 0.0,
+            "final": 0.0,
+            "min": 0.0,
+            "max": 0.0,
+            "delta": 0.0,
+            "range": 0.0,
+            "nonzero_count": 0,
+            "sample_count": 400,
+            "label": "fill level",
+            "unit": "fraction"
+          }
+        }
+      },
+      "kerosene_tank_500psi": {
+        "component": "kerosene_tank_500psi",
+        "kind": "Tank",
+        "time": {
+          "first": 0.0,
+          "final": 20.0,
+          "sample_count": 400
+        },
+        "fields": {
+          "P": {
+            "first": 3509150.820901393,
+            "final": 3422779.07045625,
+            "min": 3384577.175932386,
+            "max": 3522917.422891348,
+            "delta": -86371.75044514285,
+            "range": 138340.24695896218,
+            "nonzero_count": 400,
+            "sample_count": 400,
+            "label": "pressure",
+            "unit": "Pa"
+          },
+          "T": {
+            "first": 293.1605329805516,
+            "final": 293.1458038154143,
+            "min": 293.1392855134572,
+            "max": 293.16287957348857,
+            "delta": -0.014729165137282507,
+            "range": 0.0235940600313711,
+            "nonzero_count": 400,
+            "sample_count": 400,
+            "label": "temperature",
+            "unit": "K"
+          },
+          "d": {
+            "first": 751.8462550396586,
+            "final": 751.7967042518528,
+            "min": 751.7747779770455,
+            "max": 751.8541498921825,
+            "delta": -0.0495507878057424,
+            "range": 0.07937191513701691,
+            "nonzero_count": 400,
+            "sample_count": 400,
+            "label": "density",
+            "unit": "kg/m^3"
+          },
+          "m": {
+            "first": 9.682267264254884,
+            "final": 2.608697593658564,
+            "min": 2.608697593658564,
+            "max": 9.682267264254884,
+            "delta": -7.073569670596321,
+            "range": 7.073569670596321,
+            "nonzero_count": 400,
+            "sample_count": 400,
+            "label": "mass",
+            "unit": "kg"
+          },
+          "fill_level": {
+            "first": 0.8048742677903078,
+            "final": 0.2168719265215619,
+            "min": 0.2168719265215619,
+            "max": 0.8048742677903078,
+            "delta": -0.5880023412687458,
+            "range": 0.5880023412687458,
+            "nonzero_count": 400,
+            "sample_count": 400,
+            "label": "fill level",
+            "unit": "fraction"
+          }
+        }
+      },
+      "ambient": {
+        "component": "ambient",
+        "kind": "Ambient",
+        "time": {
+          "first": 0.0,
+          "final": 20.0,
+          "sample_count": 400
+        },
+        "fields": {
+          "P": {
+            "first": 101325.00000000001,
+            "final": 101325.00000000001,
+            "min": 101325.00000000001,
+            "max": 101325.00000000001,
+            "delta": 0.0,
+            "range": 0.0,
+            "nonzero_count": 400,
+            "sample_count": 400,
+            "label": "pressure",
+            "unit": "Pa"
+          },
+          "T": {
+            "first": 293.15,
+            "final": 293.15,
+            "min": 293.15,
+            "max": 293.15,
+            "delta": 0.0,
+            "range": 0.0,
+            "nonzero_count": 400,
+            "sample_count": 400,
+            "label": "temperature",
+            "unit": "K"
+          },
+          "d": {
+            "first": 1.2045824580412334,
+            "final": 1.2045824580412334,
+            "min": 1.2045824580412334,
+            "max": 1.2045824580412334,
+            "delta": 0.0,
+            "range": 0.0,
+            "nonzero_count": 400,
+            "sample_count": 400,
+            "label": "density",
+            "unit": "kg/m^3"
+          },
+          "m": {
+            "first": 1.0,
+            "final": 1.0,
+            "min": 1.0,
+            "max": 1.0,
+            "delta": 0.0,
+            "range": 0.0,
+            "nonzero_count": 400,
+            "sample_count": 400,
+            "label": "mass",
+            "unit": "kg"
+          },
+          "fill_level": {
+            "first": 0.0,
+            "final": 0.0,
+            "min": 0.0,
+            "max": 0.0,
+            "delta": 0.0,
+            "range": 0.0,
+            "nonzero_count": 0,
+            "sample_count": 400,
+            "label": "fill level",
+            "unit": "fraction"
+          }
+        }
+      }
+    },
+    "connections": {
+      "gn2_pressurant_regulator": {
+        "component": "gn2_pressurant_regulator",
+        "kind": "BangBang",
+        "time": {
+          "first": 0.0,
+          "final": 20.0,
+          "sample_count": 400
+        },
+        "fields": {
+          "CdA": {
+            "first": 1.02e-06,
+            "final": 1.02e-06,
+            "min": 1.02e-06,
+            "max": 1.02e-06,
+            "delta": 0.0,
+            "range": 0.0,
+            "nonzero_count": 400,
+            "sample_count": 400,
+            "label": "effective flow area",
+            "unit": "m^2"
+          },
+          "qdot": {
+            "first": 0.0,
+            "final": 0.0,
+            "min": 0.0,
+            "max": 0.0,
+            "delta": 0.0,
+            "range": 0.0,
+            "nonzero_count": 0,
+            "sample_count": 400,
+            "label": "heat flow",
+            "unit": "J/s"
+          },
+          "state": {
+            "first": 1.0,
+            "final": 1.0,
+            "min": 1.0,
+            "max": 1.0,
+            "delta": 0.0,
+            "range": 0.0,
+            "nonzero_count": 1,
+            "sample_count": 1,
+            "label": "valve/component state",
+            "unit": "dimensionless"
+          },
+          "mdot": {
+            "first": 0.056612129077139584,
+            "final": 0.02692731123966299,
+            "min": 0.02692731123966299,
+            "max": 0.056612129077139584,
+            "delta": -0.029684817837476594,
+            "range": 0.029684817837476594,
+            "nonzero_count": 400,
+            "sample_count": 400,
+            "label": "mass flow",
+            "unit": "kg/s"
+          },
+          "Hdot": {
+            "first": 14896.416156622698,
+            "final": 5339.565048031547,
+            "min": 5339.565048031547,
+            "max": 14896.416156622698,
+            "delta": -9556.85110859115,
+            "range": 9556.85110859115,
+            "nonzero_count": 400,
+            "sample_count": 400,
+            "label": "enthalpy flow",
+            "unit": "J/s"
+          },
+          "dP": {
+            "first": 27579029.17267068,
+            "final": 10510852.906374112,
+            "min": 10510852.906374112,
+            "max": 27579029.17267068,
+            "delta": -17068176.26629657,
+            "range": 17068176.26629657,
+            "nonzero_count": 400,
+            "sample_count": 400,
+            "label": "pressure drop",
+            "unit": "Pa"
+          }
+        }
+      },
+      "ullage_vent_to_atmosphere": {
+        "component": "ullage_vent_to_atmosphere",
+        "kind": "Connection",
+        "time": {
+          "first": 0.0,
+          "final": 20.0,
+          "sample_count": 400
+        },
+        "fields": {
+          "CdA": {
+            "first": 5e-06,
+            "final": 5e-06,
+            "min": 5e-06,
+            "max": 5e-06,
+            "delta": 0.0,
+            "range": 0.0,
+            "nonzero_count": 400,
+            "sample_count": 400,
+            "label": "effective flow area",
+            "unit": "m^2"
+          },
+          "qdot": {
+            "first": 0.0,
+            "final": 0.0,
+            "min": 0.0,
+            "max": 0.0,
+            "delta": 0.0,
+            "range": 0.0,
+            "nonzero_count": 0,
+            "sample_count": 400,
+            "label": "heat flow",
+            "unit": "J/s"
+          },
+          "state": {
+            "first": 1.0,
+            "final": 1.0,
+            "min": 1.0,
+            "max": 1.0,
+            "delta": 0.0,
+            "range": 0.0,
+            "nonzero_count": 400,
+            "sample_count": 400,
+            "label": "valve/component state",
+            "unit": "dimensionless"
+          },
+          "mdot": {
+            "first": 0.3546547149023155,
+            "final": 0.35336294589132655,
+            "min": 0.351302303977943,
+            "max": 0.3586459579021146,
+            "delta": -0.0012917690109889302,
+            "range": 0.007343653924171634,
+            "nonzero_count": 400,
+            "sample_count": 400,
+            "label": "mass flow",
+            "unit": "kg/s"
+          },
+          "Hdot": {
+            "first": -177450.477818809,
+            "final": -176815.52184652325,
+            "min": -179411.54652275323,
+            "max": -175802.3782748393,
+            "delta": 634.9559722857666,
+            "range": 3609.1682479139126,
+            "nonzero_count": 400,
+            "sample_count": 400,
+            "label": "enthalpy flow",
+            "unit": "J/s"
+          },
+          "dP": {
+            "first": 3346053.646585267,
+            "final": 3321784.7140765944,
+            "min": 3283252.175932386,
+            "max": 3421592.422891348,
+            "delta": -24268.932508672588,
+            "range": 138340.24695896218,
+            "nonzero_count": 400,
+            "sample_count": 400,
+            "label": "pressure drop",
+            "unit": "Pa"
+          }
+        }
+      }
+    }
+  },
+  "derived_stats": {
+    "nodes": {
+      "gn2_supply_4500psi": {
+        "kind": "Node",
+        "initial_pressure_pa": 30891672.16776428,
+        "final_pressure_pa": 13899765.22364578,
+        "pressure_change_pa": -16991906.9441185,
+        "pressure_change_percent": -55.004814410304725,
+        "pressure_drop_pa": 16991906.9441185,
+        "pressure_drop_percent": 55.004814410304725,
+        "initial_mass_kg": 1.5468853351955092,
+        "final_mass_kg": 1.0664205381114606,
+        "mass_change_kg": -0.48046479708404854,
+        "mass_change_percent": -31.0601429952352,
+        "mass_lost_kg": 0.48046479708404854
+      },
+      "kerosene_tank_500psi": {
+        "kind": "Tank",
+        "initial_pressure_pa": 3509150.820901393,
+        "final_pressure_pa": 3422779.07045625,
+        "pressure_change_pa": -86371.75044514285,
+        "pressure_change_percent": -2.4613291036307356,
+        "pressure_drop_pa": 86371.75044514285,
+        "pressure_drop_percent": 2.4613291036307356,
+        "initial_mass_kg": 9.682267264254884,
+        "final_mass_kg": 2.608697593658564,
+        "mass_change_kg": -7.073569670596321,
+        "mass_change_percent": -73.05695533432147,
+        "mass_lost_kg": 7.073569670596321
+      },
+      "ambient": {
+        "kind": "Ambient",
+        "initial_pressure_pa": 101325.00000000001,
+        "final_pressure_pa": 101325.00000000001,
+        "pressure_change_pa": 0.0,
+        "pressure_change_percent": 0.0,
+        "pressure_drop_pa": 0.0,
+        "pressure_drop_percent": 0.0,
+        "initial_mass_kg": 1.0,
+        "final_mass_kg": 1.0,
+        "mass_change_kg": 0.0,
+        "mass_change_percent": 0.0,
+        "mass_lost_kg": 0.0
+      }
+    },
+    "connections": {
+      "gn2_pressurant_regulator": {
+        "kind": "BangBang",
+        "initial_mass_flow_kg_s": 0.056612129077139584,
+        "final_mass_flow_kg_s": 0.02692731123966299,
+        "max_mass_flow_kg_s": 0.056612129077139584,
+        "min_mass_flow_kg_s": 0.02692731123966299,
+        "mass_flow_change_kg_s": -0.029684817837476594,
+        "flow_stayed_nonzero": true,
+        "nonzero_sample_fraction": 1.0,
+        "initial_pressure_drop_pa": 27579029.17267068,
+        "final_pressure_drop_pa": 10510852.906374112,
+        "max_pressure_drop_pa": 27579029.17267068,
+        "pressure_drop_change_pa": -17068176.26629657
+      },
+      "ullage_vent_to_atmosphere": {
+        "kind": "Connection",
+        "initial_mass_flow_kg_s": 0.3546547149023155,
+        "final_mass_flow_kg_s": 0.35336294589132655,
+        "max_mass_flow_kg_s": 0.3586459579021146,
+        "min_mass_flow_kg_s": 0.351302303977943,
+        "mass_flow_change_kg_s": -0.0012917690109889302,
+        "flow_stayed_nonzero": true,
+        "nonzero_sample_fraction": 1.0,
+        "initial_pressure_drop_pa": 3346053.646585267,
+        "final_pressure_drop_pa": 3321784.7140765944,
+        "max_pressure_drop_pa": 3421592.422891348,
+        "pressure_drop_change_pa": -24268.932508672588
+      }
+    }
+  },
+  "interpretation": {
+    "outcome": "nominal",
+    "summary": "Run completed nominally.",
+    "important_observations": [
+      "kerosene_tank_500psi pressure changed from 3.50915e+06 Pa to 3.42278e+06 Pa (2.46133% drop).",
+      "kerosene_tank_500psi mass changed from 9.68227 kg to 2.6087 kg.",
+      "gn2_pressurant_regulator mass flow stayed nonzero; max mdot was 0.0566121 kg/s and final mdot was 0.0269273 kg/s.",
+      "ullage_vent_to_atmosphere mass flow stayed nonzero; max mdot was 0.358646 kg/s and final mdot was 0.353363 kg/s."
+    ],
+    "recommended_next_actions": [
+      "Compare final pressure, mass, and flow against design targets."
+    ]
+  },
+  "artifacts": {
+    "nodes_csv": "C:\\Users\\25han\\OneDrive\\Documents\\GitHub\\rocketcursor\\results\\ui_runs\\2db35b9af74d468eba0806191a8d5dd5\\nodes.csv",
+    "connections_csv": "C:\\Users\\25han\\OneDrive\\Documents\\GitHub\\rocketcursor\\results\\ui_runs\\2db35b9af74d468eba0806191a8d5dd5\\connections.csv",
+    "summary_json": "C:\\Users\\25han\\OneDrive\\Documents\\GitHub\\rocketcursor\\results\\ui_runs\\2db35b9af74d468eba0806191a8d5dd5\\summary.json",
+    "nodes_summary_json": "C:\\Users\\25han\\OneDrive\\Documents\\GitHub\\rocketcursor\\results\\ui_runs\\2db35b9af74d468eba0806191a8d5dd5\\nodes_summary.json",
+    "connections_summary_json": "C:\\Users\\25han\\OneDrive\\Documents\\GitHub\\rocketcursor\\results\\ui_runs\\2db35b9af74d468eba0806191a8d5dd5\\connections_summary.json",
+    "diagnostics_json": "C:\\Users\\25han\\OneDrive\\Documents\\GitHub\\rocketcursor\\results\\ui_runs\\2db35b9af74d468eba0806191a8d5dd5\\diagnostics.json",
+    "report_json": "C:\\Users\\25han\\OneDrive\\Documents\\GitHub\\rocketcursor\\results\\ui_runs\\2db35b9af74d468eba0806191a8d5dd5\\report.json",
+    "report_markdown": "C:\\Users\\25han\\OneDrive\\Documents\\GitHub\\rocketcursor\\results\\ui_runs\\2db35b9af74d468eba0806191a8d5dd5\\report.md"
+  }
+}

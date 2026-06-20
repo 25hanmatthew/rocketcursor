@@ -1,0 +1,113 @@
+{
+  "config_path": "C:\\Users\\25han\\OneDrive\\Documents\\GitHub\\rocketcursor\\results\\ui_runs\\2ae7791569d84877a2b57764b78f2420\\config.json",
+  "duration": 20.0,
+  "dt": 0.05,
+  "component_counts": {
+    "nodes": 3,
+    "connections": 2,
+    "actions": 0
+  },
+  "warnings": [
+    {
+      "message": "Node 'kerosene_tank_500psi' has nonphysical P values.",
+      "component": "kerosene_tank_500psi",
+      "field": "P"
+    },
+    {
+      "message": "Node 'kerosene_tank_500psi' has nonphysical T values.",
+      "component": "kerosene_tank_500psi",
+      "field": "T"
+    },
+    {
+      "message": "Node 'kerosene_tank_500psi' has nonphysical d values.",
+      "component": "kerosene_tank_500psi",
+      "field": "d"
+    }
+  ],
+  "final_nodes": {
+    "gn2_supply_4500psi": {
+      "time": 20.0,
+      "Q": null,
+      "P": 14949711.673903946,
+      "T": 238.97272511521376,
+      "U": 269784.9909808788,
+      "h": 202988.15328575988,
+      "d": 221.3223828862833,
+      "m": 1.9919014459765494,
+      "m_l": 0.0,
+      "m_v": 1.9919014459765494,
+      "fill_level": 0.0,
+      "s": 4966.0744628853
+    },
+    "kerosene_tank_500psi": {
+      "time": 20.0,
+      "Q": null,
+      "P": -9999990.0,
+      "T": -9999990.0,
+      "U": 16331.079858590667,
+      "h": -9999990.0,
+      "d": -9999990.0,
+      "m": 1e-12,
+      "m_l": 1e-12,
+      "m_v": 0.0,
+      "fill_level": -6.2500062500062495e-18,
+      "s": -9999990.0
+    },
+    "ambient": {
+      "time": 20.0,
+      "Q": null,
+      "P": 101325.00000000001,
+      "T": 293.15,
+      "U": 335286.11406320863,
+      "h": 419402.3979453135,
+      "d": 1.2045824580412334,
+      "m": 1.0,
+      "m_l": 0.0,
+      "m_v": 1.0,
+      "fill_level": 0.0,
+      "s": 3863.4461071371
+    }
+  },
+  "diagnostics": {
+    "step_count": 400,
+    "duration": 20.0,
+    "dt": 0.05,
+    "action_count": 0,
+    "action_times": [],
+    "out_of_window_actions": [],
+    "node_count": 3,
+    "connection_count": 2,
+    "warnings": [
+      {
+        "message": "Node 'kerosene_tank_500psi' has nonphysical P values.",
+        "component": "kerosene_tank_500psi",
+        "field": "P"
+      },
+      {
+        "message": "Node 'kerosene_tank_500psi' has nonphysical T values.",
+        "component": "kerosene_tank_500psi",
+        "field": "T"
+      },
+      {
+        "message": "Node 'kerosene_tank_500psi' has nonphysical d values.",
+        "component": "kerosene_tank_500psi",
+        "field": "d"
+      }
+    ],
+    "checks": {
+      "has_node_samples": true,
+      "has_connection_samples": true,
+      "has_nonzero_flow": true
+    }
+  },
+  "output_files": {
+    "nodes_csv": "C:\\Users\\25han\\OneDrive\\Documents\\GitHub\\rocketcursor\\results\\ui_runs\\2ae7791569d84877a2b57764b78f2420\\nodes.csv",
+    "connections_csv": "C:\\Users\\25han\\OneDrive\\Documents\\GitHub\\rocketcursor\\results\\ui_runs\\2ae7791569d84877a2b57764b78f2420\\connections.csv",
+    "summary_json": "C:\\Users\\25han\\OneDrive\\Documents\\GitHub\\rocketcursor\\results\\ui_runs\\2ae7791569d84877a2b57764b78f2420\\summary.json",
+    "nodes_summary_json": "C:\\Users\\25han\\OneDrive\\Documents\\GitHub\\rocketcursor\\results\\ui_runs\\2ae7791569d84877a2b57764b78f2420\\nodes_summary.json",
+    "connections_summary_json": "C:\\Users\\25han\\OneDrive\\Documents\\GitHub\\rocketcursor\\results\\ui_runs\\2ae7791569d84877a2b57764b78f2420\\connections_summary.json",
+    "diagnostics_json": "C:\\Users\\25han\\OneDrive\\Documents\\GitHub\\rocketcursor\\results\\ui_runs\\2ae7791569d84877a2b57764b78f2420\\diagnostics.json",
+    "report_json": "C:\\Users\\25han\\OneDrive\\Documents\\GitHub\\rocketcursor\\results\\ui_runs\\2ae7791569d84877a2b57764b78f2420\\report.json",
+    "report_markdown": "C:\\Users\\25han\\OneDrive\\Documents\\GitHub\\rocketcursor\\results\\ui_runs\\2ae7791569d84877a2b57764b78f2420\\report.md"
+  }
+}

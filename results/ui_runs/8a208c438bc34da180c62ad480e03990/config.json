@@ -1,0 +1,50 @@
+{
+  "version": 1.1,
+  "settings": {
+    "duration": "20",
+    "dt": "0.05"
+  },
+  "nodes": [
+    {
+      "id": 0,
+      "type": "Node",
+      "x": -160.0,
+      "y": 0.0,
+      "params": {
+        "fluid": "Nitrogen",
+        "P": 9567792.201699205,
+        "V": 7.0,
+        "T": 293.15,
+        "name": "pressurized_tank"
+      }
+    },
+    {
+      "id": 1,
+      "type": "Ambient",
+      "x": 180.0,
+      "y": 0.0,
+      "params": {
+        "fluid": "Air",
+        "P": 101325.0,
+        "T": 293.15,
+        "name": "atmosphere"
+      }
+    }
+  ],
+  "connections": [
+    {
+      "type": "Connection",
+      "start_id": 0,
+      "end_id": 1,
+      "params": {
+        "CdA": 1e-06,
+        "qdot": 0.0,
+        "location": 0.0,
+        "normal_state": 1,
+        "checking": 1,
+        "name": "vent_orifice"
+      }
+    }
+  ],
+  "actions": []
+}

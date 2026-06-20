@@ -1,0 +1,93 @@
+{
+  "config_path": "C:\\Users\\25han\\OneDrive\\Documents\\GitHub\\rocketcursor\\results\\ui_runs\\568daba9ff8745b1b27eb88206ffaa52\\config.json",
+  "duration": 20.0,
+  "dt": 0.05,
+  "component_counts": {
+    "nodes": 3,
+    "connections": 2,
+    "actions": 0
+  },
+  "warnings": [
+    {
+      "message": "Non-ambient node 'kerosene_tank_500psi' has unchanged m history.",
+      "component": "kerosene_tank_500psi",
+      "field": "m"
+    }
+  ],
+  "final_nodes": {
+    "gn2_supply_4500psi": {
+      "time": 20.0,
+      "Q": null,
+      "P": 29936430.897410233,
+      "T": 290.2831704180968,
+      "U": 887686.6579379288,
+      "h": 259587.12027150858,
+      "d": 305.30157372797976,
+      "m": 5.495428327103635,
+      "m_l": 0.0,
+      "m_v": 5.495428327103635,
+      "fill_level": 0.0,
+      "s": 4966.168501179328
+    },
+    "kerosene_tank_500psi": {
+      "time": 20.0,
+      "Q": null,
+      "P": 3446698.653568863,
+      "T": 293.14988401956873,
+      "U": -4897846.115829227,
+      "h": -500348.0576867761,
+      "d": 751.8104299119352,
+      "m": 9.7,
+      "m_l": 9.7,
+      "m_v": 0.0,
+      "fill_level": 0.8063867909773668,
+      "s": -1302.3893511180072
+    },
+    "ambient": {
+      "time": 20.0,
+      "Q": null,
+      "P": 101325.00000000001,
+      "T": 293.15,
+      "U": 335286.11406320863,
+      "h": 419402.3979453135,
+      "d": 1.2045824580412334,
+      "m": 1.0,
+      "m_l": 0.0,
+      "m_v": 1.0,
+      "fill_level": 0.0,
+      "s": 3863.4461071371
+    }
+  },
+  "diagnostics": {
+    "step_count": 400,
+    "duration": 20.0,
+    "dt": 0.05,
+    "action_count": 0,
+    "action_times": [],
+    "out_of_window_actions": [],
+    "node_count": 3,
+    "connection_count": 2,
+    "warnings": [
+      {
+        "message": "Non-ambient node 'kerosene_tank_500psi' has unchanged m history.",
+        "component": "kerosene_tank_500psi",
+        "field": "m"
+      }
+    ],
+    "checks": {
+      "has_node_samples": true,
+      "has_connection_samples": true,
+      "has_nonzero_flow": true
+    }
+  },
+  "output_files": {
+    "nodes_csv": "C:\\Users\\25han\\OneDrive\\Documents\\GitHub\\rocketcursor\\results\\ui_runs\\568daba9ff8745b1b27eb88206ffaa52\\nodes.csv",
+    "connections_csv": "C:\\Users\\25han\\OneDrive\\Documents\\GitHub\\rocketcursor\\results\\ui_runs\\568daba9ff8745b1b27eb88206ffaa52\\connections.csv",
+    "summary_json": "C:\\Users\\25han\\OneDrive\\Documents\\GitHub\\rocketcursor\\results\\ui_runs\\568daba9ff8745b1b27eb88206ffaa52\\summary.json",
+    "nodes_summary_json": "C:\\Users\\25han\\OneDrive\\Documents\\GitHub\\rocketcursor\\results\\ui_runs\\568daba9ff8745b1b27eb88206ffaa52\\nodes_summary.json",
+    "connections_summary_json": "C:\\Users\\25han\\OneDrive\\Documents\\GitHub\\rocketcursor\\results\\ui_runs\\568daba9ff8745b1b27eb88206ffaa52\\connections_summary.json",
+    "diagnostics_json": "C:\\Users\\25han\\OneDrive\\Documents\\GitHub\\rocketcursor\\results\\ui_runs\\568daba9ff8745b1b27eb88206ffaa52\\diagnostics.json",
+    "report_json": "C:\\Users\\25han\\OneDrive\\Documents\\GitHub\\rocketcursor\\results\\ui_runs\\568daba9ff8745b1b27eb88206ffaa52\\report.json",
+    "report_markdown": "C:\\Users\\25han\\OneDrive\\Documents\\GitHub\\rocketcursor\\results\\ui_runs\\568daba9ff8745b1b27eb88206ffaa52\\report.md"
+  }
+}

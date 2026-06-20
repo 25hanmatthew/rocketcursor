@@ -73,6 +73,27 @@ python -m unittest tests.test_network_io tests.test_fluid_network_mcp
 python run_network.py network_configs\tank_vent_to_atmosphere.json --validate-only
 ```
 
+## Local P&ID Run Viewer
+
+The optional UI lives under `ui/` and keeps the simulator pipeline unchanged. The backend shells out to `run_network.py`, writes runs under `results/ui_runs/<run_id>/`, and the frontend renders the submitted JSON as a generated 2D P&ID with animated flow from `nodes.csv` and `connections.csv`.
+
+Install the Python requirements, then start the API:
+
+```powershell
+python -m pip install -r requirements.txt
+python -m uvicorn ui.backend.app:app --reload --host 127.0.0.1 --port 8000
+```
+
+In another terminal, start the frontend:
+
+```powershell
+cd ui\frontend
+npm install
+npm run dev
+```
+
+Open the Vite URL, submit a network JSON such as `network_configs\tank_vent_to_atmosphere.json`, and use the timeline to inspect flow playback.
+
 ## Agent Usage
 
 Agents should prefer JSON configs plus machine-readable outputs. Use `report.json` as the one-file run summary before reading lower-level artifacts. Do not scrape plots or console text when the same data is available in `report.json`, `summary.json`, `diagnostics.json`, `nodes.csv`, or `connections.csv`.

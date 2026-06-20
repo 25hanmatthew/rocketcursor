@@ -1,0 +1,224 @@
+{
+  "pressurized_tank": {
+    "component": "pressurized_tank",
+    "kind": "Node",
+    "time": {
+      "first": 0.0,
+      "final": 20.0,
+      "sample_count": 400
+    },
+    "fields": {
+      "P": {
+        "first": 9548765.133445673,
+        "final": 4681120.549010328,
+        "min": 4681120.549010328,
+        "max": 9548765.133445673,
+        "delta": -4867644.584435345,
+        "range": 4867644.584435345,
+        "nonzero_count": 400,
+        "sample_count": 400
+      },
+      "T": {
+        "first": 292.97741741890883,
+        "final": 237.1101310662554,
+        "min": 237.1101310662554,
+        "max": 292.97741741890883,
+        "delta": -55.86728635265342,
+        "range": 55.86728635265342,
+        "nonzero_count": 400,
+        "sample_count": 400
+      },
+      "U": {
+        "first": 151796.29129566124,
+        "final": 78688.5820342792,
+        "min": 78688.5820342792,
+        "max": 151796.29129566124,
+        "delta": -73107.70926138204,
+        "range": 73107.70926138204,
+        "nonzero_count": 400,
+        "sample_count": 400
+      },
+      "h": {
+        "first": 284297.5125629263,
+        "final": 229647.96963220858,
+        "min": 229647.96963220858,
+        "max": 284297.5125629263,
+        "delta": -54649.5429307177,
+        "range": 54649.5429307177,
+        "nonzero_count": 400,
+        "sample_count": 400
+      },
+      "d": {
+        "first": 109.86360493513322,
+        "final": 69.3337135939312,
+        "min": 69.3337135939312,
+        "max": 109.86360493513322,
+        "delta": -40.52989134120203,
+        "range": 40.52989134120203,
+        "nonzero_count": 400,
+        "sample_count": 400
+      },
+      "m": {
+        "first": 0.7690452345459325,
+        "final": 0.48533599515751835,
+        "min": 0.48533599515751835,
+        "max": 0.7690452345459325,
+        "delta": -0.2837092393884142,
+        "range": 0.2837092393884142,
+        "nonzero_count": 400,
+        "sample_count": 400
+      },
+      "m_l": {
+        "first": 0.0,
+        "final": 0.0,
+        "min": 0.0,
+        "max": 0.0,
+        "delta": 0.0,
+        "range": 0.0,
+        "nonzero_count": 0,
+        "sample_count": 400
+      },
+      "m_v": {
+        "first": 0.7690452345459325,
+        "final": 0.48533599515751835,
+        "min": 0.48533599515751835,
+        "max": 0.7690452345459325,
+        "delta": -0.2837092393884142,
+        "range": 0.2837092393884142,
+        "nonzero_count": 400,
+        "sample_count": 400
+      },
+      "fill_level": {
+        "first": 0.0,
+        "final": 0.0,
+        "min": 0.0,
+        "max": 0.0,
+        "delta": 0.0,
+        "range": 0.0,
+        "nonzero_count": 0,
+        "sample_count": 400
+      },
+      "s": {
+        "first": 5404.51911697933,
+        "final": 5404.399515046567,
+        "min": 5404.399515046567,
+        "max": 5404.51911697933,
+        "delta": -0.11960193276263453,
+        "range": 0.11960193276263453,
+        "nonzero_count": 400,
+        "sample_count": 400
+      }
+    }
+  },
+  "atmosphere": {
+    "component": "atmosphere",
+    "kind": "Ambient",
+    "time": {
+      "first": 0.0,
+      "final": 20.0,
+      "sample_count": 400
+    },
+    "fields": {
+      "P": {
+        "first": 101325.00000000001,
+        "final": 101325.00000000001,
+        "min": 101325.00000000001,
+        "max": 101325.00000000001,
+        "delta": 0.0,
+        "range": 0.0,
+        "nonzero_count": 400,
+        "sample_count": 400
+      },
+      "T": {
+        "first": 293.15,
+        "final": 293.15,
+        "min": 293.15,
+        "max": 293.15,
+        "delta": 0.0,
+        "range": 0.0,
+        "nonzero_count": 400,
+        "sample_count": 400
+      },
+      "U": {
+        "first": 335286.11406320863,
+        "final": 335286.11406320863,
+        "min": 335286.11406320863,
+        "max": 335286.11406320863,
+        "delta": 0.0,
+        "range": 0.0,
+        "nonzero_count": 400,
+        "sample_count": 400
+      },
+      "h": {
+        "first": 419402.3979453135,
+        "final": 419402.3979453135,
+        "min": 419402.3979453135,
+        "max": 419402.3979453135,
+        "delta": 0.0,
+        "range": 0.0,
+        "nonzero_count": 400,
+        "sample_count": 400
+      },
+      "d": {
+        "first": 1.2045824580412334,
+        "final": 1.2045824580412334,
+        "min": 1.2045824580412334,
+        "max": 1.2045824580412334,
+        "delta": 0.0,
+        "range": 0.0,
+        "nonzero_count": 400,
+        "sample_count": 400
+      },
+      "m": {
+        "first": 1.0,
+        "final": 1.0,
+        "min": 1.0,
+        "max": 1.0,
+        "delta": 0.0,
+        "range": 0.0,
+        "nonzero_count": 400,
+        "sample_count": 400
+      },
+      "m_l": {
+        "first": 0.0,
+        "final": 0.0,
+        "min": 0.0,
+        "max": 0.0,
+        "delta": 0.0,
+        "range": 0.0,
+        "nonzero_count": 0,
+        "sample_count": 400
+      },
+      "m_v": {
+        "first": 1.0,
+        "final": 1.0,
+        "min": 1.0,
+        "max": 1.0,
+        "delta": 0.0,
+        "range": 0.0,
+        "nonzero_count": 400,
+        "sample_count": 400
+      },
+      "fill_level": {
+        "first": 0.0,
+        "final": 0.0,
+        "min": 0.0,
+        "max": 0.0,
+        "delta": 0.0,
+        "range": 0.0,
+        "nonzero_count": 0,
+        "sample_count": 400
+      },
+      "s": {
+        "first": 3863.4461071371,
+        "final": 3863.4461071371,
+        "min": 3863.4461071371,
+        "max": 3863.4461071371,
+        "delta": 0.0,
+        "range": 0.0,
+        "nonzero_count": 400,
+        "sample_count": 400
+      }
+    }
+  }
+}

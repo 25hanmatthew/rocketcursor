@@ -1,0 +1,81 @@
+{
+  "config_path": "C:\\Users\\25han\\OneDrive\\Documents\\GitHub\\rocketcursor\\results\\ui_runs\\2a5ab8e6751a47a5ad90e86a9d985ee6\\config.json",
+  "duration": 20.0,
+  "dt": 0.05,
+  "component_counts": {
+    "nodes": 3,
+    "connections": 2,
+    "actions": 0
+  },
+  "warnings": [],
+  "final_nodes": {
+    "gn2_supply_4500psi": {
+      "time": 20.0,
+      "Q": null,
+      "P": 30472803.901453413,
+      "T": 291.7038035680209,
+      "U": 898478.39019165,
+      "h": 261337.81690033738,
+      "d": 307.6028987181289,
+      "m": 5.53685217692632,
+      "m_l": 0.0,
+      "m_v": 5.53685217692632,
+      "fill_level": 0.0,
+      "s": 4966.1700073159045
+    },
+    "kerosene_tank_500psi": {
+      "time": 20.0,
+      "Q": null,
+      "P": 3434865.621398071,
+      "T": 293.1478656497762,
+      "U": -4539256.577826611,
+      "h": -500363.7558073318,
+      "d": 751.8036401247215,
+      "m": 8.9898269083253,
+      "m_l": 8.9898269083253,
+      "m_v": 0.0,
+      "fill_level": 0.747354963161817,
+      "s": -1302.3892101202118
+    },
+    "ambient": {
+      "time": 20.0,
+      "Q": null,
+      "P": 101325.00000000001,
+      "T": 293.15,
+      "U": 335286.11406320863,
+      "h": 419402.3979453135,
+      "d": 1.2045824580412334,
+      "m": 1.0,
+      "m_l": 0.0,
+      "m_v": 1.0,
+      "fill_level": 0.0,
+      "s": 3863.4461071371
+    }
+  },
+  "diagnostics": {
+    "step_count": 400,
+    "duration": 20.0,
+    "dt": 0.05,
+    "action_count": 0,
+    "action_times": [],
+    "out_of_window_actions": [],
+    "node_count": 3,
+    "connection_count": 2,
+    "warnings": [],
+    "checks": {
+      "has_node_samples": true,
+      "has_connection_samples": true,
+      "has_nonzero_flow": true
+    }
+  },
+  "output_files": {
+    "nodes_csv": "C:\\Users\\25han\\OneDrive\\Documents\\GitHub\\rocketcursor\\results\\ui_runs\\2a5ab8e6751a47a5ad90e86a9d985ee6\\nodes.csv",
+    "connections_csv": "C:\\Users\\25han\\OneDrive\\Documents\\GitHub\\rocketcursor\\results\\ui_runs\\2a5ab8e6751a47a5ad90e86a9d985ee6\\connections.csv",
+    "summary_json": "C:\\Users\\25han\\OneDrive\\Documents\\GitHub\\rocketcursor\\results\\ui_runs\\2a5ab8e6751a47a5ad90e86a9d985ee6\\summary.json",
+    "nodes_summary_json": "C:\\Users\\25han\\OneDrive\\Documents\\GitHub\\rocketcursor\\results\\ui_runs\\2a5ab8e6751a47a5ad90e86a9d985ee6\\nodes_summary.json",
+    "connections_summary_json": "C:\\Users\\25han\\OneDrive\\Documents\\GitHub\\rocketcursor\\results\\ui_runs\\2a5ab8e6751a47a5ad90e86a9d985ee6\\connections_summary.json",
+    "diagnostics_json": "C:\\Users\\25han\\OneDrive\\Documents\\GitHub\\rocketcursor\\results\\ui_runs\\2a5ab8e6751a47a5ad90e86a9d985ee6\\diagnostics.json",
+    "report_json": "C:\\Users\\25han\\OneDrive\\Documents\\GitHub\\rocketcursor\\results\\ui_runs\\2a5ab8e6751a47a5ad90e86a9d985ee6\\report.json",
+    "report_markdown": "C:\\Users\\25han\\OneDrive\\Documents\\GitHub\\rocketcursor\\results\\ui_runs\\2a5ab8e6751a47a5ad90e86a9d985ee6\\report.md"
+  }
+}

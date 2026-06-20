@@ -1,0 +1,144 @@
+{
+  "gn2_pressurant_regulator": {
+    "component": "gn2_pressurant_regulator",
+    "kind": "BangBang",
+    "time": {
+      "first": 0.0,
+      "final": 20.0,
+      "sample_count": 400
+    },
+    "fields": {
+      "CdA": {
+        "first": 1.02e-06,
+        "final": 1.02e-06,
+        "min": 1.02e-06,
+        "max": 1.02e-06,
+        "delta": 0.0,
+        "range": 0.0,
+        "nonzero_count": 400,
+        "sample_count": 400
+      },
+      "qdot": {
+        "first": 0.0,
+        "final": 0.0,
+        "min": 0.0,
+        "max": 0.0,
+        "delta": 0.0,
+        "range": 0.0,
+        "nonzero_count": 0,
+        "sample_count": 400
+      },
+      "state": {
+        "first": 1.0,
+        "final": 1.0,
+        "min": 1.0,
+        "max": 1.0,
+        "delta": 0.0,
+        "range": 0.0,
+        "nonzero_count": 1,
+        "sample_count": 1
+      },
+      "mdot": {
+        "first": 0.056612129077139584,
+        "final": 0.05480398635489448,
+        "min": 0.05480398635489448,
+        "max": 0.056612129077139584,
+        "delta": -0.0018081427222451027,
+        "range": 0.0018081427222451027,
+        "nonzero_count": 400,
+        "sample_count": 400
+      },
+      "Hdot": {
+        "first": 14896.416156622698,
+        "final": 14232.734476360225,
+        "min": 14232.734476360225,
+        "max": 14896.416156622698,
+        "delta": -663.6816802624726,
+        "range": 663.6816802624726,
+        "nonzero_count": 400,
+        "sample_count": 400
+      },
+      "dP": {
+        "first": 27579029.17267068,
+        "final": 26563202.067649003,
+        "min": 26563202.067649003,
+        "max": 27579029.17267068,
+        "delta": -1015827.1050216779,
+        "range": 1015827.1050216779,
+        "nonzero_count": 400,
+        "sample_count": 400
+      }
+    }
+  },
+  "ullage_vent_to_atmosphere": {
+    "component": "ullage_vent_to_atmosphere",
+    "kind": "Connection",
+    "time": {
+      "first": 0.0,
+      "final": 20.0,
+      "sample_count": 400
+    },
+    "fields": {
+      "CdA": {
+        "first": 5e-07,
+        "final": 5e-07,
+        "min": 5e-07,
+        "max": 5e-07,
+        "delta": 0.0,
+        "range": 0.0,
+        "nonzero_count": 400,
+        "sample_count": 400
+      },
+      "qdot": {
+        "first": 0.0,
+        "final": 0.0,
+        "min": 0.0,
+        "max": 0.0,
+        "delta": 0.0,
+        "range": 0.0,
+        "nonzero_count": 0,
+        "sample_count": 400
+      },
+      "state": {
+        "first": 1.0,
+        "final": 1.0,
+        "min": 1.0,
+        "max": 1.0,
+        "delta": 0.0,
+        "range": 0.0,
+        "nonzero_count": 400,
+        "sample_count": 400
+      },
+      "mdot": {
+        "first": 0.003754524495533269,
+        "final": 0.003830307164488491,
+        "min": 0.0037233028845243816,
+        "max": 0.003871199797418447,
+        "delta": 7.578266895522231e-05,
+        "range": 0.00014789691289406525,
+        "nonzero_count": 400,
+        "sample_count": 400
+      },
+      "Hdot": {
+        "first": 1113.4013796623472,
+        "final": 1071.1401923772742,
+        "min": 1056.293663665025,
+        "max": 1145.7201001903084,
+        "delta": -42.26118728507299,
+        "range": 89.4264365252834,
+        "nonzero_count": 400,
+        "sample_count": 400
+      },
+      "dP": {
+        "first": 3346053.646585267,
+        "final": 3352660.8829447273,
+        "min": 3304668.2478125263,
+        "max": 3439714.321575402,
+        "delta": 6607.236359460279,
+        "range": 135046.07376287552,
+        "nonzero_count": 400,
+        "sample_count": 400
+      }
+    }
+  }
+}
