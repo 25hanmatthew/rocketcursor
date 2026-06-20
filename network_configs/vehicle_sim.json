@@ -1,0 +1,482 @@
+{
+    "version": 1.1,
+    "settings": {
+        "duration": "15.5",
+        "dt": "0.1"
+    },
+    "nodes": [
+        {
+            "id": 0,
+            "type": "Node",
+            "x": -520.0,
+            "y": 0.0,
+            "params": {
+                "fluid": "Nitrogen",
+                "m": 4.8,
+                "V": 15.47,
+                "T": 293,
+                "name": "COPV",
+                "type": "m"
+            }
+        },
+        {
+            "id": 1,
+            "type": "Tank",
+            "x": -100.0,
+            "y": -180.0,
+            "params": {
+                "V_total_L": 20,
+                "fluid_liq": "Oxygen",
+                "m_liq": 19.43,
+                "T_liq": 90,
+                "fluid_ullage": "Nitrogen",
+                "P_ullage": 3447378.6449999996,
+                "T_ullage": 150,
+                "radius": 0.2,
+                "htc": 500,
+                "name": "OxTank"
+            }
+        },
+        {
+            "id": 2,
+            "type": "Tank",
+            "x": -100.0,
+            "y": 180.0,
+            "params": {
+                "V_total_L": 16,
+                "fluid_liq": "n-Dodecane",
+                "m_liq": 9.7,
+                "T_liq": 293,
+                "fluid_ullage": "Nitrogen",
+                "P_ullage": 3447378.6449999996,
+                "T_ullage": 293,
+                "radius": 0.1,
+                "htc": 0,
+                "name": "FuTank"
+            }
+        },
+        {
+            "id": 3,
+            "type": "Engine",
+            "x": 420.0,
+            "y": 0.0,
+            "params": {
+                "fuel": "Kerosene",
+                "oxidizer": "LOX",
+                "eta_cstar": 0.85,
+                "eta_cf": 0.97,
+                "At": 0.00067226,
+                "Ae": 0.00235559904,
+                "Pa": 102042.407892,
+                "name": "Rocket Engine",
+                "eta_cstar_model": "vehicle_sim.dynamic_eta_cstar",
+                "eta_cf_model": "vehicle_sim.dynamic_eta_cf"
+            }
+        }
+    ],
+    "connections": [
+        {
+            "type": "Series",
+            "start_id": 0,
+            "end_id": 1,
+            "params": {
+                "connections": [
+                    {
+                        "type": "Line",
+                        "params": {
+                            "ID": 0.00492,
+                            "length": 1,
+                            "roughness": 1.5e-05,
+                            "qdot": 0.0,
+                            "location": 1,
+                            "normal_state": 1,
+                            "checking": 1,
+                            "name": "line"
+                        }
+                    },
+                    {
+                        "type": "BangBang",
+                        "params": {
+                            "CdA": 2.04e-06,
+                            "target_pressure": 3447378.6449999996,
+                            "hysteresis": 34473.78645,
+                            "qdot": 0.0,
+                            "location": 1.0,
+                            "normal_state": 1,
+                            "checking": 1,
+                            "name": "Ox Bang-Bang"
+                        }
+                    }
+                ],
+                "name": "obb_series"
+            }
+        },
+        {
+            "type": "Series",
+            "start_id": 0,
+            "end_id": 2,
+            "params": {
+                "connections": [
+                    {
+                        "type": "Line",
+                        "params": {
+                            "ID": 0.00492,
+                            "length": 1,
+                            "roughness": 1.5e-05,
+                            "qdot": 0.0,
+                            "location": 1,
+                            "normal_state": 1,
+                            "checking": 1,
+                            "name": "line"
+                        }
+                    },
+                    {
+                        "type": "BangBang",
+                        "params": {
+                            "CdA": 1.02e-06,
+                            "target_pressure": 3447378.6449999996,
+                            "hysteresis": 34473.78645,
+                            "qdot": 0.0,
+                            "location": 1.0,
+                            "normal_state": 1,
+                            "checking": 1,
+                            "name": "Fu Bang-Bang"
+                        }
+                    }
+                ],
+                "name": "fbb_series"
+            }
+        },
+        {
+            "type": "Series",
+            "start_id": 1,
+            "end_id": 3,
+            "params": {
+                "connections": [
+                    {
+                        "type": "Line",
+                        "params": {
+                            "ID": 0.0081026,
+                            "length": 1,
+                            "roughness": 1.5e-05,
+                            "qdot": 0.0,
+                            "location": 0,
+                            "normal_state": 1,
+                            "checking": 1,
+                            "name": "OX Tank to OTV"
+                        }
+                    },
+                    {
+                        "type": "ThrottleValve",
+                        "params": {
+                            "CdA_max": 0.777,
+                            "qdot": 0.0,
+                            "location": 0.0,
+                            "normal_state": 1.0,
+                            "checking": 1,
+                            "mode": "mdot",
+                            "name": "OTV"
+                        }
+                    },
+                    {
+                        "type": "Line",
+                        "params": {
+                            "ID": 0.0081026,
+                            "length": 0.2032,
+                            "roughness": 1.5e-05,
+                            "qdot": 0.0,
+                            "location": 0,
+                            "normal_state": 1,
+                            "checking": 1,
+                            "name": "OX Tank to OINJ"
+                        }
+                    },
+                    {
+                        "type": "Connection",
+                        "params": {
+                            "CdA": 1.53e-05,
+                            "qdot": 0.0,
+                            "location": 0.0,
+                            "normal_state": 1,
+                            "checking": 1,
+                            "name": "OINJ"
+                        }
+                    }
+                ],
+                "name": "otv_series"
+            }
+        },
+        {
+            "type": "Series",
+            "start_id": 2,
+            "end_id": 3,
+            "params": {
+                "connections": [
+                    {
+                        "type": "Line",
+                        "params": {
+                            "ID": 0.0049276,
+                            "length": 0.3048,
+                            "roughness": 1.5e-05,
+                            "qdot": 0.0,
+                            "location": 0,
+                            "normal_state": 1,
+                            "checking": 1,
+                            "name": "FU Tank to FTV"
+                        }
+                    },
+                    {
+                        "type": "ThrottleValve",
+                        "params": {
+                            "CdA_max": 0.388,
+                            "qdot": 0.0,
+                            "location": 0.0,
+                            "normal_state": 1.0,
+                            "checking": 1,
+                            "mode": "mdot",
+                            "name": "FTV"
+                        }
+                    },
+                    {
+                        "type": "Connection",
+                        "params": {
+                            "CdA": 1.06e-05,
+                            "qdot": 0.0,
+                            "location": 0.0,
+                            "normal_state": 1,
+                            "checking": 1,
+                            "name": "FINJ"
+                        }
+                    },
+                    {
+                        "type": "Line",
+                        "params": {
+                            "ID": 0.0049276,
+                            "length": 0.2032,
+                            "roughness": 1.5e-05,
+                            "qdot": 0.0,
+                            "location": 0,
+                            "normal_state": 1,
+                            "checking": 1,
+                            "name": "FU Tank to FINJ"
+                        }
+                    },
+                    {
+                        "type": "Connection",
+                        "params": {
+                            "CdA": 2.5e-05,
+                            "qdot": 0.0,
+                            "location": 0.0,
+                            "normal_state": 1,
+                            "checking": 1,
+                            "name": "FREGEN"
+                        }
+                    }
+                ],
+                "name": "ftv_series"
+            }
+        }
+    ],
+    "actions": [
+        {
+            "time": "0.0",
+            "component": "OTV",
+            "state": "0.40928310130572987"
+        },
+        {
+            "time": "0.0",
+            "component": "FTV",
+            "state": "0.4553450310918559"
+        },
+        {
+            "time": "0.1",
+            "component": "OTV",
+            "state": "0.41251660503899856"
+        },
+        {
+            "time": "0.1",
+            "component": "FTV",
+            "state": "0.45894244289132574"
+        },
+        {
+            "time": "0.3",
+            "component": "OTV",
+            "state": "0.418990781898656"
+        },
+        {
+            "time": "0.3",
+            "component": "FTV",
+            "state": "0.4661452427480753"
+        },
+        {
+            "time": "0.6",
+            "component": "OTV",
+            "state": "0.42869815303036035"
+        },
+        {
+            "time": "0.6",
+            "component": "FTV",
+            "state": "0.4769451101153924"
+        },
+        {
+            "time": "1.0",
+            "component": "OTV",
+            "state": "0.44164206241736675"
+        },
+        {
+            "time": "1.0",
+            "component": "FTV",
+            "state": "0.49134576531829033"
+        },
+        {
+            "time": "1.6",
+            "component": "OTV",
+            "state": "0.46105515684403825"
+        },
+        {
+            "time": "1.6",
+            "component": "FTV",
+            "state": "0.5129436667637711"
+        },
+        {
+            "time": "2.5",
+            "component": "OTV",
+            "state": "0.4901727901443362"
+        },
+        {
+            "time": "2.5",
+            "component": "FTV",
+            "state": "0.5453382845677968"
+        },
+        {
+            "time": "3.5",
+            "component": "OTV",
+            "state": "0.522520682094185"
+        },
+        {
+            "time": "3.5",
+            "component": "FTV",
+            "state": "0.5813267038762626"
+        },
+        {
+            "time": "4.5",
+            "component": "OTV",
+            "state": "0.5548660578898484"
+        },
+        {
+            "time": "4.5",
+            "component": "FTV",
+            "state": "0.6173123238551149"
+        },
+        {
+            "time": "5.5",
+            "component": "OTV",
+            "state": "0.5872127596035982"
+        },
+        {
+            "time": "5.5",
+            "component": "FTV",
+            "state": "0.6532994189747935"
+        },
+        {
+            "time": "6.5",
+            "component": "OTV",
+            "state": "0.6195536953503722"
+        },
+        {
+            "time": "6.5",
+            "component": "FTV",
+            "state": "0.6892800992085327"
+        },
+        {
+            "time": "7.5",
+            "component": "OTV",
+            "state": "0.6515850864283125"
+        },
+        {
+            "time": "7.5",
+            "component": "FTV",
+            "state": "0.7249163977016019"
+        },
+        {
+            "time": "8.5",
+            "component": "OTV",
+            "state": "0.6824303354231162"
+        },
+        {
+            "time": "8.5",
+            "component": "FTV",
+            "state": "0.7592330621760615"
+        },
+        {
+            "time": "9.5",
+            "component": "OTV",
+            "state": "0.7131329575753691"
+        },
+        {
+            "time": "9.5",
+            "component": "FTV",
+            "state": "0.7933910481616006"
+        },
+        {
+            "time": "10.5",
+            "component": "OTV",
+            "state": "0.7436881779694876"
+        },
+        {
+            "time": "10.5",
+            "component": "FTV",
+            "state": "0.8273850433595245"
+        },
+        {
+            "time": "11.5",
+            "component": "OTV",
+            "state": "0.7740309108525424"
+        },
+        {
+            "time": "11.5",
+            "component": "FTV",
+            "state": "0.8611426370739197"
+        },
+        {
+            "time": "12.5",
+            "component": "OTV",
+            "state": "0.8015293474642958"
+        },
+        {
+            "time": "12.5",
+            "component": "FTV",
+            "state": "0.8917358290088171"
+        },
+        {
+            "time": "13.5",
+            "component": "OTV",
+            "state": "0.8287114690831616"
+        },
+        {
+            "time": "13.5",
+            "component": "FTV",
+            "state": "0.9219771069267135"
+        },
+        {
+            "time": "14.5",
+            "component": "OTV",
+            "state": "0.8555895715239202"
+        },
+        {
+            "time": "14.5",
+            "component": "FTV",
+            "state": "0.9518801504497224"
+        },
+        {
+            "time": "15.5",
+            "component": "OTV",
+            "state": "0.8689138527428245"
+        },
+        {
+            "time": "15.5",
+            "component": "FTV",
+            "state": "0.9667039856546029"
+        }
+    ]
+}

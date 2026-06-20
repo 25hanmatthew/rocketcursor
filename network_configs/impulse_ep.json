@@ -1,0 +1,51 @@
+{
+    "version": 1.1,
+    "settings": {
+        "duration": "600",
+        "dt": "0.1"
+    },
+    "nodes": [
+        {
+            "id": 0,
+            "type": "Ambient",
+            "x": -240.0,
+            "y": 0.0,
+            "params": {
+                "fluid": "Krypton",
+                "P": 41357142.85714286,
+                "T": 293.15,
+                "name": "Supply"
+            }
+        },
+        {
+            "id": 1,
+            "type": "Node",
+            "x": 160.0,
+            "y": 0.0,
+            "params": {
+                "fluid": "Krypton",
+                "m": 0.02,
+                "V": 2,
+                "T": 293,
+                "name": "vehicle",
+                "type": "m"
+            }
+        }
+    ],
+    "connections": [
+        {
+            "type": "Connection",
+            "start_id": 0,
+            "end_id": 1,
+            "params": {
+                "CdA": 5e-03,
+                "qdot": 10.0,
+                "location": 1,
+                "normal_state": 1,
+                "checking": 0,
+                "name": "connection"
+            }
+        }
+    ],
+    "actions": []
+}

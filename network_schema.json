@@ -1,0 +1,130 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.local/general-fluid-network/network_schema.json",
+  "title": "General Fluid Network GUI-Compatible Configuration",
+  "description": "Configuration format accepted by run_network.py. Units are SI unless explicitly noted. Node V and Tank V_total_L are liters.",
+  "type": "object",
+  "required": ["nodes", "connections"],
+  "additionalProperties": true,
+  "properties": {
+    "version": {
+      "description": "Configuration format version. Existing GUI files use 1.0 or 1.1.",
+      "type": ["number", "string"]
+    },
+    "settings": {
+      "type": "object",
+      "additionalProperties": true,
+      "properties": {
+        "duration": {
+          "description": "Simulation duration in seconds.",
+          "type": ["number", "string"]
+        },
+        "dt": {
+          "description": "Simulation timestep in seconds.",
+          "type": ["number", "string"]
+        }
+      }
+    },
+    "nodes": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/node"}
+    },
+    "connections": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/connection"}
+    },
+    "actions": {
+      "description": "Scheduled component state changes. Component names may target top-level connections or Series subcomponent names.",
+      "type": "array",
+      "items": {"$ref": "#/$defs/action"}
+    }
+  },
+  "$defs": {
+    "node": {
+      "type": "object",
+      "required": ["id", "type", "params"],
+      "additionalProperties": true,
+      "properties": {
+        "id": {"type": "integer"},
+        "type": {
+          "type": "string",
+          "enum": ["Node", "Ambient", "Tank", "Engine"]
+        },
+        "x": {"type": "number"},
+        "y": {"type": "number"},
+        "params": {
+          "description": "Parameters for the selected node type. For type Node, prefer P/V/T/fluid where P is Pa, V is liters, and T is K. Legacy m/V/T/fluid remains supported; m is kg. The loader converts P/V/T to internal mass before constructing the solver Node.",
+          "type": "object",
+          "properties": {
+            "fluid": {"type": "string"},
+            "P": {
+              "description": "Preferred Node pressure in Pa.",
+              "type": ["number", "string"]
+            },
+            "V": {
+              "description": "Node volume in liters.",
+              "type": ["number", "string"]
+            },
+            "T": {
+              "description": "Node temperature in K.",
+              "type": ["number", "string"]
+            },
+            "m": {
+              "description": "Legacy/advanced Node mass in kg. Ignored when P is also supplied.",
+              "type": ["number", "string"]
+            },
+            "name": {"type": "string"}
+          }
+        }
+      }
+    },
+    "connection": {
+      "type": "object",
+      "required": ["type", "start_id", "end_id", "params"],
+      "additionalProperties": true,
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["Connection", "Line", "Series", "Regulator", "BangBang", "ThrottleValve"]
+        },
+        "start_id": {"type": "integer"},
+        "end_id": {"type": "integer"},
+        "params": {
+          "description": "Constructor parameters for the selected connection type. Series params must include a connections array.",
+          "type": "object"
+        }
+      }
+    },
+    "series_subconnection": {
+      "type": "object",
+      "required": ["type", "params"],
+      "additionalProperties": true,
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["Connection", "Line", "Regulator", "BangBang", "ThrottleValve"]
+        },
+        "params": {"type": "object"}
+      }
+    },
+    "action": {
+      "type": "object",
+      "required": ["time", "component", "state"],
+      "additionalProperties": true,
+      "properties": {
+        "time": {
+          "description": "Simulation time in seconds.",
+          "type": ["number", "string"]
+        },
+        "component": {
+          "description": "Target top-level connection name or Series subcomponent name.",
+          "type": "string"
+        },
+        "state": {
+          "description": "New state/opening value.",
+          "type": ["number", "string", "boolean"]
+        }
+      }
+    }
+  }
+}

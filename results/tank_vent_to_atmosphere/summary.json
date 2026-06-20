@@ -1,0 +1,67 @@
+{
+  "config_path": "network_configs\\tank_vent_to_atmosphere.json",
+  "duration": 20.0,
+  "dt": 0.05,
+  "component_counts": {
+    "nodes": 2,
+    "connections": 1,
+    "actions": 0
+  },
+  "warnings": [],
+  "final_nodes": {
+    "pressurized_tank": {
+      "time": 20.0,
+      "Q": null,
+      "P": 4681120.549010328,
+      "T": 237.1101310662554,
+      "U": 78688.5820342792,
+      "h": 229647.96963220858,
+      "d": 69.3337135939312,
+      "m": 0.48533599515751835,
+      "m_l": 0.0,
+      "m_v": 0.48533599515751835,
+      "fill_level": 0.0,
+      "s": 5404.399515046567
+    },
+    "atmosphere": {
+      "time": 20.0,
+      "Q": null,
+      "P": 101325.00000000001,
+      "T": 293.15,
+      "U": 335286.11406320863,
+      "h": 419402.3979453135,
+      "d": 1.2045824580412334,
+      "m": 1.0,
+      "m_l": 0.0,
+      "m_v": 1.0,
+      "fill_level": 0.0,
+      "s": 3863.4461071371
+    }
+  },
+  "diagnostics": {
+    "step_count": 400,
+    "duration": 20.0,
+    "dt": 0.05,
+    "action_count": 0,
+    "action_times": [],
+    "out_of_window_actions": [],
+    "node_count": 2,
+    "connection_count": 1,
+    "warnings": [],
+    "checks": {
+      "has_node_samples": true,
+      "has_connection_samples": true,
+      "has_nonzero_flow": true
+    }
+  },
+  "output_files": {
+    "nodes_csv": "results\\tank_vent_to_atmosphere\\nodes.csv",
+    "connections_csv": "results\\tank_vent_to_atmosphere\\connections.csv",
+    "summary_json": "results\\tank_vent_to_atmosphere\\summary.json",
+    "nodes_summary_json": "results\\tank_vent_to_atmosphere\\nodes_summary.json",
+    "connections_summary_json": "results\\tank_vent_to_atmosphere\\connections_summary.json",
+    "diagnostics_json": "results\\tank_vent_to_atmosphere\\diagnostics.json",
+    "nodes_plot": "results\\tank_vent_to_atmosphere\\nodes.png",
+    "connections_plot": "results\\tank_vent_to_atmosphere\\connections.png"
+  }
+}

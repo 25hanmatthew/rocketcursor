@@ -1,0 +1,583 @@
+{
+    "version": 1.1,
+    "settings": {
+        "duration": "30",
+        "dt": "0.1"
+    },
+    "nodes": [
+        {
+            "id": 0,
+            "type": "Node",
+            "x": -520.0,
+            "y": 0.0,
+            "params": {
+                "fluid": "Nitrogen",
+                "m": 5.1,
+                "V": 18,
+                "T": 293,
+                "name": "COPV",
+                "type": "m"
+            }
+        },
+        {
+            "id": 1,
+            "type": "Tank",
+            "x": -100.0,
+            "y": -180.0,
+            "params": {
+                "V_total_L": 20,
+                "fluid_liq": "Oxygen",
+                "m_liq": 19.43,
+                "T_liq": 90,
+                "fluid_ullage": "Nitrogen",
+                "P_ullage": 3447378.6449999996,
+                "T_ullage": 150,
+                "radius": 0.2,
+                "htc": 500,
+                "name": "OxTank"
+            }
+        },
+        {
+            "id": 2,
+            "type": "Tank",
+            "x": -100.0,
+            "y": 180.0,
+            "params": {
+                "V_total_L": 16,
+                "fluid_liq": "n-Dodecane",
+                "m_liq": 9.7,
+                "T_liq": 293,
+                "fluid_ullage": "Nitrogen",
+                "P_ullage": 3447378.6449999996,
+                "T_ullage": 293,
+                "radius": 0.1,
+                "htc": 0,
+                "name": "FuTank"
+            }
+        },
+        {
+            "id": 3,
+            "type": "Engine",
+            "x": 420.0,
+            "y": 0.0,
+            "params": {
+                "fuel": "Kerosene",
+                "oxidizer": "LOX",
+                "eta_cstar": 0.92,
+                "eta_cf": 0.96,
+                "At": 0.00041968,
+                "Ae": 0.00268451,
+                "Pa": 102042.407892,
+                "name": "Rocket Engine",
+                "eta_cstar_model": "tank_sizing_sims.dynamic_eta_cstar",
+                "eta_cf_model": "tank_sizing_sims.dynamic_eta_cf"
+            }
+        }
+    ],
+    "connections": [
+        {
+            "type": "Series",
+            "start_id": 0,
+            "end_id": 1,
+            "params": {
+                "connections": [
+                    {
+                        "type": "Line",
+                        "params": {
+                            "ID": 0.00492,
+                            "length": 1,
+                            "roughness": 1.5e-05,
+                            "qdot": 0.0,
+                            "location": 1,
+                            "normal_state": 1,
+                            "checking": 1,
+                            "name": "line"
+                        }
+                    },
+                    {
+                        "type": "BangBang",
+                        "params": {
+                            "CdA": 2.04e-06,
+                            "target_pressure": 3447378.6449999996,
+                            "hysteresis": 34473.78645,
+                            "qdot": 0.0,
+                            "location": 1.0,
+                            "normal_state": 1,
+                            "checking": 1,
+                            "name": "Ox Bang-Bang"
+                        }
+                    }
+                ],
+                "name": "obb_series"
+            }
+        },
+        {
+            "type": "Series",
+            "start_id": 1,
+            "end_id": 3,
+            "params": {
+                "connections": [
+                    {
+                        "type": "Line",
+                        "params": {
+                            "ID": 0.009,
+                            "length": 1,
+                            "roughness": 0.0002,
+                            "qdot": 0.0,
+                            "location": 0,
+                            "normal_state": 1,
+                            "checking": 1,
+                            "name": "line"
+                        }
+                    },
+                    {
+                        "type": "ThrottleValve",
+                        "params": {
+                            "CdA_max": 0.777,
+                            "qdot": 0.0,
+                            "location": 0.0,
+                            "normal_state": 1.0,
+                            "checking": 1,
+                            "mode": "mdot",
+                            "name": "OxThrottle"
+                        }
+                    }
+                ],
+                "name": "otv_series"
+            }
+        },
+        {
+            "type": "Series",
+            "start_id": 0,
+            "end_id": 2,
+            "params": {
+                "connections": [
+                    {
+                        "type": "Line",
+                        "params": {
+                            "ID": 0.00492,
+                            "length": 1,
+                            "roughness": 1.5e-05,
+                            "qdot": 0.0,
+                            "location": 1,
+                            "normal_state": 1,
+                            "checking": 1,
+                            "name": "line"
+                        }
+                    },
+                    {
+                        "type": "BangBang",
+                        "params": {
+                            "CdA": 1.02e-06,
+                            "target_pressure": 3447378.6449999996,
+                            "hysteresis": 34473.78645,
+                            "qdot": 0.0,
+                            "location": 1.0,
+                            "normal_state": 1,
+                            "checking": 1,
+                            "name": "Fu Bang-Bang"
+                        }
+                    }
+                ],
+                "name": "fbb_series"
+            }
+        },
+        {
+            "type": "Series",
+            "start_id": 2,
+            "end_id": 3,
+            "params": {
+                "connections": [
+                    {
+                        "type": "Line",
+                        "params": {
+                            "ID": 0.009,
+                            "length": 0.1,
+                            "roughness": 0.0002,
+                            "qdot": 0.0,
+                            "location": 0,
+                            "normal_state": 1,
+                            "checking": 1,
+                            "name": "line"
+                        }
+                    },
+                    {
+                        "type": "ThrottleValve",
+                        "params": {
+                            "CdA_max": 0.388,
+                            "qdot": 0.0,
+                            "location": 0.0,
+                            "normal_state": 1.0,
+                            "checking": 1,
+                            "mode": "mdot",
+                            "name": "FuThrottle"
+                        }
+                    }
+                ],
+                "name": "ftv_series"
+            }
+        }
+    ],
+    "actions": [
+        {
+            "time": "0.0",
+            "component": "OxThrottle",
+            "state": "0.443"
+        },
+        {
+            "time": "0.0",
+            "component": "FuThrottle",
+            "state": "0.493"
+        },
+        {
+            "time": "0.1",
+            "component": "OxThrottle",
+            "state": "0.463"
+        },
+        {
+            "time": "0.1",
+            "component": "FuThrottle",
+            "state": "0.515"
+        },
+        {
+            "time": "0.3",
+            "component": "OxThrottle",
+            "state": "0.482"
+        },
+        {
+            "time": "0.3",
+            "component": "FuThrottle",
+            "state": "0.536"
+        },
+        {
+            "time": "0.6",
+            "component": "OxThrottle",
+            "state": "0.505"
+        },
+        {
+            "time": "0.6",
+            "component": "FuThrottle",
+            "state": "0.562"
+        },
+        {
+            "time": "1.0",
+            "component": "OxThrottle",
+            "state": "0.523"
+        },
+        {
+            "time": "1.0",
+            "component": "FuThrottle",
+            "state": "0.582"
+        },
+        {
+            "time": "1.6",
+            "component": "OxThrottle",
+            "state": "0.529"
+        },
+        {
+            "time": "1.6",
+            "component": "FuThrottle",
+            "state": "0.588"
+        },
+        {
+            "time": "2.5",
+            "component": "OxThrottle",
+            "state": "0.517"
+        },
+        {
+            "time": "2.5",
+            "component": "FuThrottle",
+            "state": "0.576"
+        },
+        {
+            "time": "3.5",
+            "component": "OxThrottle",
+            "state": "0.495"
+        },
+        {
+            "time": "3.5",
+            "component": "FuThrottle",
+            "state": "0.55"
+        },
+        {
+            "time": "4.5",
+            "component": "OxThrottle",
+            "state": "0.473"
+        },
+        {
+            "time": "4.5",
+            "component": "FuThrottle",
+            "state": "0.526"
+        },
+        {
+            "time": "5.5",
+            "component": "OxThrottle",
+            "state": "0.408"
+        },
+        {
+            "time": "5.5",
+            "component": "FuThrottle",
+            "state": "0.454"
+        },
+        {
+            "time": "6.5",
+            "component": "OxThrottle",
+            "state": "0.369"
+        },
+        {
+            "time": "6.5",
+            "component": "FuThrottle",
+            "state": "0.411"
+        },
+        {
+            "time": "7.5",
+            "component": "OxThrottle",
+            "state": "0.369"
+        },
+        {
+            "time": "7.5",
+            "component": "FuThrottle",
+            "state": "0.411"
+        },
+        {
+            "time": "8.5",
+            "component": "OxThrottle",
+            "state": "0.369"
+        },
+        {
+            "time": "8.5",
+            "component": "FuThrottle",
+            "state": "0.411"
+        },
+        {
+            "time": "9.5",
+            "component": "OxThrottle",
+            "state": "0.369"
+        },
+        {
+            "time": "9.5",
+            "component": "FuThrottle",
+            "state": "0.411"
+        },
+        {
+            "time": "10.5",
+            "component": "OxThrottle",
+            "state": "0.396"
+        },
+        {
+            "time": "10.5",
+            "component": "FuThrottle",
+            "state": "0.441"
+        },
+        {
+            "time": "11.5",
+            "component": "OxThrottle",
+            "state": "0.411"
+        },
+        {
+            "time": "11.5",
+            "component": "FuThrottle",
+            "state": "0.457"
+        },
+        {
+            "time": "12.5",
+            "component": "OxThrottle",
+            "state": "0.417"
+        },
+        {
+            "time": "12.5",
+            "component": "FuThrottle",
+            "state": "0.464"
+        },
+        {
+            "time": "13.5",
+            "component": "OxThrottle",
+            "state": "0.419"
+        },
+        {
+            "time": "13.5",
+            "component": "FuThrottle",
+            "state": "0.466"
+        },
+        {
+            "time": "14.5",
+            "component": "OxThrottle",
+            "state": "0.419"
+        },
+        {
+            "time": "14.5",
+            "component": "FuThrottle",
+            "state": "0.466"
+        },
+        {
+            "time": "15.5",
+            "component": "OxThrottle",
+            "state": "0.37"
+        },
+        {
+            "time": "15.5",
+            "component": "FuThrottle",
+            "state": "0.412"
+        },
+        {
+            "time": "16.3",
+            "component": "OxThrottle",
+            "state": "0.369"
+        },
+        {
+            "time": "16.3",
+            "component": "FuThrottle",
+            "state": "0.411"
+        },
+        {
+            "time": "17.3",
+            "component": "OxThrottle",
+            "state": "0.369"
+        },
+        {
+            "time": "17.3",
+            "component": "FuThrottle",
+            "state": "0.411"
+        },
+        {
+            "time": "18.3",
+            "component": "OxThrottle",
+            "state": "0.369"
+        },
+        {
+            "time": "18.3",
+            "component": "FuThrottle",
+            "state": "0.411"
+        },
+        {
+            "time": "19.3",
+            "component": "OxThrottle",
+            "state": "0.369"
+        },
+        {
+            "time": "19.3",
+            "component": "FuThrottle",
+            "state": "0.411"
+        },
+        {
+            "time": "20.3",
+            "component": "OxThrottle",
+            "state": "0.369"
+        },
+        {
+            "time": "20.3",
+            "component": "FuThrottle",
+            "state": "0.411"
+        },
+        {
+            "time": "21.3",
+            "component": "OxThrottle",
+            "state": "0.369"
+        },
+        {
+            "time": "21.3",
+            "component": "FuThrottle",
+            "state": "0.411"
+        },
+        {
+            "time": "21.8",
+            "component": "OxThrottle",
+            "state": "0.43"
+        },
+        {
+            "time": "21.8",
+            "component": "FuThrottle",
+            "state": "0.478"
+        },
+        {
+            "time": "22.4",
+            "component": "OxThrottle",
+            "state": "0.474"
+        },
+        {
+            "time": "22.4",
+            "component": "FuThrottle",
+            "state": "0.528"
+        },
+        {
+            "time": "23.1",
+            "component": "OxThrottle",
+            "state": "0.476"
+        },
+        {
+            "time": "23.1",
+            "component": "FuThrottle",
+            "state": "0.529"
+        },
+        {
+            "time": "24.1",
+            "component": "OxThrottle",
+            "state": "0.461"
+        },
+        {
+            "time": "24.1",
+            "component": "FuThrottle",
+            "state": "0.513"
+        },
+        {
+            "time": "25.1",
+            "component": "OxThrottle",
+            "state": "0.443"
+        },
+        {
+            "time": "25.1",
+            "component": "FuThrottle",
+            "state": "0.493"
+        },
+        {
+            "time": "26.1",
+            "component": "OxThrottle",
+            "state": "0.427"
+        },
+        {
+            "time": "26.1",
+            "component": "FuThrottle",
+            "state": "0.475"
+        },
+        {
+            "time": "27.1",
+            "component": "OxThrottle",
+            "state": "0.415"
+        },
+        {
+            "time": "27.1",
+            "component": "FuThrottle",
+            "state": "0.462"
+        },
+        {
+            "time": "28.1",
+            "component": "OxThrottle",
+            "state": "0.407"
+        },
+        {
+            "time": "28.1",
+            "component": "FuThrottle",
+            "state": "0.453"
+        },
+        {
+            "time": "29.1",
+            "component": "OxThrottle",
+            "state": "0.402"
+        },
+        {
+            "time": "29.1",
+            "component": "FuThrottle",
+            "state": "0.447"
+        },
+        {
+            "time": "29.7",
+            "component": "OxThrottle",
+            "state": "0.399"
+        },
+        {
+            "time": "29.7",
+            "component": "FuThrottle",
+            "state": "0.444"
+        }
+    ]
+}
