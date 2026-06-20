@@ -1,0 +1,28 @@
+{
+  "name": "nitrogen_blowdown_vent",
+  "description": "Design a transient blowdown: a high-pressure nitrogen tank venting through an orifice to atmosphere. The tank should depressurize meaningfully over the simulated window as gas escapes, but must not over-vent below atmospheric pressure.",
+  "design_guidance": {
+    "must_include_nodes": ["supply_tank", "atmosphere"],
+    "must_include_connections": ["vent"],
+    "notes": [
+      "supply_tank is a Node holding high-pressure Nitrogen (start well above 1 MPa).",
+      "atmosphere is an Ambient at 101325 Pa.",
+      "vent is a Connection from supply_tank to atmosphere; size CdA so that meaningful flow occurs within the run.",
+      "Choose duration and dt so the depressurization transient is well resolved."
+    ]
+  },
+  "checks": [
+    {"id": "ran", "type": "status", "op": "==", "value": "ok",
+     "description": "Simulation runs without invalid-config or solver crash."},
+    {"id": "node_samples", "type": "sim", "field": "has_node_samples", "op": "==", "value": true,
+     "description": "Node histories were recorded."},
+    {"id": "flow_happens", "type": "sim", "field": "has_nonzero_flow", "op": "==", "value": true,
+     "description": "Mass actually flows through the network."},
+    {"id": "tank_depressurizes", "type": "component", "component": "supply_tank", "field": "P", "stat": "delta", "op": "<", "value": -500000.0,
+     "description": "Tank pressure drops by at least 5 bar over the run (delta < -5e5 Pa)."},
+    {"id": "no_over_vent", "type": "component", "component": "supply_tank", "field": "P", "stat": "min", "op": ">", "value": 101325.0,
+     "description": "Tank never drops below atmospheric pressure."},
+    {"id": "physical", "type": "no_warnings", "op": "==", "value": true,
+     "description": "No nonphysical-value or degenerate-flow warnings from the solver."}
+  ]
+}

@@ -1,0 +1,52 @@
+{
+  "name": "lox_methane_engine",
+  "description": "Design a minimal LOX/methane liquid rocket engine and size its propellant feeds so the engine reaches a target operating point. The engine burns LOX (oxidizer) and methane/CH4 (fuel). You must hit FOUR coupled requirements at end of burn: thrust in [1500, 2500] N, mixture ratio (MR = mdot_ox/mdot_fuel) in [2.8, 3.6], chamber pressure at least 1.2 MPa, and specific impulse at least 195 s. Thrust and chamber pressure are driven by TOTAL propellant flow; MR is driven by the RATIO of oxidizer-feed to fuel-feed flow. So tune the two feed orifices together: the ox/fuel CdA ratio sets MR, and the overall CdA magnitude sets thrust/Pc. The verdict reports the actual measured thrust, MR, Pc and Isp each run -- use them to converge.",
+  "design_guidance": {
+    "must_include_nodes": ["ox_tank", "fuel_tank", "engine"],
+    "must_include_connections": ["ox_feed", "fuel_feed"],
+    "engine_topology": [
+      "The Engine node MUST have exactly one oxidizer feed and one fuel feed ending at it.",
+      "Oxidizer vs fuel is decided by the SOURCE node's fluid: a source whose fluid is Oxygen (or LOX) is the oxidizer feed; the methane source is the fuel feed.",
+      "ox_tank: a Node with fluid 'Oxygen' (liquid O2, ~90 K), high pressure.",
+      "fuel_tank: a Node with fluid 'Methane' (~110 K), high pressure.",
+      "engine: an Engine node named 'engine' with params fuel='CH4', oxidizer='LOX'.",
+      "ox_feed: a Connection from ox_tank to engine. fuel_feed: a Connection from fuel_tank to engine."
+    ],
+    "recommended_fixed": {
+      "propellant_tank_pressure_Pa": 5000000.0,
+      "propellant_tank_volume_L": 50.0,
+      "engine_At_m2": 0.00067,
+      "engine_Ae_m2": 0.00236,
+      "engine_Pa_Pa": 101325.0,
+      "eta_cstar": 0.9,
+      "eta_cf": 0.95,
+      "duration_s": 3.0,
+      "dt_s": 0.01
+    },
+    "tunable": ["ox_feed CdA (m^2)", "fuel_feed CdA (m^2)"],
+    "notes": [
+      "Good starting point: ox_feed CdA ~ 2-3e-5, fuel_feed CdA ~ 1-1.5e-5.",
+      "Larger total CdA -> more flow -> higher thrust and Pc. Higher ox/fuel CdA ratio -> higher MR.",
+      "Requirements are checked at end of burn (the 'final' value), which avoids the ignition transient.",
+      "Engine sims emit a benign 'engine has unchanged m history' warning -- that is expected and not graded."
+    ]
+  },
+  "checks": [
+    {"id": "ran", "type": "status", "op": "==", "value": "ok",
+     "description": "Simulation runs without invalid-config or solver crash."},
+    {"id": "flow_happens", "type": "sim", "field": "has_nonzero_flow", "op": "==", "value": true,
+     "description": "Propellant actually flows."},
+    {"id": "thrust_min", "type": "component", "component": "engine", "field": "thrust", "stat": "final", "op": ">=", "value": 1500.0,
+     "description": "End-of-burn thrust is at least 1500 N."},
+    {"id": "thrust_max", "type": "component", "component": "engine", "field": "thrust", "stat": "final", "op": "<=", "value": 2500.0,
+     "description": "End-of-burn thrust is at most 2500 N."},
+    {"id": "mr_min", "type": "component", "component": "engine", "field": "MR", "stat": "final", "op": ">=", "value": 2.8,
+     "description": "End-of-burn mixture ratio is at least 2.8."},
+    {"id": "mr_max", "type": "component", "component": "engine", "field": "MR", "stat": "final", "op": "<=", "value": 3.6,
+     "description": "End-of-burn mixture ratio is at most 3.6 (LOX/CH4 sensible range)."},
+    {"id": "chamber_pressure", "type": "component", "component": "engine", "field": "P", "stat": "final", "op": ">=", "value": 1200000.0,
+     "description": "End-of-burn chamber pressure is at least 1.2 MPa."},
+    {"id": "isp", "type": "component", "component": "engine", "field": "Isp", "stat": "final", "op": ">=", "value": 195.0,
+     "description": "End-of-burn specific impulse is at least 195 s."}
+  ]
+}

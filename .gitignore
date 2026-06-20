@@ -1,0 +1,12 @@
+# Secrets — never commit
+.env
+.env.*
+!.env.example
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+
+# Loop run artifacts
+results/loop_runs/
