@@ -1,264 +1,213 @@
-# General Fluid Network
+<div align="center">
 
-Transient fluid-network simulation tools for feed systems, tanks, pressurization systems, valves, regulators, pipes, and simple rocket-engine performance coupling.
+<img src="rocketcursor_logo.png" alt="RocketCursor" width="96" />
 
-The core solver lives in `simulator/general_fluid_network.py`. Networks can be built directly in Python or run from JSON configs with `python -m simulator.run_network`.
+# RocketCursor
 
-## What This Code Does
+**From a one-line prompt to a 6-DOF flight.**
 
-- Models fluid nodes, ambient boundaries, two-phase tanks with ullage, and simple engine nodes.
-- Models connections such as orifices, valves, throttle valves, bang-bang regulators, pipe lines, and series-connected components.
-- Uses CoolProp for thermodynamic properties, with optional REFPROP support when installed.
-- Runs time-marching simulations with scheduled valve/controller actions.
-- Plots node and connection histories with Matplotlib.
-- Provides a local web UI for chat-driven design runs and manual JSON uploads.
-- Provides a command-line JSON runner for automated validation, simulation, and result export.
+Design a pressure-fed liquid-rocket propulsion system in natural language, prove it out in a transient thermofluid simulation, physicalize it into a complete flight vehicle, and fly it — all in the browser.
 
-## Repository Layout
+![Python](https://img.shields.io/badge/Python-3.10+-3776AB?logo=python&logoColor=white)
+![FastAPI](https://img.shields.io/badge/API-FastAPI-009688?logo=fastapi&logoColor=white)
+![React](https://img.shields.io/badge/UI-React%20+%20R3F-61DAFB?logo=react&logoColor=white)
+![Three.js](https://img.shields.io/badge/3D-three.js-000000?logo=threedotjs&logoColor=white)
+![RocketPy](https://img.shields.io/badge/Flight-RocketPy-FF6B00)
+
+</div>
+
+---
+
+## Overview
+
+RocketCursor turns a natural-language propulsion request into a fully simulated rocket. A deterministic **design loop** proposes a piping-and-instrumentation diagram (P&ID); a **transient solver** proves out the fluid system; and a **physics pipeline** sizes the hardware, synthesizes a vehicle, and flies it in six degrees of freedom. Everything is surfaced through three interactive 3-D twins, a one-click design-rationale report, and automated supplier quoting.
+
+A guiding principle runs through the stack: **the LLM proposes, deterministic code decides.** Every engineering number is computed by a solver or a documented model, validated against a versioned JSON-Schema contract, and carries provenance — nothing is silently invented.
+
+## The pipeline
 
 ```text
-simulator/general_fluid_network.py        Core node, connection, tank, engine, network, and plotting classes
-simulator/network_io.py                   JSON loader, validator, runner, and result exporter
-simulator/run_network.py                  Command-line JSON simulation runner
-simulator/fluid_network_mcp.py            MCP server exposing the solver as structured agent tools
-simulator/network_schema.json             JSON format reference for agents and tools
-simulator/network_configs/                JSON network configurations
-tests/                          Loader, validator, CLI, and export tests
-requirements.txt                Python package pins for the solver stack
+  Prompt
+    │  natural-language request
+    ▼
+  Requirements  ─────────────────────────────► deterministic checks
+    │
+    ▼
+  P&ID design ◄──────────────┐  LLM proposes, evaluator decides
+    │                        │
+    ▼                        │ revise
+  Thermofluid simulation ────┘  tanks · valves · regulators · lines · engine (CEA)
+    │
+    ▼
+  Propulsion package  ⇄  packaging convergence   sizes tanks/engine/lines, re-routes,
+    │                                            re-solves until consistent
+    ▼
+  Vehicle synthesis        airframe · nose · auto-sized fins · Barrowman stability
+    │
+    ▼
+  6-DOF flight (RocketPy)   ignition → rail → max-Q → burnout → apogee → landing
+    │
+    ▼
+  Validation               design rules + Monte-Carlo dispersion
+    │
+    ├──────────────► Systems Twin   (internal plumbing + live telemetry)
+    ├──────────────► Vehicle Studio (the generated rocket, CG/CP/stability)
+    ├──────────────► Flight Twin    (the 6-DOF trajectory)
+    ├──────────────► Design report  (PDF: every choice + its rationale)
+    └──────────────► Procurement    (automated supplier RFQs)
 ```
 
-## Requirements
+## Highlights
 
-- Python 3.10+ recommended.
-- CoolProp is the default property backend.
-- REFPROP is optional. If installed, the code looks for it at `C:\Program Files\REFPROP` or the `RPPREFIX` environment variable.
+- **Prompt → P&ID design loop** — an LLM drafts the fluid system; a deterministic evaluator runs requirement checks and drives revisions until the design passes.
+- **Transient thermofluid solver** — two-phase tanks with ullage, orifices, valves, regulators, bang-bang controllers, pipe lines, and CEA-coupled engine performance, on a CoolProp/REFPROP property backend.
+- **Propulsion physicalization + convergence** — turns logical components into sized hardware (tank walls from hoop stress, engine envelope from throat/exit geometry, routed feed lines) and re-solves until plumbing and performance agree.
+- **Vehicle synthesis** — generates the full airframe around the propulsion package; body diameter is driven by the package envelope, and fins are auto-sized to a target static margin via the Barrowman method.
+- **6-DOF flight** — a RocketPy trajectory with time-varying mass, CG and inertia from the propellant burn.
+- **Independent validation** — engineering design rules (stability, thrust-to-weight, rail-exit velocity, constraint fits) plus a Monte-Carlo wind/mass dispersion.
+- **Three 3-D twins** — Systems, Vehicle and Flight views built with React Three Fiber, sharing one timeline.
+- **Design-rationale PDF** — a one-click report embedding the P&ID schematic and explaining every propellant, pressure and sizing choice, with the assumption ledger behind each.
+- **Automated procurement** — derives a bill of materials and stages supplier RFQs (McMaster-Carr) via a Browserbase/Stagehand agent.
 
-## Setup
+## Architecture
 
-From this directory:
+| Layer | Path | Responsibility |
+|---|---|---|
+| Thermofluid solver | `simulator/` | Transient fluid-network simulation, JSON I/O, CLI, and an MCP server. The source of truth for thermofluids. |
+| Design loop | `loop/` | The propose→simulate→evaluate→revise loop, spec writer, and deterministic evaluator. |
+| Flight pipeline | `backend/` | `propulsion_package/` → `vehicle_synthesis/` → `flight/` → `validation/`, chained by `pipeline.py`. |
+| Contracts | `shared/schemas/` | Versioned JSON Schemas: `mission_spec`, `propulsion_package`, `vehicle_model`, `flight_result`, plus `provenance` / `assumption`. |
+| Web API | `ui/backend/` | FastAPI app: design runs, the Build-&-Fly endpoint, procurement, and the report PDF. |
+| Web app | `ui/frontend/` | React + React Three Fiber UI: the P&ID canvas and the three twins. |
+| Procurement | `tools/procurement/` | Browserbase/Stagehand supplier-quote automation. |
+| Tests | `tests/`, `backend/tests/` | Unit and end-to-end pipeline tests. |
 
-```powershell
-python -m venv .venv
-.\.venv\Scripts\Activate.ps1
-python -m pip install --upgrade pip
+Coordinate frame across the pipeline: origin at the nozzle exit, **+Z toward the nose**, SI units throughout.
+
+## Quick start
+
+### Prerequisites
+
+- Python **3.10+** and Node **18+**
+- The solver stack (`numpy`, `scipy`, `CoolProp`, `matplotlib`); `rocketpy` for flight; `rocketcea` only for the real CEA engine path. REFPROP is optional and falls back to CoolProp.
+
+### Install
+
+```bash
+python -m venv .venv && source .venv/bin/activate      # Windows: .venv\Scripts\Activate.ps1
+python -m pip install -U pip
 python -m pip install -r requirements.txt
+
+cd ui/frontend && npm install && cd ../..
 ```
 
-If `rocketcea` or `ctREFPROP` installation fails, install the solver dependencies you need for the configs you plan to run. Non-engine simulations require `numpy`, `scipy`, `matplotlib`, and `CoolProp`; engine configs require `rocketcea`.
+### Run
 
-## Quick Start
-
-The main way to run this project is the local UI: start the FastAPI backend, start the Vite frontend, then open the frontend URL in your browser.
-
-Start the backend API from the repository root:
-
-```powershell
+```bash
+# 1) backend (from the repo root)
 python -m uvicorn ui.backend.app:app --reload --host 127.0.0.1 --port 8000
+
+# 2) frontend (second terminal)
+cd ui/frontend && npm run dev
 ```
 
-In a second terminal, start the frontend:
+Open the printed Vite URL — usually **http://localhost:5173**.
 
-```powershell
-cd ui\frontend
-npm install
-npm run dev
+### Try it without an API key
+
+The UI has three input modes: **Chat** (natural-language design — needs an LLM key), **JSON** (paste a `NetworkConfig` to visualize it instantly), and **Voice**.
+
+A pre-baked design is served from cache for one exact prompt, so you can drive the whole pipeline offline:
+
+> Design a simple pressure fed fluid system with a rocket engine block that uses kerosene and lox as the propellants and nitrogen as the pressurant gas.
+
+Submit it → **Build & Fly** runs physicalization → vehicle → 6-DOF flight → validation, then jumps to the Flight Twin. To make the procurement button work offline too, start the backend with `RC_PROCUREMENT_DEMO=1` (it replays a cached supplier RFQ instead of driving Browserbase).
+
+For full chat-driven design, copy `.env.example` to `.env` and set your LLM provider key.
+
+## Configuration
+
+Create `.env` at the repository root from `.env.example`. The frontend reads the same file, but only `VITE_`-prefixed variables are exposed to browser code. Manual JSON visualization needs no keys.
+
+## Beyond the UI
+
+<details>
+<summary><b>Simulator CLI</b> — run a P&ID without the browser</summary>
+
+```bash
+# validate only
+python -m simulator.run_network simulator/network_configs/tank_vent_to_atmosphere.json --validate-only
+
+# run and export CSV/JSON (+ PNG plots with --plots)
+python -m simulator.run_network simulator/network_configs/tank_vent_to_atmosphere.json --plots --out results/tank_vent
+
+# override runtime settings
+python -m simulator.run_network <config> --duration 5 --dt 0.1 --out results/short
 ```
 
-Open the Vite URL printed by `npm run dev`, usually:
+Each run writes `report.json` (the canonical one-file summary), plus `nodes.csv`, `connections.csv`, `summary.json`, `diagnostics.json`, and optional plots. `report.json` carries `status`, component roles, `key_stats` (with units), `derived_stats`, a deterministic `interpretation`, and artifact paths.
+</details>
 
-```powershell
-http://localhost:5173
-```
+<details>
+<summary><b>Agent / MCP access</b></summary>
 
-Use the UI in either mode:
-
-- `Chat`: type a plain-English design request. Real chat runs require the LLM keys from `.env`.
-- `JSON`: upload a simulator JSON file, such as `simulator\network_configs\tank_vent_to_atmosphere.json`.
-
-## Local P&ID Run Viewer
-
-The UI lives under `ui/` and keeps the simulator pipeline unchanged. The backend shells out to `python -m simulator.run_network`, writes manual JSON runs under `results/ui_runs/<run_id>/`, writes chat design runs under `results/ui_design_runs/<session_id>/`, and the frontend renders the latest simulated design as a generated 2D P&ID with animated flow from `nodes.csv` and `connections.csv`.
-
-For chat-driven design, create `.env` at the repository root from `.env.example` and set the required LLM API key for your selected provider. The frontend also reads this root `.env`; only `VITE_` variables are exposed to browser code. Manual JSON upload does not need an LLM key.
-
-## Simulator CLI
-
-Use the CLI for debugging configs or running simulations without the UI.
-
-Validate the tank vent example:
-
-```powershell
-python -m simulator.run_network simulator\network_configs\tank_vent_to_atmosphere.json --validate-only
-```
-
-Run it and export CSV, JSON, and PNG plots:
-
-```powershell
-python -m simulator.run_network simulator\network_configs\tank_vent_to_atmosphere.json --plots --out results\tank_vent_to_atmosphere
-```
-
-Open the plots on Windows:
-
-```powershell
-start results\tank_vent_to_atmosphere\nodes.png
-start results\tank_vent_to_atmosphere\connections.png
-```
-
-Verify the project after copying or changing support files:
-
-```powershell
-python -m unittest tests.test_network_io tests.test_fluid_network_mcp
-python -m simulator.run_network simulator\network_configs\tank_vent_to_atmosphere.json --validate-only
-```
-
-## Agent Usage
-
-Agents should prefer JSON configs plus machine-readable outputs. Use `report.json` as the one-file run summary before reading lower-level artifacts. Do not scrape plots or console text when the same data is available in `report.json`, `summary.json`, `diagnostics.json`, `nodes.csv`, or `connections.csv`.
-
-For formal agent access, run the MCP server from the repository root:
-
-```powershell
+```bash
 python -m simulator.fluid_network_mcp
 ```
 
-It exposes these tools:
+Exposes `get_network_schema()`, `validate_network(...)`, `run_network(...)`, and `read_result(...)`. Recommended flow: read the schema → validate → run into an explicit output dir → inspect `report.json` first, lower-level artifacts only if needed. The format is documented in `simulator/network_schema.json`.
+</details>
 
-- `get_network_schema()`: return the supported JSON schema.
-- `validate_network(config_path=None, config_json=None)`: validate a file config or inline JSON config.
-- `run_network(config_path=None, config_json=None, output_dir=None, duration=None, dt=None, plots=False)`: run and export results.
-- `read_result(output_dir, result_name)`: read known result files such as `report.json`, `report.md`, `summary.json`, `diagnostics.json`, `nodes_summary.json`, `connections_summary.json`, `nodes.csv`, or `connections.csv`.
-
-Recommended agent workflow:
-
-1. Read `simulator/network_schema.json` or call `get_network_schema()` before generating a new config.
-2. Validate before running: `validate_network(...)` or `python -m simulator.run_network <config> --validate-only`.
-3. Run into an explicit output directory so later steps have stable paths.
-4. Inspect `report.json` first for status, failures, warnings, component roles, key stats, derived stats, interpretation, and artifact paths.
-5. Read `diagnostics.json`, `summary.json`, or CSV files only when detailed follow-up is needed.
-6. Set `plots=True` or pass `--plots` only when image artifacts are needed for a human review.
-
-For shell-based agents and debugging, use the JSON runner.
-
-Validate a config:
-
-```powershell
-python -m simulator.run_network simulator\network_configs\tank_vent_to_atmosphere.json --validate-only
-```
-
-Run a config and export machine-readable results:
-
-```powershell
-python -m simulator.run_network simulator\network_configs\tank_vent_to_atmosphere.json --out results\tank_vent_to_atmosphere
-```
-
-Run a config and also save plots:
-
-```powershell
-python -m simulator.run_network simulator\network_configs\tank_vent_to_atmosphere.json --plots --out results\tank_vent_to_atmosphere
-```
-
-Override the JSON runtime settings:
-
-```powershell
-python -m simulator.run_network simulator\network_configs\tank_vent_to_atmosphere.json --duration 5 --dt 0.1 --out results\tank_vent_short
-```
-
-The runner writes:
-
-- `nodes.csv`: node and engine histories.
-- `connections.csv`: connection histories, including `Series` subcomponents as `series_name/component_name`.
-- `nodes_summary.json`: per-node min/max/final/delta summaries for numeric fields.
-- `connections_summary.json`: per-connection min/max/final/delta summaries, including `Series` subcomponents.
-- `diagnostics.json`: agent-oriented checks such as step count, action window, all-zero flow, and unchanged non-ambient node states.
-- `summary.json`: run metadata, component counts, final node states, diagnostics, warnings, and output paths.
-- `report.json`: canonical one-file agent report with `status`, `status_policy`, `components`, `key_stats`, `derived_stats`, `interpretation`, and `artifacts`.
-- `report.md`: human-readable companion generated from the same report data, including interpretation, recommendations, status checks, and key node/connection tables with units.
-- `nodes.png` and `connections.png`: generated only when `--plots` or `plots=True` is used.
-
-`report.json` is the best starting point for agents:
-
-- `status`: pass/fail result, hard failures, warnings, and required check results.
-- `status_policy`: explains which checks determine pass/fail; warnings are reported but do not fail a run.
-- `components`: node/connection inventory with kind, sample count, and heuristic roles such as `tank`, `boundary`, or `vent`.
-- `key_stats`: min/max/final/delta summaries with field labels and units.
-- `derived_stats`: agent-ready facts such as pressure drop, mass change, max/final flow, and whether flow stayed nonzero.
-- `interpretation`: deterministic summary, outcome, important observations, and recommended next actions.
-- `artifacts`: paths to the lower-level CSV, JSON, plot, and report files.
-
-The JSON format is documented in `simulator/network_schema.json`. Existing GUI-style JSON files remain supported by the loader.
-
-For JSON `Node` configs, prefer pressure/volume/temperature:
-
-```json
-{
-  "type": "Node",
-  "params": {
-    "fluid": "Nitrogen",
-    "P": 5000000,
-    "V": 10.0,
-    "T": 293.15,
-    "name": "tank"
-  }
-}
-```
-
-The loader converts `P`, `V`, and `T` to the internal node mass using the EOS. Legacy `m`, `V`, `T` nodes are still supported.
-
-Run the loader and CLI tests:
-
-```powershell
-python -m unittest tests.test_network_io tests.test_fluid_network_mcp
-```
-
-## Build A Network In Python
-
-Minimal Python example:
+<details>
+<summary><b>Build a network in Python</b></summary>
 
 ```python
 from simulator.general_fluid_network import Node, Ambient, Connection, Network, PropsSI_auto
 
-V_liters = 10.0
-rho = PropsSI_auto("D", "P", 5000000.0, "T", 293.15, "Nitrogen")
-tank = Node("Nitrogen", m=rho * (V_liters / 1000.0), V=V_liters, T=293.15, name="tank")
+rho = PropsSI_auto("D", "P", 5_000_000.0, "T", 293.15, "Nitrogen")
+tank = Node("Nitrogen", m=rho * (10.0 / 1000.0), V=10.0, T=293.15, name="tank")
 ambient = Ambient(fluid="Air", P=101325, T=293.15, name="ambient")
 orifice = Connection(CdA=1e-6, name="vent")
 
-network = Network({
-    orifice: (tank, ambient),
-})
-
-network.sim(t=10.0, dt=0.01)
+network = Network({orifice: (tank, ambient)})
+network.sim(t=10.0, dt=0.01)                       # actions={1.0: [(orifice, 0.0)]} to schedule a close
 network.plot_nodes_overlay([tank], units="SI")
-network.plot_connections_overlay([orifice], units="SI")
 ```
+</details>
 
-Scheduled actions are passed as a dictionary keyed by simulation time:
+<details>
+<summary><b>Run the pipeline programmatically</b></summary>
 
 ```python
-actions = {
-    1.0: [(orifice, 0.0)],  # close at 1.0 s
-    2.0: [(orifice, 1.0)],  # reopen at 2.0 s
-}
+import json
+from backend.pipeline import run_pipeline
 
-network.sim(t=5.0, dt=0.01, actions=actions)
+design = json.load(open("simulator/network_configs/pressure_fed_kero_lox.json"))
+manifest = run_pipeline(design, "shared/examples/mission_spec.pressure_fed_kero_lox.json", "results/my_run")
+print(manifest["stages"]["flight"]["report"]["apogee_m"])
+```
+</details>
+
+## Tests
+
+```bash
+python -m unittest discover -s tests           # solver, loop, UI backend, pipeline suites
+python -m pytest backend/tests/test_pipeline.py   # end-to-end P&ID → flight regression
 ```
 
 ## Units
 
-Use SI units unless a script explicitly converts for plotting or convenience.
+SI throughout, unless a value is explicitly converted for display.
 
-- Pressure: Pa
-- Temperature: K
-- Mass: kg
-- Mass flow: kg/s
-- Energy/enthalpy flow: J/s
-- `Node` volume argument `V`: liters
-- `Tank` total volume argument `V_total_L`: liters
-- `CdA`: m^2
-- `Line` inner diameter, length, and roughness: meters
+| Quantity | Unit | | Quantity | Unit |
+|---|---|---|---|---|
+| Pressure | Pa | | `Node.V`, `Tank.V_total_L` | liters |
+| Temperature | K | | `CdA` | m² |
+| Mass / mass flow | kg / kg·s⁻¹ | | `Line` ID, length, roughness | m |
+| Enthalpy flow | J·s⁻¹ | | Coordinate frame | nozzle-exit origin, +Z to nose |
 
 ## Notes
 
-- REFPROP is optional. If REFPROP or `ctREFPROP` is unavailable, the solver falls back to CoolProp.
-- `rocketcea` is required only when instantiating `Engine` nodes.
-- For formal agent workflows, use `python -m simulator.fluid_network_mcp`; for shell workflows, use JSON configs plus `python -m simulator.run_network`.
+- **REFPROP** is optional; without it the solver uses CoolProp.
+- **`rocketcea`** is required only to instantiate `Engine` nodes. Where the CEA extension can't load, the propulsion package falls back to an analytic engine estimate (tagged in the assumption ledger) and prefers real solver history wherever CEA is available.
+- Generated run artifacts live under `results/` and are git-ignored; cached demo fixtures are kept in-tree so the offline demo works on a fresh clone.
