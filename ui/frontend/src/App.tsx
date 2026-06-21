@@ -20,7 +20,7 @@ import {
   XCircle
 } from "lucide-react";
 import { PidCanvas } from "./components/PidCanvas";
-import { ConversationRecorder } from "./components/ConversationRecorder";
+import { VoiceAgentCopilot } from "./components/VoiceAgentCopilot";
 import type { DesignChangeExtraction } from "./components/ConversationRecorder";
 import { buildDiagram } from "./lib/diagram";
 import { parseSamplesCsv } from "./lib/csv";
@@ -644,20 +644,45 @@ export default function App() {
     await submitChatMessage(chatText);
   }
 
-  function handleChangesExtracted(extraction: DesignChangeExtraction) {
-    const requirements = changesToRequirements(extraction);
-    if (requirements) {
-      setInputMode("chat");
-      void submitChatMessage(requirements);
-    }
+  function handleVoiceSendToChat(text: string) {
+    const trimmed = text.trim();
+    if (!trimmed) return;
+    setChatText(trimmed);
+    setInputMode("chat");
   }
 
-  function handleRawTranscript(transcript: string) {
-    const message = transcript.trim();
-    if (message) {
-      setInputMode("chat");
-      void submitChatMessage(message);
+  function getDesignStatus(): string {
+    const state = designState;
+    if (!state) {
+      return "No design run has started yet. Give me the requirements and I'll launch one.";
     }
+    const latest = state.iterations[state.iterations.length - 1];
+    const verdict = latest?.verdict;
+    const iterations = state.iterations.length;
+    if (state.status === "error") {
+      const err = state.error ?? "unknown error";
+      if (/auth|api.?key|401|403|credential/i.test(err)) {
+        return (
+          "The design loop failed because backend API keys are not configured. " +
+          "Check ANTHROPIC_API_KEY in the server .env file, then retry from the Chat tab."
+        );
+      }
+      return `The run hit an error: ${err}. You can edit the requirements in Chat and run again.`;
+    }
+    if (state.status === "passed" || state.passed) {
+      return `The design passed all checks after ${iterations} iteration${iterations === 1 ? "" : "s"}.`;
+    }
+    if (state.status === "failed") {
+      return `The run finished without passing after ${iterations} iterations.${verdict ? ` ${verdict.summary}` : ""}`;
+    }
+    const stage = stageLabel(state.stage).toLowerCase();
+    const iter = state.current_iteration >= 0 ? `iteration ${state.current_iteration + 1}` : "the first pass";
+    if (verdict) {
+      const checks = verdict.checks ?? [];
+      const passed = checks.filter((check) => check.passed).length;
+      return `Still running. Currently ${stage} on ${iter}. Latest verdict: ${passed} of ${checks.length} checks passing.`;
+    }
+    return `Still running. Currently ${stage} on ${iter}.`;
   }
 
   const selected = selectedName(selectedId);
@@ -811,9 +836,10 @@ export default function App() {
         )}
 
         {inputMode === "voice" && (
-          <ConversationRecorder
-            onChangesExtracted={handleChangesExtracted}
-            onRawTranscript={handleRawTranscript}
+          <VoiceAgentCopilot
+            onStartDesign={(summary) => void submitChatMessage(summary)}
+            getDesignStatus={getDesignStatus}
+            onSendToChat={handleVoiceSendToChat}
           />
         )}
 

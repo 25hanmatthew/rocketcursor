@@ -1,14 +1,29 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import * as Sentry from "@sentry/react";
 import { AlertTriangle, Loader2, Mic, Sparkles, Square } from "lucide-react";
+import { ROCKET_KEYTERMS } from "../lib/keyterms";
 
 /* Voice-driven requirements capture.
    - Streams mic audio to Deepgram (nova-3) over a WebSocket for live transcription.
    - Summarizes the final transcript via Anthropic into structured design changes.
    All failure modes are surfaced inline (never via alert) and reported to Sentry. */
 
-const DEEPGRAM_URL =
-  "wss://api.deepgram.com/v1/listen?model=nova-3&smart_format=true&numerals=true&interim_results=true";
+// nova-3 keyterm prompting: one `keyterm` param per domain term boosts recognition
+// of rocket/fluid jargon. URLSearchParams encodes spaces and the `&` in "P&ID".
+function buildDeepgramUrl(): string {
+  const params = new URLSearchParams({
+    model: "nova-3",
+    smart_format: "true",
+    numerals: "true",
+    interim_results: "true",
+  });
+  for (const term of ROCKET_KEYTERMS) {
+    params.append("keyterm", term);
+  }
+  return `wss://api.deepgram.com/v1/listen?${params.toString()}`;
+}
+
+const DEEPGRAM_URL = buildDeepgramUrl();
 const ANTHROPIC_URL = "https://api.anthropic.com/v1/messages";
 const ANTHROPIC_MODEL = "claude-sonnet-4-6";
 const AUDIO_CHUNK_MS = 250;

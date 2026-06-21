@@ -1,0 +1,23 @@
+{
+  "session_id": "2ecc76618b2746c297b496a93079b7b7",
+  "request": "Pressure-fed system with LOX and kerosene at five hundred psi, both with ten-liter tanks, and a five-second run.",
+  "provider": "local",
+  "model": "local",
+  "status": "error",
+  "stage": "report",
+  "requirements": null,
+  "current_iteration": -1,
+  "iterations": [],
+  "passed": false,
+  "iterations_used": 0,
+  "report": {
+    "passed": false,
+    "headline": "TypeError: \"Could not resolve authentication method. Expected one of api_key, auth_token, or credentials to be set. Or for one of the `X-Api-Key` or `Authorization` headers to be explicitly omitted\"",
+    "iterations_used": 0,
+    "unmet_requirements": [],
+    "final_design": null
+  },
+  "error": "TypeError: \"Could not resolve authentication method. Expected one of api_key, auth_token, or credentials to be set. Or for one of the `X-Api-Key` or `Authorization` headers to be explicitly omitted\"",
+  "created_at": 1782017727.0005372,
+  "updated_at": 1782017727.0005472
+}

@@ -1,0 +1,8 @@
+{
+  "session_id": "40155e14135f4ef3a300e1033fd709ea",
+  "request": "Nitrogen venting system at five hundred psi, twenty liters volume, point two five kilograms per second flow rate, running for five seconds.",
+  "status": "error",
+  "created_at": 1782017933.351694,
+  "error": "TypeError: \"Could not resolve authentication method. Expected one of api_key, auth_token, or credentials to be set. Or for one of the `X-Api-Key` or `Authorization` headers to be explicitly omitted\"",
+  "completed_at": 1782017933.3801441
+}

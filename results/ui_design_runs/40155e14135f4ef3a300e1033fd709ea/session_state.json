@@ -1,0 +1,23 @@
+{
+  "session_id": "40155e14135f4ef3a300e1033fd709ea",
+  "request": "Nitrogen venting system at five hundred psi, twenty liters volume, point two five kilograms per second flow rate, running for five seconds.",
+  "provider": "local",
+  "model": "local",
+  "status": "error",
+  "stage": "report",
+  "requirements": null,
+  "current_iteration": -1,
+  "iterations": [],
+  "passed": false,
+  "iterations_used": 0,
+  "report": {
+    "passed": false,
+    "headline": "TypeError: \"Could not resolve authentication method. Expected one of api_key, auth_token, or credentials to be set. Or for one of the `X-Api-Key` or `Authorization` headers to be explicitly omitted\"",
+    "iterations_used": 0,
+    "unmet_requirements": [],
+    "final_design": null
+  },
+  "error": "TypeError: \"Could not resolve authentication method. Expected one of api_key, auth_token, or credentials to be set. Or for one of the `X-Api-Key` or `Authorization` headers to be explicitly omitted\"",
+  "created_at": 1782017933.37986,
+  "updated_at": 1782017933.379863
+}

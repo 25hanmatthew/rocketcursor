@@ -1,0 +1,8 @@
+{
+  "session_id": "e945e37906ff488a9c6741f67913ebcc",
+  "request": "kerosene box rocket fluid system, nitrogen gas at forty five hundred psi, ten liters tank volume, one liter per minute flow rate, five second run duration.",
+  "status": "error",
+  "created_at": 1782019326.638675,
+  "error": "TypeError: \"Could not resolve authentication method. Expected one of api_key, auth_token, or credentials to be set. Or for one of the `X-Api-Key` or `Authorization` headers to be explicitly omitted\"",
+  "completed_at": 1782019327.053036
+}

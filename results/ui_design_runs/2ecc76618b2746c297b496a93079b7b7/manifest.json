@@ -1,0 +1,8 @@
+{
+  "session_id": "2ecc76618b2746c297b496a93079b7b7",
+  "request": "Pressure-fed system with LOX and kerosene at five hundred psi, both with ten-liter tanks, and a five-second run.",
+  "status": "error",
+  "created_at": 1782017726.567578,
+  "error": "TypeError: \"Could not resolve authentication method. Expected one of api_key, auth_token, or credentials to be set. Or for one of the `X-Api-Key` or `Authorization` headers to be explicitly omitted\"",
+  "completed_at": 1782017727.000843
+}

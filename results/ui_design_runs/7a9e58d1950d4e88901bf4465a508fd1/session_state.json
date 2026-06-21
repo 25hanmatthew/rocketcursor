@@ -1,0 +1,23 @@
+{
+  "session_id": "7a9e58d1950d4e88901bf4465a508fd1",
+  "request": "kerosene box rocket fluid system, nitrogen gas at forty five hundred psi, ten liters tank volume, one liter per minute flow rate, five second run duration.",
+  "provider": "local",
+  "model": "local",
+  "status": "error",
+  "stage": "report",
+  "requirements": null,
+  "current_iteration": -1,
+  "iterations": [],
+  "passed": false,
+  "iterations_used": 0,
+  "report": {
+    "passed": false,
+    "headline": "TypeError: \"Could not resolve authentication method. Expected one of api_key, auth_token, or credentials to be set. Or for one of the `X-Api-Key` or `Authorization` headers to be explicitly omitted\"",
+    "iterations_used": 0,
+    "unmet_requirements": [],
+    "final_design": null
+  },
+  "error": "TypeError: \"Could not resolve authentication method. Expected one of api_key, auth_token, or credentials to be set. Or for one of the `X-Api-Key` or `Authorization` headers to be explicitly omitted\"",
+  "created_at": 1782019346.14214,
+  "updated_at": 1782019346.142148
+}

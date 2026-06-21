@@ -1,0 +1,23 @@
+{
+  "session_id": "e0ed0e04b80d4ae1b856478983ed1e98",
+  "request": "Rocket system with two hundred fifty pounds of thrust, using kerosene and LOX as propellants, nitrogen gas at four thousand five hundred psi, tank pressure at five hundred psi, tank volume of ten liters each, flow rate to be determined, simulation duration of five seconds.",
+  "provider": "local",
+  "model": "local",
+  "status": "error",
+  "stage": "report",
+  "requirements": null,
+  "current_iteration": -1,
+  "iterations": [],
+  "passed": false,
+  "iterations_used": 0,
+  "report": {
+    "passed": false,
+    "headline": "TypeError: \"Could not resolve authentication method. Expected one of api_key, auth_token, or credentials to be set. Or for one of the `X-Api-Key` or `Authorization` headers to be explicitly omitted\"",
+    "iterations_used": 0,
+    "unmet_requirements": [],
+    "final_design": null
+  },
+  "error": "TypeError: \"Could not resolve authentication method. Expected one of api_key, auth_token, or credentials to be set. Or for one of the `X-Api-Key` or `Authorization` headers to be explicitly omitted\"",
+  "created_at": 1782019019.8406131,
+  "updated_at": 1782019019.8406248
+}
