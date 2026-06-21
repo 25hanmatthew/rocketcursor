@@ -217,7 +217,33 @@ def effective_system_prompt(soundness_guidance: bool = True) -> str:
     return SYSTEM_PROMPT + (SOUNDNESS_GUIDANCE if soundness_guidance else "")
 
 
-def _first_user_message(spec: dict, protect=lambda s: s, seed: dict | None = None) -> str:
+def _compact_revision_context(revision_context: dict | None) -> dict:
+    if not revision_context:
+        return {}
+    report = revision_context.get("base_report") or {}
+    status = report.get("status") if isinstance(report, dict) else {}
+    simulation_result = revision_context.get("base_simulation_result") or {}
+    return {
+        "revision_request": revision_context.get("message"),
+        "parent_session_id": revision_context.get("parent_session_id"),
+        "parent_iteration": revision_context.get("parent_iteration"),
+        "prior_report": {
+            "duration": report.get("duration") if isinstance(report, dict) else None,
+            "dt": report.get("dt") if isinstance(report, dict) else None,
+            "passed": status.get("passed") if isinstance(status, dict) else None,
+            "failures": status.get("failures", [])[:10] if isinstance(status, dict) else [],
+            "warnings": status.get("warnings", [])[:10] if isinstance(status, dict) else [],
+        },
+        "prior_simulation_status": simulation_result.get("status") if isinstance(simulation_result, dict) else None,
+    }
+
+
+def _first_user_message(
+    spec: dict,
+    protect=lambda s: s,
+    seed: dict | None = None,
+    revision_context: dict | None = None,
+) -> str:
     message = (
         "Design a fluid network that satisfies this requirements spec.\n\n"
         "SPEC:\n" + protect(json.dumps(spec, indent=2)) + "\n\n"
@@ -230,6 +256,24 @@ def _first_user_message(spec: dict, protect=lambda s: s, seed: dict | None = Non
             "numeric values first.\n\n"
             "SEED METADATA:\n" + protect(json.dumps(seed["metadata"], indent=2)) + "\n\n"
             "SEED JSON:\n" + protect(json.dumps(seed["design"], indent=2)) + "\n\n"
+        )
+    if revision_context:
+        message += (
+            "REVISION CONTEXT:\n"
+            "You are revising an existing simulator design in response to the "
+            "follow-up request below. Preserve the base design topology, component "
+            "names, and working simulator structure unless the follow-up request "
+            "or revised spec makes a topology change necessary. Make the smallest "
+            "full-JSON change needed, then submit the complete revised design.\n\n"
+            "REVISION REQUEST:\n"
+            + protect(str(revision_context.get("message", "")))
+            + "\n\n"
+            "PRIOR RUN SUMMARY:\n"
+            + protect(json.dumps(_compact_revision_context(revision_context), indent=2))
+            + "\n\n"
+            "BASE DESIGN JSON:\n"
+            + protect(json.dumps(revision_context.get("base_design") or {}, indent=2))
+            + "\n\n"
         )
     return message + "Call submit_design with your design now."
 
@@ -256,7 +300,8 @@ def _verdict_feedback(verdict, result) -> str:
 def run_loop(spec_path: str | Path, max_iters: int = 4, use_compression: bool = False,
              store: SessionStore | None = None, session_id: str | None = None,
              request: str | None = None, max_restarts: int = 2,
-             soundness_guidance: bool = False) -> dict:
+             soundness_guidance: bool = False,
+             revision_context: dict | None = None) -> dict:
     _load_dotenv()
     enable_tracing()  # Arize AX: auto-traces ASI1/OpenAI calls if ARIZE_* creds are set
     init_sentry(component="loop")  # error monitoring; no-op without SENTRY_DSN
@@ -270,12 +315,16 @@ def run_loop(spec_path: str | Path, max_iters: int = 4, use_compression: bool = 
     _maybe_enable_compression(session, use_compression)
     trace = {"spec": spec["name"], "provider": session.provider, "model": session.model,
              "compression": use_compression, "restarts": 0, "iterations": []}
+    if revision_context:
+        trace["revision"] = _compact_revision_context(revision_context)
 
     # session state for the Redis/UI seam (filesystem store unless REDIS_URL is set)
     store = store or get_store()
     session_id = session_id or spec["name"]
     state = new_state(session_id, request or spec["name"], session.provider, session.model)
     state["requirements"] = requirements_view(spec)   # -> UI requirements-review screen
+    if revision_context:
+        state["revision"] = _compact_revision_context(revision_context)
     state["stage"] = "design"
     store.write(state)
 
@@ -283,7 +332,7 @@ def run_loop(spec_path: str | Path, max_iters: int = 4, use_compression: bool = 
     seed = get_design_seed(seed_name)
     if seed_name and seed is None:
         print(f"[loop] unknown design_seed {seed_name!r}; continuing without seed")
-    first_msg = _first_user_message(spec, protect, seed=seed)
+    first_msg = _first_user_message(spec, protect, seed=seed, revision_context=revision_context)
 
     # Ground the design in real prior failures (PRD "memory retrieval"). Guarded:
     # no-op without the memory layer (Redis + VOYAGE_API_KEY). Prose, so it's safe

@@ -327,6 +327,24 @@ class TestSpecWriterSeeds(unittest.TestCase):
         self.assertEqual(checks["lox_feed_flow"]["stat"], "nonzero_count")
         self.assertEqual(checks["kerosene_feed_flow"]["component"], "kerosene_feed_line")
 
+    def test_revise_spec_prompt_preserves_existing_checks(self):
+        from unittest import mock
+
+        from loop import spec_writer
+
+        base_spec = {"name": "s", "description": "base", "checks": [{"id": "ran", "type": "status", "op": "==", "value": "ok"}]}
+        base_design = {"nodes": [{"id": 0, "type": "Node", "params": {"name": "tank"}}], "connections": []}
+        with mock.patch("loop.spec_writer.one_tool_call") as one_tool_call:
+            one_tool_call.return_value = base_spec
+            out = spec_writer.revise_spec(base_spec, "make the tank smaller", base_design, {"status": {"passed": True}})
+
+        self.assertEqual(out, base_spec)
+        system_prompt, user_prompt, *_ = one_tool_call.call_args.args
+        self.assertIn("Revision mode", system_prompt)
+        self.assertIn("Preserve the base spec's checks", system_prompt)
+        self.assertIn("make the tank smaller", user_prompt)
+        self.assertIn("CURRENT DESIGN JSON", user_prompt)
+
 
 class TestClassifier(unittest.TestCase):
     def _o(self, status="ok", passed=False, n=2, total=6):
@@ -386,6 +404,25 @@ class TestAgentPrompt(unittest.TestCase):
         self.assertIn('"lox_feed_line"', prompt)
         self.assertIn('"kerosene_feed_line"', prompt)
         self.assertIn("Preserve component names", prompt)
+
+    def test_first_prompt_includes_revision_context(self):
+        from loop.agent import _first_user_message
+
+        prompt = _first_user_message(
+            {"name": "s", "checks": []},
+            revision_context={
+                "message": "make the tank smaller",
+                "parent_session_id": "abc",
+                "parent_iteration": 2,
+                "base_design": {"nodes": [{"id": 0, "type": "Node", "params": {"name": "tank"}}], "connections": []},
+                "base_report": {"status": {"passed": True, "failures": [], "warnings": []}},
+                "base_simulation_result": {"status": "ok"},
+            },
+        )
+        self.assertIn("REVISION CONTEXT", prompt)
+        self.assertIn("make the tank smaller", prompt)
+        self.assertIn("BASE DESIGN JSON", prompt)
+        self.assertIn("Preserve the base design topology", prompt)
 
 
 class TestMemoryHook(unittest.TestCase):

@@ -23,7 +23,7 @@ def _wait_for(predicate, timeout=3.0):
 
 
 def _fake_loop_run(spec_path, max_iters=8, use_compression=False, store=None,
-                   session_id=None, request=None, max_restarts=2):
+                   session_id=None, request=None, max_restarts=2, revision_context=None):
     from loop.session_state import new_state
 
     spec = json.loads(Path(spec_path).read_text(encoding="utf-8"))
@@ -239,6 +239,64 @@ class UiBackendTests(unittest.TestCase):
 
         response = self.client.get(f"/api/design-runs/{session_id}/artifact/0/../design.json")
         self.assertIn(response.status_code, {404, 422})
+
+    @mock.patch("ui.backend.app.run_loop", side_effect=_fake_loop_run)
+    @mock.patch("ui.backend.app.revise_spec")
+    def test_design_revision_creates_linked_child_session(self, revise_spec, run_loop_mock):
+        revise_spec.return_value = {
+            "name": "inline_demo_revision",
+            "checks": [{"id": "ran", "description": "ran", "type": "status", "op": "==", "value": "ok"}],
+        }
+        response = self.client.post(
+            "/api/design-runs",
+            json={"message": json.dumps({"name": "inline_demo", "checks": []})},
+        )
+        self.assertEqual(response.status_code, 200, response.text)
+        parent_id = response.json()["session_id"]
+        parent_status = _wait_for(
+            lambda: (
+                data if (data := self.client.get(f"/api/design-runs/{parent_id}").json())["state"]["status"] == "passed"
+                else None
+            )
+        )
+        self.assertEqual(parent_status["latest_playable"]["iteration"], 0)
+
+        revision_response = self.client.post(
+            f"/api/design-runs/{parent_id}/revisions",
+            json={"message": "make the tank smaller"},
+        )
+        self.assertEqual(revision_response.status_code, 200, revision_response.text)
+        payload = revision_response.json()
+        self.assertTrue(payload["ok"])
+        self.assertEqual(payload["parent_session_id"], parent_id)
+        child_id = payload["session_id"]
+
+        child_status = _wait_for(
+            lambda: (
+                data if (data := self.client.get(f"/api/design-runs/{child_id}").json())["state"]["status"] == "passed"
+                else None
+            )
+        )
+        manifest = child_status["manifest"]
+        self.assertEqual(manifest["source"], "revision")
+        self.assertEqual(manifest["parent_session_id"], parent_id)
+        self.assertEqual(manifest["parent_iteration"], 0)
+        self.assertEqual(manifest["revision_request"], "make the tank smaller")
+        self.assertTrue(Path(manifest["spec_path"]).exists())
+
+        revise_spec.assert_called_once()
+        self.assertEqual(revise_spec.call_args.args[1], "make the tank smaller")
+        revision_context = run_loop_mock.call_args_list[-1].kwargs["revision_context"]
+        self.assertEqual(revision_context["parent_session_id"], parent_id)
+        self.assertEqual(revision_context["parent_iteration"], 0)
+        self.assertEqual(revision_context["base_design"]["nodes"][0]["params"]["name"], "tank")
+
+    def test_design_revision_rejects_missing_parent(self):
+        response = self.client.post(
+            "/api/design-runs/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/revisions",
+            json={"message": "make the tank smaller"},
+        )
+        self.assertEqual(response.status_code, 404)
 
 
 if __name__ == "__main__":

@@ -130,6 +130,23 @@ Rules:
 - You MUST call submit_spec exactly once.
 """
 
+REVISION_SPEC_WRITER_SYSTEM = SPEC_WRITER_SYSTEM + """\
+
+Revision mode:
+- You are revising an EXISTING requirements spec based on a follow-up user
+  message. Emit a complete replacement spec, not a patch.
+- Preserve the base spec's checks, component names, design_guidance, and
+  deterministic pass/fail intent unless the follow-up explicitly changes a
+  target, constraint, component, topology requirement, or operating condition.
+- If the follow-up is only a design preference (for example, "make the tank
+  smaller"), keep the original checks and put the preference in
+  design_guidance.notes or design_guidance.tunable.
+- If the follow-up changes a numeric requirement, replace the relevant old
+  check(s) with a new tolerance/window check. Do not leave contradictory checks.
+- Keep the design_seed from the base spec unless the follow-up explicitly asks
+  for a different architecture that makes that seed inappropriate.
+"""
+
 
 def _append_unique(items: list, values) -> None:
     for value in values:
@@ -220,6 +237,45 @@ def nl_to_spec(request: str) -> dict:
             f"{seed_hint}\nCall submit_spec now.")
     spec = one_tool_call(SPEC_WRITER_SYSTEM, user, SUBMIT_SPEC_TOOL, tool_name="submit_spec")
     return apply_seed_guidance(spec, request)
+
+
+def revise_spec(base_spec: dict, revision_message: str, base_design: dict, base_report: dict | None = None) -> dict:
+    """Rewrite a complete spec for a follow-up revision request.
+
+    The spec writer may update checks if the user changes requirements, but
+    design-only preferences should preserve the original checks.
+    """
+    _load_dotenv()
+    base_report = base_report or {}
+    user = (
+        "Revise this existing requirements spec for a follow-up chat message.\n\n"
+        "FOLLOW-UP MESSAGE:\n"
+        f"{revision_message}\n\n"
+        "BASE SPEC:\n"
+        f"{json.dumps(base_spec, indent=2)}\n\n"
+        "CURRENT DESIGN JSON:\n"
+        f"{json.dumps(base_design, indent=2)}\n\n"
+        "CURRENT RUN REPORT SUMMARY:\n"
+        f"{json.dumps(_compact_report(base_report), indent=2)}\n\n"
+        "Emit the complete revised spec with submit_spec now."
+    )
+    spec = one_tool_call(REVISION_SPEC_WRITER_SYSTEM, user, SUBMIT_SPEC_TOOL, tool_name="submit_spec")
+    return spec
+
+
+def _compact_report(report: dict) -> dict:
+    status = report.get("status") if isinstance(report, dict) else None
+    return {
+        "duration": report.get("duration") if isinstance(report, dict) else None,
+        "dt": report.get("dt") if isinstance(report, dict) else None,
+        "status": {
+            "passed": status.get("passed") if isinstance(status, dict) else None,
+            "failures": status.get("failures", [])[:10] if isinstance(status, dict) else [],
+            "warnings": status.get("warnings", [])[:10] if isinstance(status, dict) else [],
+            "checks": status.get("checks", {}) if isinstance(status, dict) else {},
+        },
+        "component_counts": report.get("component_counts") if isinstance(report, dict) else None,
+    }
 
 
 def main(argv=None) -> int:

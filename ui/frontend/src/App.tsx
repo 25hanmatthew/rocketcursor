@@ -25,6 +25,7 @@ import { interpolateSample, numericValue, rowsByComponent, timeRange } from "./l
 import type {
   DiagramModel,
   DiagramNode,
+  DesignRunRevisionResponse,
   DesignRunStartResponse,
   DesignRunStatusResponse,
   LatestPlayableRun,
@@ -37,7 +38,6 @@ import type {
   StatusItem
 } from "./types";
 
-const metrics = ["P", "T", "m", "fill_level"];
 const PA_PER_PSI = 6894.757293168;
 const NEWTONS_PER_LBF = 4.4482216152605;
 
@@ -246,6 +246,24 @@ function NodeGlyph({ type }: { type: DiagramNode["type"] }) {
   return <Circle size={14} />;
 }
 
+export function loadedIterationForSession(key: string | null, sessionId: string | null): number | null {
+  if (!key || !sessionId || !key.startsWith(`${sessionId}:`)) return null;
+  const value = Number(key.split(":")[1]);
+  return Number.isInteger(value) ? value : null;
+}
+
+export function chatSubmissionTarget(
+  sessionId: string | null,
+  latestLoadedKey: string | null,
+  hasLoadedDesign: boolean
+): { kind: "revision"; url: string; iteration: number } | { kind: "new"; url: string } {
+  const iteration = loadedIterationForSession(latestLoadedKey, sessionId);
+  if (sessionId && hasLoadedDesign && iteration !== null) {
+    return { kind: "revision", url: `/api/design-runs/${sessionId}/revisions`, iteration };
+  }
+  return { kind: "new", url: "/api/design-runs" };
+}
+
 export default function App() {
   const [inputMode, setInputMode] = useState<InputMode>("chat");
   const [chatText, setChatText] = useState("");
@@ -259,7 +277,7 @@ export default function App() {
   const [nodeRows, setNodeRows] = useState<SampleRow[]>([]);
   const [connectionRows, setConnectionRows] = useState<SampleRow[]>([]);
   const [selectedId, setSelectedId] = useState<string | null>(null);
-  const [metric, setMetric] = useState(metrics[0]);
+  const metric = "P";
   const [time, setTime] = useState(0);
   const [playing, setPlaying] = useState(false);
   const [speed, setSpeed] = useState(1);
@@ -272,6 +290,8 @@ export default function App() {
   const nodeSamples = useMemo(() => rowsByComponent(nodeRows), [nodeRows]);
   const connectionSamples = useMemo(() => rowsByComponent(connectionRows), [connectionRows]);
   const range = useMemo(() => timeRange(nodeRows, connectionRows), [nodeRows, connectionRows]);
+  const loadedIteration = loadedIterationForSession(latestLoadedDesignKey, designSessionId);
+  const canReviseDesign = Boolean(designSessionId && loadedIteration !== null && config && !busy);
 
   function loadRunArtifacts(parsed: NetworkConfig, runReport: RunReport, nodesCsv: string, connectionsCsv: string) {
     const built = buildDiagram(parsed);
@@ -430,22 +450,31 @@ export default function App() {
   async function submitChatRequest() {
     const message = chatText.trim();
     if (!message) return;
+    const target = chatSubmissionTarget(designSessionId, latestLoadedDesignKey, Boolean(config));
     setBusy(true);
     setError(null);
     setPlaying(false);
     setDesignState(null);
     setLatestLoadedDesignKey(null);
     try {
-      const response = await fetch("/api/design-runs", {
+      const response = await fetch(target.url, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message })
+        body: JSON.stringify(target.kind === "revision" ? { message, iteration: target.iteration } : { message })
       });
-      const payload = (await response.json()) as DesignRunStartResponse;
+      const payload = (await response.json()) as DesignRunStartResponse | DesignRunRevisionResponse;
       if (!response.ok || !payload.ok) {
         throw new Error(payload.message || "Could not start design run");
       }
-      console.info(`[design-loop ${payload.session_id.slice(0, 8)}] started from chat`, { message });
+      if (target.kind === "revision") {
+        console.info(`[design-loop ${payload.session_id.slice(0, 8)}] started revision from chat`, {
+          message,
+          parent_session_id: designSessionId,
+          iteration: target.iteration
+        });
+      } else {
+        console.info(`[design-loop ${payload.session_id.slice(0, 8)}] started from chat`, { message });
+      }
       setDesignSessionId(payload.session_id);
     } catch (exc) {
       setBusy(false);
@@ -562,13 +591,17 @@ export default function App() {
             <textarea
               value={chatText}
               onChange={(event) => setChatText(event.target.value)}
-              placeholder="Describe the system to design, or enter a spec name like pressure_window_blowdown."
+              placeholder={
+                canReviseDesign
+                  ? "Ask for a revision to the displayed design."
+                  : "Describe the system to design, or enter a spec name like pressure_window_blowdown."
+              }
               disabled={busy}
               rows={5}
             />
             <button className="primary-action" type="submit" disabled={busy || !chatText.trim()}>
               <Send size={18} />
-              {busy && designSessionId ? "Loop running..." : "Run design loop"}
+              {busy && designSessionId ? "Loop running..." : canReviseDesign ? "Revise design" : "Run design loop"}
             </button>
           </form>
         ) : (
@@ -741,16 +774,6 @@ export default function App() {
                 onChange={(event) => setShowPartLabels(event.target.checked)}
               />
               Labels
-            </label>
-            <label>
-              Node metric
-              <select value={metric} onChange={(event) => setMetric(event.target.value)}>
-                {metrics.map((item) => (
-                  <option key={item} value={item}>
-                    {fieldDisplayName(item)}
-                  </option>
-                ))}
-              </select>
             </label>
           </div>
         </div>

@@ -1,0 +1,513 @@
+{
+  "session_id": "ceff58b57fd74d3b85085732da67a1c6",
+  "request": "make the pressure of the oxidizer tank 600 psi",
+  "provider": "asi1",
+  "model": "asi1",
+  "status": "passed",
+  "stage": "report",
+  "requirements": {
+    "name": "pressure_fed_lox_kerosene_system_d44ac686_ceff58b5",
+    "description": "Design a pressure-fed rocket engine feed system using LOX (liquid oxygen) and kerosene as propellants, with nitrogen (GN2) as the pressurant gas. The system must include: GN2 tank for pressurization, LOX tank, kerosene tank, a rocket engine block, pressurization lines from GN2 to each propellant tank, and feed lines from each tank to the engine. FIXED: component architecture (gn2_tank, lox_tank, kerosene_tank, engine, gn2_to_lox_pressurization, gn2_to_kerosene_pressurization, lox_feed_line, kerosene_feed_line), LOX tank initial pressure at 600 psi (4.13685 MPa +/- 5%). TUNABLE: tank pressures (except LOX tank initial pressure), volumes, initial masses, line diameters, and flow rates. The system must establish stable flow through both feed lines to the engine.",
+    "design_guidance": {
+      "design_seed": "pressure_fed_lox_kerosene",
+      "must_include_nodes": [
+        "gn2_tank",
+        "lox_tank",
+        "kerosene_tank",
+        "engine"
+      ],
+      "must_include_connections": [
+        "gn2_to_lox_pressurization",
+        "gn2_to_kerosene_pressurization",
+        "lox_feed_line",
+        "kerosene_feed_line"
+      ],
+      "fixed_constraints": {
+        "architecture": "pressure-fed with GN2 pressurant",
+        "lox_tank_initial_pressure": "600 psi (4.13685 MPa +/- 5%)"
+      },
+      "tunable": [
+        "tank_pressures",
+        "tank_volumes",
+        "initial_masses",
+        "line_diameters",
+        "flow_rates",
+        "tank pressures",
+        "tank volumes",
+        "feed CdA values",
+        "engine throat/exit area"
+      ],
+      "notes": [
+        "Use the pressure_fed_lox_kerosene seed as the starting template",
+        "Ensure GN2 pressurization maintains sufficient pressure in both propellant tanks",
+        "Both LOX and kerosene must flow to the engine during operation",
+        "Preserve the Engine node and the two feed Series connections into it.",
+        "Tune feed CdA values before changing topology.",
+        "If physical warnings mention a component, fix that component first.",
+        "LOX tank must start at 600 psi (4.13685 MPa) with +/- 5% tolerance"
+      ]
+    },
+    "checks": [
+      {
+        "id": "ran",
+        "description": "Simulation must complete without crashing or invalid configuration",
+        "target": "status",
+        "op": "==",
+        "value": "ok"
+      },
+      {
+        "id": "physical",
+        "description": "No nonphysical or degenerate warnings during simulation",
+        "target": "no_warnings",
+        "op": "==",
+        "value": true
+      },
+      {
+        "id": "lox_flow",
+        "description": "LOX feed line must have non-zero mass flow during operation",
+        "target": "lox_feed_line.nonzero_count",
+        "op": ">",
+        "value": 0
+      },
+      {
+        "id": "kerosene_flow",
+        "description": "Kerosene feed line must have non-zero mass flow during operation",
+        "target": "kerosene_feed_line.nonzero_count",
+        "op": ">",
+        "value": 0
+      },
+      {
+        "id": "gn2_pressurization_lox",
+        "description": "GN2 to LOX pressurization line must have non-zero mass flow",
+        "target": "gn2_to_lox_pressurization.nonzero_count",
+        "op": ">",
+        "value": 0
+      },
+      {
+        "id": "gn2_pressurization_kerosene",
+        "description": "GN2 to kerosene pressurization line must have non-zero mass flow",
+        "target": "gn2_to_kerosene_pressurization.nonzero_count",
+        "op": ">",
+        "value": 0
+      },
+      {
+        "id": "engine_pressure_positive",
+        "description": "Engine chamber pressure must be positive (above atmospheric)",
+        "target": "engine.min",
+        "op": ">",
+        "value": 101325
+      },
+      {
+        "id": "lox_tank_pressure_positive",
+        "description": "LOX tank pressure must remain positive throughout simulation",
+        "target": "lox_tank.min",
+        "op": ">",
+        "value": 0
+      },
+      {
+        "id": "kerosene_tank_pressure_positive",
+        "description": "Kerosene tank pressure must remain positive throughout simulation",
+        "target": "kerosene_tank.min",
+        "op": ">",
+        "value": 0
+      },
+      {
+        "id": "gn2_tank_pressure_positive",
+        "description": "GN2 tank pressure must remain positive throughout simulation",
+        "target": "gn2_tank.min",
+        "op": ">",
+        "value": 0
+      },
+      {
+        "id": "lox_tank_initial_pressure_min",
+        "description": "LOX tank initial pressure must be at least 600 psi - 5% (3.93 MPa)",
+        "target": "lox_tank.first",
+        "op": ">=",
+        "value": 3930000
+      },
+      {
+        "id": "lox_tank_initial_pressure_max",
+        "description": "LOX tank initial pressure must be at most 600 psi + 5% (4.34 MPa)",
+        "target": "lox_tank.first",
+        "op": "<=",
+        "value": 4340000
+      },
+      {
+        "id": "lox_feed_flow",
+        "description": "LOX feed line delivers non-zero mass flow to the engine.",
+        "target": "lox_feed_line.nonzero_count",
+        "op": ">",
+        "value": 0
+      },
+      {
+        "id": "kerosene_feed_flow",
+        "description": "Kerosene feed line delivers non-zero mass flow to the engine.",
+        "target": "kerosene_feed_line.nonzero_count",
+        "op": ">",
+        "value": 0
+      }
+    ]
+  },
+  "current_iteration": 0,
+  "iterations": [
+    {
+      "iteration": 0,
+      "status": "ok",
+      "node_status": {
+        "gn2_tank": "green",
+        "lox_tank": "green",
+        "kerosene_tank": "green",
+        "engine": "yellow",
+        "gn2_to_lox_pressurization": "green",
+        "gn2_to_kerosene_pressurization": "green",
+        "lox_feed_line": "green",
+        "lox_feed_line/lox_tank_to_engine_line": "green",
+        "lox_feed_line/lox_engine_injector": "green",
+        "kerosene_feed_line": "green",
+        "kerosene_feed_line/kerosene_tank_to_engine_line": "green",
+        "kerosene_feed_line/kerosene_engine_injector": "green"
+      },
+      "verdict": {
+        "passed": true,
+        "summary": "14/14 checks passed",
+        "checks": [
+          {
+            "id": "ran",
+            "description": "Simulation must complete without crashing or invalid configuration",
+            "passed": true,
+            "op": "==",
+            "expected": "ok",
+            "actual": "ok",
+            "detail": ""
+          },
+          {
+            "id": "physical",
+            "description": "No nonphysical or degenerate warnings during simulation",
+            "passed": true,
+            "op": "==",
+            "expected": true,
+            "actual": true,
+            "detail": ""
+          },
+          {
+            "id": "lox_flow",
+            "description": "LOX feed line must have non-zero mass flow during operation",
+            "passed": true,
+            "op": ">",
+            "expected": 0,
+            "actual": 300,
+            "detail": "lox_feed_line.mdot.nonzero_count=300"
+          },
+          {
+            "id": "kerosene_flow",
+            "description": "Kerosene feed line must have non-zero mass flow during operation",
+            "passed": true,
+            "op": ">",
+            "expected": 0,
+            "actual": 300,
+            "detail": "kerosene_feed_line.mdot.nonzero_count=300"
+          },
+          {
+            "id": "gn2_pressurization_lox",
+            "description": "GN2 to LOX pressurization line must have non-zero mass flow",
+            "passed": true,
+            "op": ">",
+            "expected": 0,
+            "actual": 300,
+            "detail": "gn2_to_lox_pressurization.mdot.nonzero_count=300"
+          },
+          {
+            "id": "gn2_pressurization_kerosene",
+            "description": "GN2 to kerosene pressurization line must have non-zero mass flow",
+            "passed": true,
+            "op": ">",
+            "expected": 0,
+            "actual": 300,
+            "detail": "gn2_to_kerosene_pressurization.mdot.nonzero_count=300"
+          },
+          {
+            "id": "engine_pressure_positive",
+            "description": "Engine chamber pressure must be positive (above atmospheric)",
+            "passed": true,
+            "op": ">",
+            "expected": 101325,
+            "actual": 2349526.5286096726,
+            "detail": "engine.P.min=2.34953e+06"
+          },
+          {
+            "id": "lox_tank_pressure_positive",
+            "description": "LOX tank pressure must remain positive throughout simulation",
+            "passed": true,
+            "op": ">",
+            "expected": 0,
+            "actual": 4080692.7922489583,
+            "detail": "lox_tank.P.min=4.08069e+06"
+          },
+          {
+            "id": "kerosene_tank_pressure_positive",
+            "description": "Kerosene tank pressure must remain positive throughout simulation",
+            "passed": true,
+            "op": ">",
+            "expected": 0,
+            "actual": 3410228.95290912,
+            "detail": "kerosene_tank.P.min=3.41023e+06"
+          },
+          {
+            "id": "gn2_tank_pressure_positive",
+            "description": "GN2 tank pressure must remain positive throughout simulation",
+            "passed": true,
+            "op": ">",
+            "expected": 0,
+            "actual": 28722257.933203522,
+            "detail": "gn2_tank.P.min=2.87223e+07"
+          },
+          {
+            "id": "lox_tank_initial_pressure_min",
+            "description": "LOX tank initial pressure must be at least 600 psi - 5% (3.93 MPa)",
+            "passed": true,
+            "op": ">=",
+            "expected": 3930000,
+            "actual": 4150997.5689165667,
+            "detail": "lox_tank.P.first=4.151e+06"
+          },
+          {
+            "id": "lox_tank_initial_pressure_max",
+            "description": "LOX tank initial pressure must be at most 600 psi + 5% (4.34 MPa)",
+            "passed": true,
+            "op": "<=",
+            "expected": 4340000,
+            "actual": 4150997.5689165667,
+            "detail": "lox_tank.P.first=4.151e+06"
+          },
+          {
+            "id": "lox_feed_flow",
+            "description": "LOX feed line delivers non-zero mass flow to the engine.",
+            "passed": true,
+            "op": ">",
+            "expected": 0,
+            "actual": 300,
+            "detail": "lox_feed_line.mdot.nonzero_count=300"
+          },
+          {
+            "id": "kerosene_feed_flow",
+            "description": "Kerosene feed line delivers non-zero mass flow to the engine.",
+            "passed": true,
+            "op": ">",
+            "expected": 0,
+            "actual": 300,
+            "detail": "kerosene_feed_line.mdot.nonzero_count=300"
+          }
+        ],
+        "notes": []
+      },
+      "decision": {
+        "action": "stop",
+        "reason": "all checks passed"
+      }
+    }
+  ],
+  "passed": true,
+  "iterations_used": 1,
+  "report": {
+    "passed": true,
+    "headline": "PASSED in 1 iteration(s).",
+    "iterations_used": 1,
+    "unmet_requirements": [],
+    "final_design": {
+      "settings": {
+        "duration": 3.0,
+        "dt": 0.01
+      },
+      "nodes": [
+        {
+          "id": 0,
+          "type": "Node",
+          "x": 0.0,
+          "y": 0.0,
+          "params": {
+            "fluid": "Nitrogen",
+            "P": 31026407.819256,
+            "V": 18.0,
+            "T": 293.15,
+            "name": "gn2_tank"
+          }
+        },
+        {
+          "id": 1,
+          "type": "Tank",
+          "x": -220.0,
+          "y": 220.0,
+          "params": {
+            "V_total_L": 20.0,
+            "fluid_liq": "Oxygen",
+            "m_liq": 19.43,
+            "T_liq": 90.0,
+            "fluid_ullage": "Nitrogen",
+            "P_ullage": 4136850,
+            "T_ullage": 150.0,
+            "radius": 0.2,
+            "htc": 500.0,
+            "name": "lox_tank"
+          }
+        },
+        {
+          "id": 2,
+          "type": "Tank",
+          "x": 220.0,
+          "y": 220.0,
+          "params": {
+            "V_total_L": 16.0,
+            "fluid_liq": "n-Dodecane",
+            "m_liq": 9.7,
+            "T_liq": 293.15,
+            "fluid_ullage": "Nitrogen",
+            "P_ullage": 3447378.646584,
+            "T_ullage": 293.15,
+            "radius": 0.1,
+            "htc": 0.0,
+            "name": "kerosene_tank"
+          }
+        },
+        {
+          "id": 3,
+          "type": "Engine",
+          "x": 0.0,
+          "y": 520.0,
+          "params": {
+            "fuel": "Kerosene",
+            "oxidizer": "LOX",
+            "eta_cstar": 0.92,
+            "eta_cf": 0.96,
+            "At": 0.00041968,
+            "Ae": 0.00268451,
+            "Pa": 101325.0,
+            "name": "engine"
+          }
+        }
+      ],
+      "connections": [
+        {
+          "type": "BangBang",
+          "start_id": 0,
+          "end_id": 1,
+          "params": {
+            "CdA": 2.04e-06,
+            "target_pressure": 4136850,
+            "hysteresis": 41368.5,
+            "qdot": 0.0,
+            "location": 1.0,
+            "normal_state": 1,
+            "checking": 1,
+            "name": "gn2_to_lox_pressurization"
+          }
+        },
+        {
+          "type": "BangBang",
+          "start_id": 0,
+          "end_id": 2,
+          "params": {
+            "CdA": 1.02e-06,
+            "target_pressure": 3447378.646584,
+            "hysteresis": 34473.78646584,
+            "qdot": 0.0,
+            "location": 1.0,
+            "normal_state": 1,
+            "checking": 1,
+            "name": "gn2_to_kerosene_pressurization"
+          }
+        },
+        {
+          "type": "Series",
+          "start_id": 1,
+          "end_id": 3,
+          "params": {
+            "connections": [
+              {
+                "type": "Line",
+                "params": {
+                  "ID": 0.009,
+                  "length": 0.8,
+                  "roughness": 0.0002,
+                  "qdot": 0.0,
+                  "location": 0.0,
+                  "normal_state": 1,
+                  "checking": 1,
+                  "name": "lox_tank_to_engine_line"
+                }
+              },
+              {
+                "type": "Connection",
+                "params": {
+                  "CdA": 1.53e-05,
+                  "qdot": 0.0,
+                  "location": 0.0,
+                  "normal_state": 1,
+                  "checking": 1,
+                  "name": "lox_engine_injector"
+                }
+              }
+            ],
+            "name": "lox_feed_line"
+          }
+        },
+        {
+          "type": "Series",
+          "start_id": 2,
+          "end_id": 3,
+          "params": {
+            "connections": [
+              {
+                "type": "Line",
+                "params": {
+                  "ID": 0.0081,
+                  "length": 0.8,
+                  "roughness": 0.0002,
+                  "qdot": 0.0,
+                  "location": 0.0,
+                  "normal_state": 1,
+                  "checking": 1,
+                  "name": "kerosene_tank_to_engine_line"
+                }
+              },
+              {
+                "type": "Connection",
+                "params": {
+                  "CdA": 1.06e-05,
+                  "qdot": 0.0,
+                  "location": 0.0,
+                  "normal_state": 1,
+                  "checking": 1,
+                  "name": "kerosene_engine_injector"
+                }
+              }
+            ],
+            "name": "kerosene_feed_line"
+          }
+        }
+      ],
+      "actions": []
+    }
+  },
+  "error": null,
+  "created_at": 1782011178.0549376,
+  "updated_at": 1782011234.3938572,
+  "revision": {
+    "revision_request": "make the pressure of the oxidizer tank 600 psi",
+    "parent_session_id": "d44ac6866b294ab39cf85067bc9c5a62",
+    "parent_iteration": 0,
+    "prior_report": {
+      "duration": 3.0,
+      "dt": 0.01,
+      "passed": true,
+      "failures": [],
+      "warnings": [
+        {
+          "message": "Non-ambient node 'engine' has unchanged m history.",
+          "component": "engine",
+          "field": "m"
+        }
+      ]
+    },
+    "prior_simulation_status": "ok"
+  }
+}

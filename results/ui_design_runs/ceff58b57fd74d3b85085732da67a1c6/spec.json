@@ -1,0 +1,179 @@
+{
+  "name": "pressure_fed_lox_kerosene_system_d44ac686_ceff58b5",
+  "description": "Design a pressure-fed rocket engine feed system using LOX (liquid oxygen) and kerosene as propellants, with nitrogen (GN2) as the pressurant gas. The system must include: GN2 tank for pressurization, LOX tank, kerosene tank, a rocket engine block, pressurization lines from GN2 to each propellant tank, and feed lines from each tank to the engine. FIXED: component architecture (gn2_tank, lox_tank, kerosene_tank, engine, gn2_to_lox_pressurization, gn2_to_kerosene_pressurization, lox_feed_line, kerosene_feed_line), LOX tank initial pressure at 600 psi (4.13685 MPa +/- 5%). TUNABLE: tank pressures (except LOX tank initial pressure), volumes, initial masses, line diameters, and flow rates. The system must establish stable flow through both feed lines to the engine.",
+  "design_guidance": {
+    "design_seed": "pressure_fed_lox_kerosene",
+    "must_include_nodes": [
+      "gn2_tank",
+      "lox_tank",
+      "kerosene_tank",
+      "engine"
+    ],
+    "must_include_connections": [
+      "gn2_to_lox_pressurization",
+      "gn2_to_kerosene_pressurization",
+      "lox_feed_line",
+      "kerosene_feed_line"
+    ],
+    "fixed_constraints": {
+      "architecture": "pressure-fed with GN2 pressurant",
+      "lox_tank_initial_pressure": "600 psi (4.13685 MPa +/- 5%)"
+    },
+    "tunable": [
+      "tank_pressures",
+      "tank_volumes",
+      "initial_masses",
+      "line_diameters",
+      "flow_rates",
+      "tank pressures",
+      "tank volumes",
+      "feed CdA values",
+      "engine throat/exit area"
+    ],
+    "notes": [
+      "Use the pressure_fed_lox_kerosene seed as the starting template",
+      "Ensure GN2 pressurization maintains sufficient pressure in both propellant tanks",
+      "Both LOX and kerosene must flow to the engine during operation",
+      "Preserve the Engine node and the two feed Series connections into it.",
+      "Tune feed CdA values before changing topology.",
+      "If physical warnings mention a component, fix that component first.",
+      "LOX tank must start at 600 psi (4.13685 MPa) with +/- 5% tolerance"
+    ]
+  },
+  "checks": [
+    {
+      "id": "ran",
+      "description": "Simulation must complete without crashing or invalid configuration",
+      "type": "status",
+      "op": "==",
+      "value": "ok"
+    },
+    {
+      "id": "physical",
+      "description": "No nonphysical or degenerate warnings during simulation",
+      "type": "no_warnings",
+      "op": "==",
+      "value": true
+    },
+    {
+      "id": "lox_flow",
+      "description": "LOX feed line must have non-zero mass flow during operation",
+      "type": "component",
+      "component": "lox_feed_line",
+      "field": "mdot",
+      "stat": "nonzero_count",
+      "op": ">",
+      "value": 0
+    },
+    {
+      "id": "kerosene_flow",
+      "description": "Kerosene feed line must have non-zero mass flow during operation",
+      "type": "component",
+      "component": "kerosene_feed_line",
+      "field": "mdot",
+      "stat": "nonzero_count",
+      "op": ">",
+      "value": 0
+    },
+    {
+      "id": "gn2_pressurization_lox",
+      "description": "GN2 to LOX pressurization line must have non-zero mass flow",
+      "type": "component",
+      "component": "gn2_to_lox_pressurization",
+      "field": "mdot",
+      "stat": "nonzero_count",
+      "op": ">",
+      "value": 0
+    },
+    {
+      "id": "gn2_pressurization_kerosene",
+      "description": "GN2 to kerosene pressurization line must have non-zero mass flow",
+      "type": "component",
+      "component": "gn2_to_kerosene_pressurization",
+      "field": "mdot",
+      "stat": "nonzero_count",
+      "op": ">",
+      "value": 0
+    },
+    {
+      "id": "engine_pressure_positive",
+      "description": "Engine chamber pressure must be positive (above atmospheric)",
+      "type": "component",
+      "component": "engine",
+      "field": "P",
+      "stat": "min",
+      "op": ">",
+      "value": 101325
+    },
+    {
+      "id": "lox_tank_pressure_positive",
+      "description": "LOX tank pressure must remain positive throughout simulation",
+      "type": "component",
+      "component": "lox_tank",
+      "field": "P",
+      "stat": "min",
+      "op": ">",
+      "value": 0
+    },
+    {
+      "id": "kerosene_tank_pressure_positive",
+      "description": "Kerosene tank pressure must remain positive throughout simulation",
+      "type": "component",
+      "component": "kerosene_tank",
+      "field": "P",
+      "stat": "min",
+      "op": ">",
+      "value": 0
+    },
+    {
+      "id": "gn2_tank_pressure_positive",
+      "description": "GN2 tank pressure must remain positive throughout simulation",
+      "type": "component",
+      "component": "gn2_tank",
+      "field": "P",
+      "stat": "min",
+      "op": ">",
+      "value": 0
+    },
+    {
+      "id": "lox_tank_initial_pressure_min",
+      "description": "LOX tank initial pressure must be at least 600 psi - 5% (3.93 MPa)",
+      "type": "component",
+      "component": "lox_tank",
+      "field": "P",
+      "stat": "first",
+      "op": ">=",
+      "value": 3930000
+    },
+    {
+      "id": "lox_tank_initial_pressure_max",
+      "description": "LOX tank initial pressure must be at most 600 psi + 5% (4.34 MPa)",
+      "type": "component",
+      "component": "lox_tank",
+      "field": "P",
+      "stat": "first",
+      "op": "<=",
+      "value": 4340000
+    },
+    {
+      "id": "lox_feed_flow",
+      "description": "LOX feed line delivers non-zero mass flow to the engine.",
+      "type": "component",
+      "component": "lox_feed_line",
+      "field": "mdot",
+      "stat": "nonzero_count",
+      "op": ">",
+      "value": 0
+    },
+    {
+      "id": "kerosene_feed_flow",
+      "description": "Kerosene feed line delivers non-zero mass flow to the engine.",
+      "type": "component",
+      "component": "kerosene_feed_line",
+      "field": "mdot",
+      "stat": "nonzero_count",
+      "op": ">",
+      "value": 0
+    }
+  ]
+}

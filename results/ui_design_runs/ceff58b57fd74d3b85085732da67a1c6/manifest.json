@@ -1,0 +1,18 @@
+{
+  "session_id": "ceff58b57fd74d3b85085732da67a1c6",
+  "request": "make the pressure of the oxidizer tank 600 psi",
+  "status": "completed",
+  "source": "revision",
+  "created_at": 1782011154.0030515,
+  "parent_session_id": "d44ac6866b294ab39cf85067bc9c5a62",
+  "parent_iteration": 0,
+  "revision_request": "make the pressure of the oxidizer tank 600 psi",
+  "revision_of_spec": "C:\\Users\\25han\\OneDrive\\Documents\\GitHub\\rocketcursor\\results\\ui_design_runs\\d44ac6866b294ab39cf85067bc9c5a62\\spec.json",
+  "parent_spec_name": "pressure_fed_lox_kerosene_system_d44ac686",
+  "original_spec_name": "pressure_fed_lox_kerosene_system_d44ac686",
+  "spec_name": "pressure_fed_lox_kerosene_system_d44ac686_ceff58b5",
+  "spec_path": "C:\\Users\\25han\\OneDrive\\Documents\\GitHub\\rocketcursor\\results\\ui_design_runs\\ceff58b57fd74d3b85085732da67a1c6\\spec.json",
+  "loop_run_root": "C:\\Users\\25han\\OneDrive\\Documents\\GitHub\\rocketcursor\\results\\loop_runs\\pressure_fed_lox_kerosene_system_d44ac686_ceff58b5",
+  "started_at": 1782011178.0154216,
+  "completed_at": 1782011234.3983839
+}

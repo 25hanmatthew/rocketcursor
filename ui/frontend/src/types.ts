@@ -53,6 +53,13 @@ export interface DesignRunStartResponse {
   message?: string;
 }
 
+export interface DesignRunRevisionResponse {
+  ok: boolean;
+  session_id: string;
+  parent_session_id: string;
+  message?: string;
+}
+
 export interface LatestPlayableRun {
   iteration: number;
   artifacts: string[];
