@@ -24,6 +24,29 @@ RocketCursor turns a natural-language propulsion request into a fully simulated 
 
 A guiding principle runs through the stack: **the LLM proposes, deterministic code decides.** Every engineering number is computed by a solver or a documented model, validated against a versioned JSON-Schema contract, and carries provenance — nothing is silently invented.
 
+## Research
+
+One aspect of our findings — what makes a simulation-in-the-loop agent affordable — is written up as a short preprint:
+
+<table>
+<tr>
+<td width="190" valign="top">
+  <a href="paper/main.pdf"><img src="paper/main-thumbnail.png" width="180" alt="Paper: Requirement-Aware Context Compression for Simulation-in-the-Loop Agents" /></a>
+</td>
+<td valign="top">
+
+#### [Requirement-Aware Context Compression for Simulation-in-the-Loop Agents](paper/main.pdf)
+
+Tazeem Mahashin · Ian Sun · Angela Choi · Matthew Han
+
+Every revision in the design loop re-sends the simulator's dense, multi-variable time series to the model, and that recurring output dominates the loop's token cost. The paper shows that compressing it **requirement-aware** — keeping only the signal a revision actually acts on — cuts the feedback channel by **~99.87%** (millions → thousands of tokens) while preserving the targeted revision behavior, where general-purpose text compressors barely help.
+
+📄 [Read the preprint (PDF)](paper/main.pdf) · reproducible via `python -m loop.compression_benchmark`
+
+</td>
+</tr>
+</table>
+
 ## The pipeline
 
 ```text
