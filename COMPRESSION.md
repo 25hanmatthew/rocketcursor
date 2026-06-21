@@ -76,6 +76,33 @@ improves it:
 So the compressed representation is not a lossy degradation we tolerate — it is a
 *better* input for the task than the raw data.
 
+## Head-to-head vs The Token Company's compressor
+
+We benchmarked our compression directly against TTC's own general-purpose compressor
+(`bear-2`) on the *same* raw simulator output, measured with *TTC's own tokenizer*
+(apples-to-apples). Reproduce with `python -m loop.compression_benchmark --ttc`:
+
+| compressor | raw → out (tokens) | reduction |
+|---|---|---|
+| **Ours (requirement-aware)** | 198,358 → 365 | **99.82% (543×)** |
+| TTC `bear-2` on raw, aggr 0.5 | 198,358 → 198,356 | 0.00% |
+| TTC `bear-2` on raw, aggr 0.9 (max) | 198,358 → 197,466 | 0.45% |
+
+(Note: TTC's real tokenizer counts the raw output at **198k tokens** — far above our
+4-char/token estimate — because dense numerics tokenize densely. Our true reduction is
+*larger* than the headline table reports.)
+
+**Why the gap, and why it's not a knock on TTC.** These solve different problems.
+A general text compressor removes *linguistic redundancy* — and dense numeric
+simulator output has almost none, so TTC correctly gets ~0%. Requirement-aware
+compression removes *irrelevance* — ~99.8% of that output doesn't bear on any check.
+
+**They compose.** TTC gets ~36% on prose (e.g. this document), and it can shave our
+already-tiny verdict a further ~25% (365 → 272). So the right architecture uses both:
+ours for the heavy numeric tool-output (~99.8%), TTC for the prose system prompt
+(~44%) and as a polish pass. We ship both; this document's compression solution is the
+requirement-aware layer.
+
 ## It's not rocket-specific — a domain-agnostic kernel
 
 The same principle works on any large list-of-rows checked against requirements —
