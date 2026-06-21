@@ -546,6 +546,50 @@ class TestAgentPrompt(unittest.TestCase):
         self.assertIn("BASE DESIGN JSON", prompt)
         self.assertIn("Preserve the base design topology", prompt)
 
+    def test_verdict_feedback_gives_targeted_thrust_advice(self):
+        from loop.agent import _verdict_feedback
+        from loop.evaluator import CheckResult, Verdict
+
+        high = Verdict(
+            passed=False,
+            summary="0/1 checks passed",
+            checks=[
+                CheckResult(
+                    "thrust_max",
+                    "Engine thrust must not exceed target",
+                    False,
+                    "<=",
+                    1223.0,
+                    1693.4,
+                    "engine.thrust.final=1693.4",
+                )
+            ],
+        )
+        feedback = _verdict_feedback(high, {"status": "ok"})
+        self.assertIn("TARGETED REVISION ADVICE", feedback)
+        self.assertIn("Thrust is too high", feedback)
+        self.assertIn("Reduce BOTH oxidizer and fuel feed/injector CdA", feedback)
+        self.assertIn("preserve their ratio", feedback)
+
+        low = Verdict(
+            passed=False,
+            summary="0/1 checks passed",
+            checks=[
+                CheckResult(
+                    "thrust_min",
+                    "Engine thrust must meet target",
+                    False,
+                    ">=",
+                    1001.0,
+                    700.0,
+                    "engine.thrust.final=700",
+                )
+            ],
+        )
+        feedback = _verdict_feedback(low, {"status": "ok"})
+        self.assertIn("Thrust is too low", feedback)
+        self.assertIn("Increase BOTH oxidizer and fuel feed/injector CdA", feedback)
+
 
 class TestMemoryHook(unittest.TestCase):
     """The memory hook is lazy/guarded; test its logic with a fake Memory so we

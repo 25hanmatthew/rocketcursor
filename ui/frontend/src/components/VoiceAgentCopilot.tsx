@@ -95,8 +95,12 @@ interface DeepgramAgentMessage {
   functions?: DeepgramFunctionCall[];
 }
 
-const AudioContextCtor: typeof AudioContext =
-  window.AudioContext ?? (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
+function getAudioContextCtor(): typeof AudioContext {
+  if (typeof window === "undefined") {
+    throw new Error("AudioContext is only available in the browser.");
+  }
+  return window.AudioContext ?? (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
+}
 
 function floatTo16BitPCM(input: Float32Array): Int16Array {
   const output = new Int16Array(input.length);
@@ -498,6 +502,7 @@ export function VoiceAgentCopilot({ onStartDesign, getDesignStatus, onSendToChat
     streamRef.current = stream;
 
     try {
+      const AudioContextCtor = getAudioContextCtor();
       const micCtx = new AudioContextCtor({ sampleRate: INPUT_SAMPLE_RATE });
       micCtxRef.current = micCtx;
       await micCtx.audioWorklet.addModule("/deepgram-recorder-worklet.js");

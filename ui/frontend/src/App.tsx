@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { FileJson, Gauge, MessageSquare, Mic, Pause, Play, RotateCcw, Send, Upload } from "lucide-react";
 import { PidCanvas } from "./components/PidCanvas";
 import { VoiceAgentCopilot } from "./components/VoiceAgentCopilot";
+import { TelemetryPlots } from "./components/TelemetryPlots";
 import type { DesignChangeExtraction } from "./components/ConversationRecorder";
 import { buildDiagram } from "./lib/diagram";
 import { parseSamplesCsv } from "./lib/csv";

@@ -285,6 +285,7 @@ def _first_user_message(
 
 def _verdict_feedback(verdict, result) -> str:
     lines = [f"VERDICT: {verdict.summary}", ""]
+    advice = []
     for c in verdict.checks:
         mark = "PASS" if c.passed else "FAIL"
         line = f"[{mark}] {c.id}: {c.description}"
@@ -292,14 +293,48 @@ def _verdict_feedback(verdict, result) -> str:
             line += f"\n        expected {c.op} {c.expected!r}; actual={c.actual!r}"
             if c.detail:
                 line += f" ({c.detail})"
+            thrust_advice = _thrust_revision_advice(c)
+            if thrust_advice:
+                advice.append(thrust_advice)
         lines.append(line)
     if result.get("errors"):
         lines += ["", "SIMULATION ERRORS:"] + [f"  - {e}" for e in result["errors"]]
     if verdict.notes:
         lines += [""] + verdict.notes
+    if advice:
+        lines += ["", "TARGETED REVISION ADVICE:"] + [f"  - {item}" for item in advice]
     if not verdict.passed:
         lines += ["", "Revise the design to fix the FAILing checks, then call submit_design again."]
     return "\n".join(lines)
+
+
+def _thrust_revision_advice(check) -> str | None:
+    text = f"{getattr(check, 'id', '')} {getattr(check, 'description', '')}".lower()
+    if "thrust" not in text:
+        return None
+    actual = getattr(check, "actual", None)
+    expected = getattr(check, "expected", None)
+    if not isinstance(actual, (int, float)) or not isinstance(expected, (int, float)) or actual <= 0:
+        return None
+    op = getattr(check, "op", "")
+    if op in {"<", "<="} and actual > expected:
+        ratio = max(0.2, min(0.9, (expected / actual) * 0.75))
+        return (
+            f"Thrust is too high ({actual:.4g} N vs max {expected:.4g} N). "
+            f"Reduce BOTH oxidizer and fuel feed/injector CdA values together by "
+            f"about {ratio:.2f}x this iteration; preserve their ratio. For the "
+            "pressure-fed seed, change lox_engine_injector and "
+            "kerosene_engine_injector before changing Engine At/Ae."
+        )
+    if op in {">", ">="} and actual < expected:
+        ratio = max(1.1, min(3.0, (expected / actual) * 1.15))
+        return (
+            f"Thrust is too low ({actual:.4g} N vs min {expected:.4g} N). "
+            f"Increase BOTH oxidizer and fuel feed/injector CdA values together by "
+            f"about {ratio:.2f}x this iteration; preserve their ratio unless MR or "
+            "oxidizer/fuel balance is also failing."
+        )
+    return None
 
 
 def run_loop(spec_path: str | Path, max_iters: int = 4, use_compression: bool = False,
