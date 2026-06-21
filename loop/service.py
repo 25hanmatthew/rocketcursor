@@ -56,6 +56,9 @@ INBOUND_DIR = REPO_ROOT / "results" / "loop_runs" / "_inbound"
 SEED = os.environ.get("AGENT_SEED", "rocketcursor-feed-designer-dev-seed-change-me")
 PORT = int(os.environ.get("AGENT_PORT", "8001"))
 MAILBOX = os.environ.get("AGENT_MAILBOX", "0") == "1"
+# Public endpoint to advertise (e.g. an ngrok URL) when registering as an external
+# agent on Agentverse instead of via mailbox. Must end in /submit.
+ENDPOINT = os.environ.get("AGENT_ENDPOINT")
 COMPRESS = os.environ.get("AGENT_COMPRESS", "0") == "1"
 MAX_ITERS = int(os.environ.get("AGENT_MAX_ITERS", "8"))
 
@@ -207,6 +210,8 @@ def build_agent() -> Agent:
         kwargs["readme_path"] = str(readme)
     if MAILBOX:
         kwargs["mailbox"] = True
+    elif ENDPOINT:
+        kwargs["endpoint"] = [ENDPOINT]
     else:
         kwargs["endpoint"] = [f"http://127.0.0.1:{PORT}/submit"]
     agent = Agent(**kwargs)
