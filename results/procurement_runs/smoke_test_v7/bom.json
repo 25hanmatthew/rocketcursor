@@ -1,0 +1,607 @@
+{
+  "generatedAt": "2026-06-21T06:41:11.602Z",
+  "projectName": "Matthew Han propulsion procurement test",
+  "items": [
+    {
+      "item": "GN2 pressurant tank",
+      "quantity": 1,
+      "requirements": {
+        "fluid": "Nitrogen",
+        "minimum_pressure_rating_pa": 6000000,
+        "minimum_volume_l": 20,
+        "compatible_with": [
+          "Nitrogen"
+        ],
+        "notes": "Pressure rating should exceed max simulated tank pressure with margin."
+      },
+      "candidates": [
+        {
+          "item": "GN2 pressurant tank",
+          "supplier": "McMaster-Carr",
+          "productName": "Empty High-Pressure Inert Gas Tank - HP40",
+          "partNumber": "7822A12",
+          "productUrl": "https://www.mcmaster.com/7822A12",
+          "price": "$228.56",
+          "leadTime": null,
+          "pressure_rating_pa": 13893325,
+          "volume_l": 1132.67386368,
+          "minimum_cda_m2": null,
+          "fluid_compatibility": [
+            "Argon",
+            "Argon/Carbon Dioxide Blend",
+            "Helium",
+            "Nitrogen"
+          ],
+          "oxygen_clean": false,
+          "cryogenic_compatible": null,
+          "matched_requirements": [
+            "pressure_rating_pa",
+            "volume_l",
+            "fluid_compatibility",
+            "compatible_with:Nitrogen"
+          ],
+          "missing_requirements": [],
+          "failed_requirements": [],
+          "confidence": 1,
+          "notes": "HP40 cylinder size, 40 cu. ft. capacity, 7\" dia., 18 1/4\" ht., 22 lb. empty weight, 2015 psi max pressure, Steel, CGA 580, Female outlet, D.O.T. 3AA"
+        },
+        {
+          "item": "GN2 pressurant tank",
+          "supplier": "McMaster-Carr",
+          "productName": "Empty High-Pressure Inert Gas Tank - HP55",
+          "partNumber": "7822A13",
+          "productUrl": "https://www.mcmaster.com/7822A13",
+          "price": "$299.02",
+          "leadTime": null,
+          "pressure_rating_pa": 13893325,
+          "volume_l": 1557.42656256,
+          "minimum_cda_m2": null,
+          "fluid_compatibility": [
+            "Argon",
+            "Argon/Carbon Dioxide Blend",
+            "Helium",
+            "Nitrogen"
+          ],
+          "oxygen_clean": false,
+          "cryogenic_compatible": null,
+          "matched_requirements": [
+            "pressure_rating_pa",
+            "volume_l",
+            "fluid_compatibility",
+            "compatible_with:Nitrogen"
+          ],
+          "missing_requirements": [],
+          "failed_requirements": [],
+          "confidence": 1,
+          "notes": "HP55 cylinder size, 55 cu. ft. capacity, 7\" dia., 23 1/2\" ht., 26.5 lb. empty weight, 2015 psi max pressure, Steel, CGA 580, Female outlet, D.O.T. 3AA"
+        },
+        {
+          "item": "GN2 pressurant tank",
+          "supplier": "McMaster-Carr",
+          "productName": "Empty High-Pressure Inert Gas Tank - HP80",
+          "partNumber": "7822A14",
+          "productUrl": "https://www.mcmaster.com/7822A14",
+          "price": "$330.17",
+          "leadTime": null,
+          "pressure_rating_pa": 13893325,
+          "volume_l": 2265.34772736,
+          "minimum_cda_m2": null,
+          "fluid_compatibility": [
+            "Argon",
+            "Argon/Carbon Dioxide Blend",
+            "Helium",
+            "Nitrogen"
+          ],
+          "oxygen_clean": false,
+          "cryogenic_compatible": null,
+          "matched_requirements": [
+            "pressure_rating_pa",
+            "volume_l",
+            "fluid_compatibility",
+            "compatible_with:Nitrogen"
+          ],
+          "missing_requirements": [],
+          "failed_requirements": [],
+          "confidence": 1,
+          "notes": "HP80 cylinder size, 80 cu. ft. capacity, 7\" dia., 31 1/2\" ht., 40 lb. empty weight, 2015 psi max pressure, Steel, CGA 580, Female outlet, D.O.T. 3AA"
+        },
+        {
+          "item": "GN2 pressurant tank",
+          "supplier": "McMaster-Carr",
+          "productName": "Empty High-Pressure Inert Gas Tank - HP20",
+          "partNumber": "7822A11",
+          "productUrl": "https://www.mcmaster.com/7822A11",
+          "price": "$170.33",
+          "leadTime": null,
+          "pressure_rating_pa": 13893325,
+          "volume_l": 566.33693184,
+          "minimum_cda_m2": null,
+          "fluid_compatibility": [
+            "Argon",
+            "Helium",
+            "Nitrogen"
+          ],
+          "oxygen_clean": false,
+          "cryogenic_compatible": null,
+          "matched_requirements": [
+            "pressure_rating_pa",
+            "volume_l",
+            "fluid_compatibility",
+            "compatible_with:Nitrogen"
+          ],
+          "missing_requirements": [],
+          "failed_requirements": [],
+          "confidence": 1,
+          "notes": "HP20 cylinder size, 20 cu. ft. capacity, 5 1/4\" dia., 13 3/4\" ht., 10.5 lb. empty weight, 2015 psi max pressure, Steel, CGA 580, Female outlet, D.O.T. 3AA"
+        },
+        {
+          "item": "GN2 pressurant tank",
+          "supplier": "McMaster-Carr",
+          "productName": "Empty High-Pressure Inert Gas Tank - HP40",
+          "partNumber": "7822A12",
+          "productUrl": "https://www.mcmaster.com/7822A12",
+          "price": "$228.56",
+          "leadTime": null,
+          "pressure_rating_pa": 13893350,
+          "volume_l": 1133,
+          "minimum_cda_m2": null,
+          "fluid_compatibility": [
+            "Argon",
+            "Argon/Carbon Dioxide Blend",
+            "Helium",
+            "Nitrogen"
+          ],
+          "oxygen_clean": false,
+          "cryogenic_compatible": false,
+          "matched_requirements": [
+            "pressure_rating_pa",
+            "volume_l",
+            "fluid_compatibility",
+            "compatible_with:Nitrogen"
+          ],
+          "missing_requirements": [],
+          "failed_requirements": [],
+          "confidence": 1,
+          "notes": "Cylinder Size HP40, 40 cu. ft. capacity, 7\" dia., 18 1/4\" ht., 22 lb. empty weight, 2015 psi max pressure, Steel, CGA 580, Female outlet, D.O.T. 3AA"
+        },
+        {
+          "item": "GN2 pressurant tank",
+          "supplier": "McMaster-Carr",
+          "productName": "Empty High-Pressure Inert Gas Tank - HP55",
+          "partNumber": "7822A13",
+          "productUrl": "https://www.mcmaster.com/7822A13",
+          "price": "$299.02",
+          "leadTime": null,
+          "pressure_rating_pa": 13893350,
+          "volume_l": 1557,
+          "minimum_cda_m2": null,
+          "fluid_compatibility": [
+            "Argon",
+            "Argon/Carbon Dioxide Blend",
+            "Helium",
+            "Nitrogen"
+          ],
+          "oxygen_clean": false,
+          "cryogenic_compatible": false,
+          "matched_requirements": [
+            "pressure_rating_pa",
+            "volume_l",
+            "fluid_compatibility",
+            "compatible_with:Nitrogen"
+          ],
+          "missing_requirements": [],
+          "failed_requirements": [],
+          "confidence": 1,
+          "notes": "Cylinder Size HP55, 55 cu. ft. capacity, 7\" dia., 23 1/2\" ht., 26.5 lb. empty weight, 2015 psi max pressure, Steel, CGA 580, Female outlet, D.O.T. 3AA"
+        },
+        {
+          "item": "GN2 pressurant tank",
+          "supplier": "McMaster-Carr",
+          "productName": "Empty High-Pressure Inert Gas Tank - HP80",
+          "partNumber": "7822A14",
+          "productUrl": "https://www.mcmaster.com/7822A14",
+          "price": "$330.17",
+          "leadTime": null,
+          "pressure_rating_pa": 13893350,
+          "volume_l": 2265,
+          "minimum_cda_m2": null,
+          "fluid_compatibility": [
+            "Argon",
+            "Argon/Carbon Dioxide Blend",
+            "Helium",
+            "Nitrogen"
+          ],
+          "oxygen_clean": false,
+          "cryogenic_compatible": false,
+          "matched_requirements": [
+            "pressure_rating_pa",
+            "volume_l",
+            "fluid_compatibility",
+            "compatible_with:Nitrogen"
+          ],
+          "missing_requirements": [],
+          "failed_requirements": [],
+          "confidence": 1,
+          "notes": "Cylinder Size HP80, 80 cu. ft. capacity, 7\" dia., 31 1/2\" ht., 40 lb. empty weight, 2015 psi max pressure, Steel, CGA 580, Female outlet, D.O.T. 3AA"
+        },
+        {
+          "item": "GN2 pressurant tank",
+          "supplier": "McMaster-Carr",
+          "productName": "Empty High-Pressure Inert Gas Tank - HP20",
+          "partNumber": "7822A11",
+          "productUrl": "https://www.mcmaster.com/7822A11",
+          "price": "$170.33",
+          "leadTime": null,
+          "pressure_rating_pa": 13893350,
+          "volume_l": 566,
+          "minimum_cda_m2": null,
+          "fluid_compatibility": [
+            "Argon",
+            "Helium",
+            "Nitrogen"
+          ],
+          "oxygen_clean": false,
+          "cryogenic_compatible": false,
+          "matched_requirements": [
+            "pressure_rating_pa",
+            "volume_l",
+            "fluid_compatibility",
+            "compatible_with:Nitrogen"
+          ],
+          "missing_requirements": [],
+          "failed_requirements": [],
+          "confidence": 1,
+          "notes": "Cylinder Size HP20, 20 cu. ft. capacity, 5 1/4\" dia., 13 3/4\" ht., 10.5 lb. empty weight, 2015 psi max pressure, Steel, CGA 580, Female outlet, D.O.T. 3AA"
+        }
+      ]
+    },
+    {
+      "item": "LOX tank",
+      "quantity": 1,
+      "requirements": {
+        "fluid": "Oxygen",
+        "cryogenic_compatible": true,
+        "minimum_volume_l": 50,
+        "minimum_pressure_rating_pa": 2000000
+      },
+      "candidates": [
+        {
+          "item": "LOX tank",
+          "supplier": "McMaster-Carr",
+          "productName": "Empty High-Pressure Oxygen Tank",
+          "partNumber": "7986A31",
+          "productUrl": "https://www.mcmaster.com/7986A31",
+          "price": "$148.76",
+          "leadTime": null,
+          "pressure_rating_pa": 13893225,
+          "volume_l": 566.337,
+          "minimum_cda_m2": null,
+          "fluid_compatibility": [
+            "Oxygen"
+          ],
+          "oxygen_clean": null,
+          "cryogenic_compatible": null,
+          "matched_requirements": [
+            "pressure_rating_pa",
+            "volume_l",
+            "fluid_compatibility"
+          ],
+          "missing_requirements": [
+            "cryogenic_compatible"
+          ],
+          "failed_requirements": [],
+          "confidence": 0.65,
+          "notes": "Cylinder Size HP20, 20 cu. ft. capacity, 5 1/4\" Dia., 14\" Ht., 9.6 lb. empty weight, 2,015 psi max pressure, Steel, CGA 540, Male outlet, D.O.T. 3AA. For Use With Oxygen. Volume converted: 20 cu ft = 566.34 L. Pressure converted: 2015 psi = ~13,893,225 Pa. Does not meet 50 L minimum volume as a liquid LOX tank — this is a high-pressure gas cylinder, not a cryogenic LOX vessel. Cryogenic compatibility not explicitly stated."
+        },
+        {
+          "item": "LOX tank",
+          "supplier": "McMaster-Carr",
+          "productName": "Empty High-Pressure Oxygen Tanks",
+          "partNumber": "7986A31",
+          "productUrl": "https://www.mcmaster.com/7986A31",
+          "price": "$148.76",
+          "leadTime": null,
+          "pressure_rating_pa": 13893425,
+          "volume_l": 566.337,
+          "minimum_cda_m2": null,
+          "fluid_compatibility": [
+            "Oxygen"
+          ],
+          "oxygen_clean": null,
+          "cryogenic_compatible": false,
+          "matched_requirements": [
+            "pressure_rating_pa",
+            "volume_l",
+            "fluid_compatibility"
+          ],
+          "missing_requirements": [],
+          "failed_requirements": [
+            "cryogenic_compatible"
+          ],
+          "confidence": 0.5,
+          "notes": "HP20 cylinder size, 20 cu. ft. capacity, 5 1/4\" dia., 14\" ht., 9.6 lb. empty weight, 2,015 psi max pressure, Steel, CGA 540, Male outlet, D.O.T. 3AA. Page states 'For Use With Oxygen'. No explicit oxygen-clean or cryogenic rating stated. Pressure rating (2,015 psi) = ~13,893,425 Pa. Volume 20 cu ft = ~566.3 L. Does not meet 50L minimum (it exceeds it) but does not meet 2 MPa pressure requirement (~13.9 MPa vs 2 MPa — actually 2,015 psi = ~13.9 MPa which exceeds 2 MPa requirement). Cryogenic compatibility not stated."
+        },
+        {
+          "item": "LOX tank",
+          "supplier": "McMaster-Carr",
+          "productName": "Empty High-Pressure Oxygen Tanks",
+          "partNumber": null,
+          "productUrl": "https://www.mcmaster.com/products/cga-gas-tanks/",
+          "price": null,
+          "leadTime": null,
+          "pressure_rating_pa": null,
+          "volume_l": null,
+          "minimum_cda_m2": null,
+          "fluid_compatibility": [
+            "Oxygen"
+          ],
+          "oxygen_clean": null,
+          "cryogenic_compatible": false,
+          "matched_requirements": [
+            "fluid_compatibility"
+          ],
+          "missing_requirements": [
+            "pressure_rating_pa",
+            "volume_l"
+          ],
+          "failed_requirements": [
+            "cryogenic_compatible"
+          ],
+          "confidence": 0,
+          "notes": "Page lists 'Empty High-Pressure Oxygen Tanks' category with description 'Safely transport and store oxygen in this tank.' No part numbers, prices, volumes, or pressure ratings are visible in the DOM. Cryogenic compatibility not stated. This is a category listing page, not individual product detail pages."
+        }
+      ]
+    },
+    {
+      "item": "LOX feed valve",
+      "quantity": 1,
+      "requirements": {
+        "fluid": "Oxygen",
+        "minimum_cda_m2": 0.0001,
+        "pressure_rating_pa": 2000000,
+        "oxygen_clean": true
+      },
+      "candidates": [
+        {
+          "item": "LOX feed valve",
+          "supplier": "Swagelok",
+          "productName": "Stainless Steel 1-Piece 40 Series Ball Valve, 12 Cv, 1/2 in. Swagelok Tube Fitting, SC-11",
+          "partNumber": "SS-45S8-SC11",
+          "productUrl": "https://products.swagelok.com/en/c/2-way-straight-pattern/p/SS-45S8-SC11",
+          "price": null,
+          "leadTime": null,
+          "pressure_rating_pa": 17236849.9,
+          "volume_l": null,
+          "minimum_cda_m2": 0.0009600000000000001,
+          "fluid_compatibility": [
+            "Oxygen"
+          ],
+          "oxygen_clean": true,
+          "cryogenic_compatible": null,
+          "matched_requirements": [
+            "pressure_rating_pa",
+            "minimum_cda_m2",
+            "fluid_compatibility",
+            "oxygen_clean"
+          ],
+          "missing_requirements": [],
+          "failed_requirements": [],
+          "confidence": 1,
+          "notes": "Cleaning Process: Special Cleaning and Packaging (SC-11). Body Material: 316 Stainless Steel. Ball/Stem Material: Stainless Steel. Lubricant: Nonhydrocarbon lubricants. Packing Material: PTFE. Ring/Disc Material: PTFE-Coated Stainless Steel. Room Temperature Pressure Rating: 2500 PSIG @ 100°F / 172 BAR @ 37°C. Connection: 1/2 in. Swagelok Tube Fitting both ends. Flow Pattern: 2-Way, Shutoff, Straight. Service Class: General. Low Emissions Certified: Yes. SC-11 denotes Special Cleaning and Packaging but page does not explicitly state oxygen-clean or LOX compatibility. Price requires login."
+        },
+        {
+          "item": "LOX feed valve",
+          "supplier": "McMaster-Carr",
+          "productName": "Solenoid On/Off Valve for Cryogenic Liquids, Brass Body, 3/8\" NPT, 120V AC, Fail Closed",
+          "partNumber": "50585K38",
+          "productUrl": "https://www.mcmaster.com/50585K38",
+          "price": "$808.84",
+          "leadTime": null,
+          "pressure_rating_pa": 861845,
+          "volume_l": null,
+          "minimum_cda_m2": 0.00028000000000000003,
+          "fluid_compatibility": [
+            "Liquid Nitrogen",
+            "Liquid Oxygen",
+            "Liquid Argon"
+          ],
+          "oxygen_clean": true,
+          "cryogenic_compatible": true,
+          "matched_requirements": [
+            "minimum_cda_m2",
+            "fluid_compatibility",
+            "oxygen_clean"
+          ],
+          "missing_requirements": [],
+          "failed_requirements": [
+            "pressure_rating_pa"
+          ],
+          "confidence": 0.5,
+          "notes": "Pressure Drop Assisted, Solenoid. Temp range -320 to 355°F. IP50, NEMA 2. Brass body with wire lead connection. Cleaned and bagged for high-purity applications per page description."
+        },
+        {
+          "item": "LOX feed valve",
+          "supplier": "McMaster-Carr",
+          "productName": "Solenoid On/Off Valve for Cryogenic Liquids, Bronze Body, 1/2\" NPT, 24V AC, Fail Closed",
+          "partNumber": "4710T21",
+          "productUrl": "https://www.mcmaster.com/4710T21",
+          "price": "$500.48",
+          "leadTime": null,
+          "pressure_rating_pa": 758422,
+          "volume_l": null,
+          "minimum_cda_m2": 0.00028000000000000003,
+          "fluid_compatibility": [
+            "Liquid Nitrogen",
+            "Liquid Oxygen",
+            "Liquid Argon"
+          ],
+          "oxygen_clean": true,
+          "cryogenic_compatible": true,
+          "matched_requirements": [
+            "minimum_cda_m2",
+            "fluid_compatibility",
+            "oxygen_clean"
+          ],
+          "missing_requirements": [],
+          "failed_requirements": [
+            "pressure_rating_pa"
+          ],
+          "confidence": 0.5,
+          "notes": "Zero Pressure Drop, Solenoid. 110 psi @ -350°F. Temp range -350 to 400°F. Bronze body with wire lead connection. Cleaned and bagged for high-purity applications per page description."
+        },
+        {
+          "item": "LOX feed valve",
+          "supplier": "McMaster-Carr",
+          "productName": "Solenoid On/Off Valve for Cryogenic Liquids, Bronze Body, 3/4\" NPT, 24V AC, Fail Closed",
+          "partNumber": "4710T23",
+          "productUrl": "https://www.mcmaster.com/4710T23",
+          "price": "$549.60",
+          "leadTime": null,
+          "pressure_rating_pa": 758422,
+          "volume_l": null,
+          "minimum_cda_m2": 0.0006000000000000001,
+          "fluid_compatibility": [
+            "Liquid Nitrogen",
+            "Liquid Oxygen",
+            "Liquid Argon"
+          ],
+          "oxygen_clean": true,
+          "cryogenic_compatible": true,
+          "matched_requirements": [
+            "minimum_cda_m2",
+            "fluid_compatibility",
+            "oxygen_clean"
+          ],
+          "missing_requirements": [],
+          "failed_requirements": [
+            "pressure_rating_pa"
+          ],
+          "confidence": 0.5,
+          "notes": "Zero Pressure Drop, Solenoid. 110 psi @ -350°F. Temp range -350 to 400°F. Bronze body with wire lead connection. Cleaned and bagged for high-purity applications per page description."
+        },
+        {
+          "item": "LOX feed valve",
+          "supplier": "McMaster-Carr",
+          "productName": "Solenoid On/Off Valve for Cryogenic Liquids, Bronze Body, 1\" NPT, 24V AC, Fail Closed",
+          "partNumber": "4710T24",
+          "productUrl": "https://www.mcmaster.com/4710T24",
+          "price": "$625.04",
+          "leadTime": null,
+          "pressure_rating_pa": 758422,
+          "volume_l": null,
+          "minimum_cda_m2": 0.0010400000000000001,
+          "fluid_compatibility": [
+            "Liquid Nitrogen",
+            "Liquid Oxygen",
+            "Liquid Argon"
+          ],
+          "oxygen_clean": true,
+          "cryogenic_compatible": true,
+          "matched_requirements": [
+            "minimum_cda_m2",
+            "fluid_compatibility",
+            "oxygen_clean"
+          ],
+          "missing_requirements": [],
+          "failed_requirements": [
+            "pressure_rating_pa"
+          ],
+          "confidence": 0.5,
+          "notes": "Zero Pressure Drop, Solenoid. 110 psi @ -350°F. Temp range -350 to 400°F. Bronze body with wire lead connection. Cleaned and bagged for high-purity applications per page description."
+        },
+        {
+          "item": "LOX feed valve",
+          "supplier": "McMaster-Carr",
+          "productName": "Solenoid On/Off Valve for Cryogenic Liquids, Bronze Body, 1/2\" NPT, 24V DC, Fail Closed",
+          "partNumber": "4710T22",
+          "productUrl": "https://www.mcmaster.com/4710T22",
+          "price": "$544.81",
+          "leadTime": null,
+          "pressure_rating_pa": 758422,
+          "volume_l": null,
+          "minimum_cda_m2": 0.00028000000000000003,
+          "fluid_compatibility": [
+            "Liquid Nitrogen",
+            "Liquid Oxygen",
+            "Liquid Argon"
+          ],
+          "oxygen_clean": true,
+          "cryogenic_compatible": true,
+          "matched_requirements": [
+            "minimum_cda_m2",
+            "fluid_compatibility",
+            "oxygen_clean"
+          ],
+          "missing_requirements": [],
+          "failed_requirements": [
+            "pressure_rating_pa"
+          ],
+          "confidence": 0.5,
+          "notes": "Zero Pressure Drop, Solenoid. 110 psi @ -350°F. Temp range -350 to 400°F. Bronze body with wire lead connection. Cleaned and bagged for high-purity applications per page description."
+        },
+        {
+          "item": "LOX feed valve",
+          "supplier": "McMaster-Carr",
+          "productName": "Solenoid On/Off Valve for Cryogenic Liquids, Bronze Body, 1\" NPT, 24V DC, Fail Closed",
+          "partNumber": "4710T25",
+          "productUrl": "https://www.mcmaster.com/4710T25",
+          "price": "$669.42",
+          "leadTime": null,
+          "pressure_rating_pa": 758422,
+          "volume_l": null,
+          "minimum_cda_m2": 0.0010400000000000001,
+          "fluid_compatibility": [
+            "Liquid Nitrogen",
+            "Liquid Oxygen",
+            "Liquid Argon"
+          ],
+          "oxygen_clean": true,
+          "cryogenic_compatible": true,
+          "matched_requirements": [
+            "minimum_cda_m2",
+            "fluid_compatibility",
+            "oxygen_clean"
+          ],
+          "missing_requirements": [],
+          "failed_requirements": [
+            "pressure_rating_pa"
+          ],
+          "confidence": 0.5,
+          "notes": "Zero Pressure Drop, Solenoid. 110 psi @ -350°F. Temp range -350 to 400°F. Bronze body with wire lead connection. Cleaned and bagged for high-purity applications per page description."
+        },
+        {
+          "item": "LOX feed valve",
+          "supplier": "McMaster-Carr",
+          "productName": "Solenoid On/Off Valve for Cryogenic Liquids, Bronze Body, 1/2\" NPT, 120V AC, Fail Closed, 110 psi",
+          "partNumber": "4710T11",
+          "productUrl": "https://www.mcmaster.com/4710T11",
+          "price": "$463.47",
+          "leadTime": null,
+          "pressure_rating_pa": 758422,
+          "volume_l": null,
+          "minimum_cda_m2": 0.00028000000000000003,
+          "fluid_compatibility": [
+            "Liquid Nitrogen",
+            "Liquid Oxygen",
+            "Liquid Argon"
+          ],
+          "oxygen_clean": true,
+          "cryogenic_compatible": true,
+          "matched_requirements": [
+            "minimum_cda_m2",
+            "fluid_compatibility",
+            "oxygen_clean"
+          ],
+          "missing_requirements": [],
+          "failed_requirements": [
+            "pressure_rating_pa"
+          ],
+          "confidence": 0.5,
+          "notes": "Zero Pressure Drop, Solenoid. 110 psi @ -350°F. Temp range -350 to 400°F. Bronze body with wire lead connection. Cleaned and bagged for high-purity applications per page description."
+        }
+      ]
+    }
+  ],
+  "approvalRequired": true,
+  "sent": false
+}

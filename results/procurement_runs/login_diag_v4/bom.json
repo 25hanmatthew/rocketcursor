@@ -1,0 +1,169 @@
+{
+  "generatedAt": "2026-06-21T10:28:26.309Z",
+  "projectName": "McMaster login seed",
+  "items": [
+    {
+      "item": "GN2 pressurant tank",
+      "quantity": 1,
+      "requirements": {
+        "fluid": "Nitrogen",
+        "minimum_pressure_rating_pa": 6000000,
+        "minimum_volume_l": 20,
+        "compatible_with": [
+          "Nitrogen"
+        ]
+      },
+      "candidates": [
+        {
+          "item": "GN2 pressurant tank",
+          "supplier": "McMaster-Carr",
+          "productName": "Empty High-Pressure Inert Gas Tanks - HP40",
+          "partNumber": "7822A12",
+          "productUrl": "https://www.mcmaster.com/7822A12",
+          "price": "$228.56",
+          "leadTime": null,
+          "pressure_rating_pa": 13893925,
+          "volume_l": 1132.67386368,
+          "minimum_cda_m2": null,
+          "fluid_compatibility": [
+            "Argon",
+            "Argon/Carbon Dioxide Blend",
+            "Helium",
+            "Nitrogen"
+          ],
+          "oxygen_clean": false,
+          "cryogenic_compatible": false,
+          "matched_requirements": [
+            "pressure_rating_pa",
+            "volume_l",
+            "fluid_compatibility",
+            "compatible_with:Nitrogen"
+          ],
+          "missing_requirements": [],
+          "failed_requirements": [],
+          "confidence": 1,
+          "notes": "HP40 cylinder, 40 cu. ft., 7\" dia., 18 1/4\" ht., 22 lb. empty, 2015 psi max pressure, Steel, CGA 580, Female, DOT 3AA"
+        },
+        {
+          "item": "GN2 pressurant tank",
+          "supplier": "McMaster-Carr",
+          "productName": "Empty High-Pressure Inert Gas Tanks - HP55",
+          "partNumber": "7822A13",
+          "productUrl": "https://www.mcmaster.com/7822A13",
+          "price": "$299.02",
+          "leadTime": null,
+          "pressure_rating_pa": 13893925,
+          "volume_l": 1557.42656256,
+          "minimum_cda_m2": null,
+          "fluid_compatibility": [
+            "Argon",
+            "Argon/Carbon Dioxide Blend",
+            "Helium",
+            "Nitrogen"
+          ],
+          "oxygen_clean": false,
+          "cryogenic_compatible": false,
+          "matched_requirements": [
+            "pressure_rating_pa",
+            "volume_l",
+            "fluid_compatibility",
+            "compatible_with:Nitrogen"
+          ],
+          "missing_requirements": [],
+          "failed_requirements": [],
+          "confidence": 1,
+          "notes": "HP55 cylinder, 55 cu. ft., 7\" dia., 23 1/2\" ht., 26.5 lb. empty, 2015 psi max pressure, Steel, CGA 580, Female, DOT 3AA"
+        },
+        {
+          "item": "GN2 pressurant tank",
+          "supplier": "McMaster-Carr",
+          "productName": "Empty High-Pressure Inert Gas Tanks - HP80",
+          "partNumber": "7822A14",
+          "productUrl": "https://www.mcmaster.com/7822A14",
+          "price": "$330.17",
+          "leadTime": null,
+          "pressure_rating_pa": 13893925,
+          "volume_l": 2265.34772736,
+          "minimum_cda_m2": null,
+          "fluid_compatibility": [
+            "Argon",
+            "Argon/Carbon Dioxide Blend",
+            "Helium",
+            "Nitrogen"
+          ],
+          "oxygen_clean": false,
+          "cryogenic_compatible": false,
+          "matched_requirements": [
+            "pressure_rating_pa",
+            "volume_l",
+            "fluid_compatibility",
+            "compatible_with:Nitrogen"
+          ],
+          "missing_requirements": [],
+          "failed_requirements": [],
+          "confidence": 1,
+          "notes": "HP80 cylinder, 80 cu. ft., 7\" dia., 31 1/2\" ht., 40 lb. empty, 2015 psi max pressure, Steel, CGA 580, Female, DOT 3AA"
+        },
+        {
+          "item": "GN2 pressurant tank",
+          "supplier": "McMaster-Carr",
+          "productName": "Empty High-Pressure Inert Gas Tanks - HP20",
+          "partNumber": "7822A11",
+          "productUrl": "https://www.mcmaster.com/7822A11",
+          "price": "$170.33",
+          "leadTime": null,
+          "pressure_rating_pa": 13893925,
+          "volume_l": 566.33693184,
+          "minimum_cda_m2": null,
+          "fluid_compatibility": [
+            "Argon",
+            "Helium",
+            "Nitrogen"
+          ],
+          "oxygen_clean": false,
+          "cryogenic_compatible": false,
+          "matched_requirements": [
+            "pressure_rating_pa",
+            "volume_l",
+            "fluid_compatibility",
+            "compatible_with:Nitrogen"
+          ],
+          "missing_requirements": [],
+          "failed_requirements": [],
+          "confidence": 1,
+          "notes": "HP20 cylinder, 20 cu. ft., 5 1/4\" dia., 13 3/4\" ht., 10.5 lb. empty, 2015 psi max pressure, Steel, CGA 580, Female, DOT 3AA"
+        },
+        {
+          "item": "GN2 pressurant tank",
+          "supplier": "McMaster-Carr",
+          "productName": "Nitrogen Gas",
+          "partNumber": null,
+          "productUrl": "https://www.mcmaster.com/products/pressure-vessels/",
+          "price": null,
+          "leadTime": null,
+          "pressure_rating_pa": null,
+          "volume_l": null,
+          "minimum_cda_m2": null,
+          "fluid_compatibility": [
+            "Nitrogen"
+          ],
+          "oxygen_clean": null,
+          "cryogenic_compatible": null,
+          "matched_requirements": [
+            "fluid_compatibility",
+            "compatible_with:Nitrogen"
+          ],
+          "missing_requirements": [
+            "pressure_rating_pa",
+            "volume_l"
+          ],
+          "failed_requirements": [],
+          "confidence": 0.3,
+          "notes": "Category page only - 'Nitrogen Gas: Often used to purge impurities from pipelines and other systems as well as test oxygen detectors' - 4 products listed. No individual product details, part numbers, prices, pressure ratings, or volumes visible on this page. These appear to be gas cylinders/bottles rather than pressurant tanks. Individual product pages must be consulted to verify suitability."
+        }
+      ]
+    }
+  ],
+  "approvalRequired": true,
+  "sent": false
+}

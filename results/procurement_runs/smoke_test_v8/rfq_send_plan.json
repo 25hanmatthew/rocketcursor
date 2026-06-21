@@ -1,0 +1,31 @@
+{
+  "ok": true,
+  "dryRun": true,
+  "recipientEmail": "iansun258726@gmail.com",
+  "runId": "smoke_test_v8",
+  "sentAt": "2026-06-21T07:50:32.479Z",
+  "note": "pokeDelivered means Poke accepted the inbound API message. If the inbound API does not act, paste poke_mcp_instruction.txt into the iMessage Poke chat to trigger the MCP send tool. Confirm in the recipient inbox.",
+  "emailConfirmed": false,
+  "results": [
+    {
+      "item": "GN2 pressurant tank",
+      "supplier": "McMaster-Carr",
+      "partNumber": null,
+      "recipientEmail": "iansun258726@gmail.com",
+      "subject": "RFQ Request — GN2 pressurant tank",
+      "dryRun": true,
+      "pokeDelivered": true,
+      "sentAt": "2026-06-21T07:50:32.479Z"
+    },
+    {
+      "item": "LOX feed valve",
+      "supplier": "Swagelok",
+      "partNumber": null,
+      "recipientEmail": "iansun258726@gmail.com",
+      "subject": "RFQ Request — LOX feed valve",
+      "dryRun": true,
+      "pokeDelivered": true,
+      "sentAt": "2026-06-21T07:50:32.479Z"
+    }
+  ]
+}

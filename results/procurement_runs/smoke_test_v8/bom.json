@@ -1,0 +1,479 @@
+{
+  "generatedAt": "2026-06-21T06:55:51.410Z",
+  "projectName": "Matthew Han propulsion procurement test",
+  "items": [
+    {
+      "item": "GN2 pressurant tank",
+      "quantity": 1,
+      "requirements": {
+        "fluid": "Nitrogen",
+        "minimum_pressure_rating_pa": 6000000,
+        "minimum_volume_l": 20,
+        "compatible_with": [
+          "Nitrogen"
+        ],
+        "notes": "Pressure rating should exceed max simulated tank pressure with margin."
+      },
+      "candidates": [
+        {
+          "item": "GN2 pressurant tank",
+          "supplier": "McMaster-Carr",
+          "productName": "Empty High-Pressure Inert Gas Tanks - HP20",
+          "partNumber": "7822A11",
+          "productUrl": "https://www.mcmaster.com/7822A11",
+          "price": "$170.33",
+          "leadTime": null,
+          "pressure_rating_pa": 13893425,
+          "volume_l": 566.337,
+          "minimum_cda_m2": null,
+          "fluid_compatibility": [
+            "Argon",
+            "Helium",
+            "Nitrogen"
+          ],
+          "oxygen_clean": false,
+          "cryogenic_compatible": false,
+          "matched_requirements": [
+            "pressure_rating_pa",
+            "volume_l",
+            "fluid_compatibility",
+            "compatible_with:Nitrogen"
+          ],
+          "missing_requirements": [],
+          "failed_requirements": [],
+          "confidence": 1,
+          "notes": "HP20 cylinder, 20 cu. ft., 5 1/4\" dia., 13 3/4\" ht., 10.5 lb. empty, 2015 psi max, Steel, CGA 580, Female, DOT 3AA. For use with Argon, Helium, and Nitrogen only."
+        },
+        {
+          "item": "GN2 pressurant tank",
+          "supplier": "McMaster-Carr",
+          "productName": "Empty High-Pressure Inert Gas Tanks - HP40",
+          "partNumber": "7822A12",
+          "productUrl": "https://www.mcmaster.com/7822A12",
+          "price": "$228.56",
+          "leadTime": null,
+          "pressure_rating_pa": 13893425,
+          "volume_l": 1132.674,
+          "minimum_cda_m2": null,
+          "fluid_compatibility": [
+            "Argon",
+            "Argon/Carbon Dioxide Blend",
+            "Helium",
+            "Nitrogen"
+          ],
+          "oxygen_clean": false,
+          "cryogenic_compatible": false,
+          "matched_requirements": [
+            "pressure_rating_pa",
+            "volume_l",
+            "fluid_compatibility",
+            "compatible_with:Nitrogen"
+          ],
+          "missing_requirements": [],
+          "failed_requirements": [],
+          "confidence": 1,
+          "notes": "HP40 cylinder, 40 cu. ft., 7\" dia., 18 1/4\" ht., 22 lb. empty, 2015 psi max, Steel, CGA 580, Female, DOT 3AA. For use with Argon, Argon/Carbon Dioxide Blend, Helium, and Nitrogen."
+        },
+        {
+          "item": "GN2 pressurant tank",
+          "supplier": "McMaster-Carr",
+          "productName": "Empty High-Pressure Inert Gas Tanks - HP55",
+          "partNumber": "7822A13",
+          "productUrl": "https://www.mcmaster.com/7822A13",
+          "price": "$299.02",
+          "leadTime": null,
+          "pressure_rating_pa": 13893425,
+          "volume_l": 1557.427,
+          "minimum_cda_m2": null,
+          "fluid_compatibility": [
+            "Argon",
+            "Argon/Carbon Dioxide Blend",
+            "Helium",
+            "Nitrogen"
+          ],
+          "oxygen_clean": false,
+          "cryogenic_compatible": false,
+          "matched_requirements": [
+            "pressure_rating_pa",
+            "volume_l",
+            "fluid_compatibility",
+            "compatible_with:Nitrogen"
+          ],
+          "missing_requirements": [],
+          "failed_requirements": [],
+          "confidence": 1,
+          "notes": "HP55 cylinder, 55 cu. ft., 7\" dia., 23 1/2\" ht., 26.5 lb. empty, 2015 psi max, Steel, CGA 580, Female, DOT 3AA. For use with Argon, Argon/Carbon Dioxide Blend, Helium, and Nitrogen."
+        },
+        {
+          "item": "GN2 pressurant tank",
+          "supplier": "McMaster-Carr",
+          "productName": "Empty High-Pressure Inert Gas Tanks - HP80",
+          "partNumber": "7822A14",
+          "productUrl": "https://www.mcmaster.com/7822A14",
+          "price": "$330.17",
+          "leadTime": null,
+          "pressure_rating_pa": 13893425,
+          "volume_l": 2265.348,
+          "minimum_cda_m2": null,
+          "fluid_compatibility": [
+            "Argon",
+            "Argon/Carbon Dioxide Blend",
+            "Helium",
+            "Nitrogen"
+          ],
+          "oxygen_clean": false,
+          "cryogenic_compatible": false,
+          "matched_requirements": [
+            "pressure_rating_pa",
+            "volume_l",
+            "fluid_compatibility",
+            "compatible_with:Nitrogen"
+          ],
+          "missing_requirements": [],
+          "failed_requirements": [],
+          "confidence": 1,
+          "notes": "HP80 cylinder, 80 cu. ft., 7\" dia., 31 1/2\" ht., 40 lb. empty, 2015 psi max, Steel, CGA 580, Female, DOT 3AA. For use with Argon, Argon/Carbon Dioxide Blend, Helium, and Nitrogen."
+        }
+      ]
+    },
+    {
+      "item": "LOX tank",
+      "quantity": 1,
+      "requirements": {
+        "fluid": "Oxygen",
+        "cryogenic_compatible": true,
+        "minimum_volume_l": 50,
+        "minimum_pressure_rating_pa": 2000000
+      },
+      "candidates": [
+        {
+          "item": "LOX tank",
+          "supplier": "McMaster-Carr",
+          "productName": "Empty High-Pressure Oxygen Tank",
+          "partNumber": "7986A31",
+          "productUrl": "https://www.mcmaster.com/7986A31",
+          "price": "$148.76",
+          "leadTime": null,
+          "pressure_rating_pa": 13893450,
+          "volume_l": 566.33693184,
+          "minimum_cda_m2": null,
+          "fluid_compatibility": [
+            "Oxygen"
+          ],
+          "oxygen_clean": null,
+          "cryogenic_compatible": false,
+          "matched_requirements": [
+            "pressure_rating_pa",
+            "volume_l",
+            "fluid_compatibility"
+          ],
+          "missing_requirements": [],
+          "failed_requirements": [
+            "cryogenic_compatible"
+          ],
+          "confidence": 0.5,
+          "notes": "Cylinder Size HP20, Cap. 20 cu. ft., Dia. 5 1/4\", Ht. 14\", Empty Tank Wt. 9.6 lb., Max. Pressure 2,015 psi, Steel, CGA 540, Male outlet, D.O.T. 3AA. For Use With Oxygen. Volume ~566 L at STP (20 cu. ft. gas capacity, not liquid volume). Pressure rating 2015 psi = ~13,893,450 Pa. No explicit cryogenic or oxygen-clean rating stated."
+        },
+        {
+          "item": "LOX tank",
+          "supplier": "McMaster-Carr",
+          "productName": "Empty High-Pressure Inert Gas Tank, hp20, 20 cu. ft. Capacity",
+          "partNumber": "7822A11",
+          "productUrl": "https://www.mcmaster.com/7822A11",
+          "price": "$170.33 each",
+          "leadTime": "Delivers Tuesday",
+          "pressure_rating_pa": 138928715.5,
+          "volume_l": 566.337,
+          "minimum_cda_m2": null,
+          "fluid_compatibility": [
+            "Argon",
+            "Helium",
+            "Nitrogen"
+          ],
+          "oxygen_clean": false,
+          "cryogenic_compatible": false,
+          "matched_requirements": [
+            "pressure_rating_pa",
+            "volume_l"
+          ],
+          "missing_requirements": [],
+          "failed_requirements": [
+            "fluid_compatibility",
+            "cryogenic_compatible"
+          ],
+          "confidence": 0,
+          "notes": "For Use With: Argon, Helium, Nitrogen. Cylinder Size: HP20. Capacity: 20 cu. ft. (566.34 L). Maximum Pressure: 2,015 psi (~138,928,716 Pa). Material: Steel. CGA Number: 580. D.O.T. Cylinder Specification: 3AA. Refillable: Yes. Not listed as oxygen-clean or cryogenic-compatible. Fluids listed do not include Oxygen. Volume exceeds 50 L minimum but fluid and cryogenic requirements are not met."
+        }
+      ]
+    },
+    {
+      "item": "LOX feed valve",
+      "quantity": 1,
+      "requirements": {
+        "fluid": "Oxygen",
+        "minimum_cda_m2": 0.0001,
+        "pressure_rating_pa": 2000000,
+        "oxygen_clean": true
+      },
+      "candidates": [
+        {
+          "item": "LOX feed valve",
+          "supplier": "Swagelok",
+          "productName": "Stainless Steel 1-Piece 40 Series Ball Valve, 12 Cv, 1/2 in. Swagelok Tube Fitting, SC-11",
+          "partNumber": "SS-45S8-SC11",
+          "productUrl": "https://products.swagelok.com/en/c/2-way-straight-pattern/p/SS-45S8-SC11",
+          "price": null,
+          "leadTime": null,
+          "pressure_rating_pa": 17236893,
+          "volume_l": null,
+          "minimum_cda_m2": 0.0009600000000000001,
+          "fluid_compatibility": [
+            "Oxygen"
+          ],
+          "oxygen_clean": true,
+          "cryogenic_compatible": null,
+          "matched_requirements": [
+            "pressure_rating_pa",
+            "minimum_cda_m2",
+            "fluid_compatibility",
+            "oxygen_clean"
+          ],
+          "missing_requirements": [],
+          "failed_requirements": [],
+          "confidence": 1,
+          "notes": "Cleaning Process: Special Cleaning and Packaging (SC-11). Body Material: 316 Stainless Steel. Ball/Stem Material: Stainless Steel. Packing Material: PTFE. Lubricant: Nonhydrocarbon lubricants. Room Temperature Pressure Rating: 2500 PSIG @ 100°F / 172 BAR @ 37°C. Flow Pattern: 2-Way, Shutoff, Straight. Orifice: 0.406 in / 10.3 mm. Low Emissions Certified: Yes. Service Class: General. Price requires login to view. Oxygen-clean determination based on SC-11 Special Cleaning and Packaging designation and nonhydrocarbon lubricants; page does not explicitly state 'oxygen clean' but SC-11 is Swagelok's oxygen cleaning process designation."
+        },
+        {
+          "item": "LOX feed valve",
+          "supplier": "McMaster-Carr",
+          "productName": "Bronze Body Solenoid On/Off Valve, for Cryogenic Liquids, 120V AC, 1/2 NPT, 110 Maximum PSI",
+          "partNumber": "4710T11",
+          "productUrl": "https://www.mcmaster.com/4710T11",
+          "price": "$463.47 each",
+          "leadTime": "Delivers Tuesday",
+          "pressure_rating_pa": 758422.7,
+          "volume_l": null,
+          "minimum_cda_m2": 0.00028000000000000003,
+          "fluid_compatibility": [
+            "Liquid Oxygen",
+            "Oxygen",
+            "Liquid Nitrogen",
+            "Liquid Argon",
+            "Argon",
+            "Nitrogen",
+            "Acetone",
+            "Butane",
+            "Carbon Dioxide",
+            "Diesel Fuel",
+            "Ethanol",
+            "Ethylene Glycol",
+            "Fuel Oil",
+            "Gasoline",
+            "Helium",
+            "Isopropyl Alcohol",
+            "Kerosene",
+            "Krypton",
+            "Liquid Carbon Dioxide",
+            "Methanol (Methyl Alcohol)",
+            "Methyl Ethyl Ketone (MEK)",
+            "Mineral Spirits",
+            "Natural Gas",
+            "Neon",
+            "Oil",
+            "Propane",
+            "Salt Water",
+            "Soap Solutions",
+            "Toluene (Methylbenzene)",
+            "Water",
+            "Xenon",
+            "Xylene"
+          ],
+          "oxygen_clean": true,
+          "cryogenic_compatible": true,
+          "matched_requirements": [
+            "minimum_cda_m2",
+            "fluid_compatibility",
+            "oxygen_clean"
+          ],
+          "missing_requirements": [],
+          "failed_requirements": [
+            "pressure_rating_pa"
+          ],
+          "confidence": 0.5,
+          "notes": "110 psi @ -350°F rating converts to ~758,423 Pa. Page states valves are 'cleaned and bagged for high-purity applications' and explicitly listed for Liquid Oxygen use. Zero pressure drop valve type; no minimum pressure drop required. Fail closed solenoid, 120V AC, 1/2 NPT female threaded, bronze body, glass-filled PTFE seals/seat, temperature range -350°F to 400°F. Does not meet the 2,000,000 Pa (290 psi) pressure rating requirement."
+        },
+        {
+          "item": "LOX feed valve",
+          "supplier": "Swagelok",
+          "productName": "Stainless Steel Integral Bonnet Needle Valve, 0.37 Cv, 1/4 in. Swagelok Tube Fitting, Regulating Stem, SC-11 Cleaned",
+          "partNumber": "SS-1RS4-SC11",
+          "productUrl": "https://products.swagelok.com/en/c/straight-pattern-regulating-stem/p/SS-1RS4-SC11",
+          "price": null,
+          "leadTime": null,
+          "pressure_rating_pa": 21581270,
+          "volume_l": null,
+          "minimum_cda_m2": 0.0000296,
+          "fluid_compatibility": [
+            "Oxygen"
+          ],
+          "oxygen_clean": true,
+          "cryogenic_compatible": null,
+          "matched_requirements": [
+            "pressure_rating_pa",
+            "fluid_compatibility",
+            "oxygen_clean"
+          ],
+          "missing_requirements": [],
+          "failed_requirements": [
+            "minimum_cda_m2"
+          ],
+          "confidence": 0.5,
+          "notes": "Body Material: 316 Stainless Steel. Cleaning Process: Special Cleaning and Packaging (SC-11) per ASTM G93 Level C. Max Temperature Pressure Rating: 600°F @ 3130 PSIG / 315°C @ 215 BAR. Pressure rating converted from 3130 PSIG (~21,581,270 Pa). Min Temp: -65°F (-53°C). Max Temp: 450°F (232°C). SC-11 cleaning is Swagelok's oxygen-compatible cleaning specification (ASTM G93 Level C), indicating oxygen-clean treatment. Price requires login to view."
+        },
+        {
+          "item": "LOX feed valve",
+          "supplier": "Swagelok",
+          "productName": "Stainless Steel Integral Bonnet Needle Valve, 0.37 Cv, 6 mm Swagelok Tube Fitting, Regulating Stem, SC-11 Cleaned",
+          "partNumber": "SS-1RS6MM-SC11",
+          "productUrl": "https://products.swagelok.com/en/c/straight-pattern-regulating-stem/p/SS-1RS6MM-SC11",
+          "price": null,
+          "leadTime": null,
+          "pressure_rating_pa": 21581350,
+          "volume_l": null,
+          "minimum_cda_m2": 0.0000296,
+          "fluid_compatibility": [
+            "Oxygen"
+          ],
+          "oxygen_clean": true,
+          "cryogenic_compatible": false,
+          "matched_requirements": [
+            "pressure_rating_pa",
+            "fluid_compatibility",
+            "oxygen_clean"
+          ],
+          "missing_requirements": [],
+          "failed_requirements": [
+            "minimum_cda_m2"
+          ],
+          "confidence": 0.5,
+          "notes": "Body: 316 Stainless Steel. Cleaning Process: Special Cleaning and Packaging (SC-11) per ASTM G93 Level C. Max pressure rating: 3130 PSIG (21,581,350 Pa) at 600°F / 215 BAR at 315°C. Min temperature: -65°F (-53°C). Max temperature: 600°F (315°C). 2-Way, Shutoff, Straight flow pattern. Regulating stem. Oxygen clean (SC-11) explicitly stated in cleaning process specification. Cryogenic compatibility not explicitly stated; minimum temp is -53°C which is not cryogenic range. Price requires login."
+        },
+        {
+          "item": "LOX feed valve",
+          "supplier": "Swagelok",
+          "productName": "Stainless Steel Integral Bonnet Needle Valve, 0.73 Cv, 1/2 in. Swagelok Tube Fitting, Regulating Stem, SC-11",
+          "partNumber": "SS-1RS8-SC11",
+          "productUrl": "https://products.swagelok.com/en/c/straight-pattern-regulating-stem/p/SS-1RS8-SC11",
+          "price": null,
+          "leadTime": null,
+          "pressure_rating_pa": null,
+          "volume_l": null,
+          "minimum_cda_m2": 0.0000584,
+          "fluid_compatibility": [
+            "Oxygen"
+          ],
+          "oxygen_clean": true,
+          "cryogenic_compatible": null,
+          "matched_requirements": [
+            "fluid_compatibility",
+            "oxygen_clean"
+          ],
+          "missing_requirements": [
+            "pressure_rating_pa"
+          ],
+          "failed_requirements": [
+            "minimum_cda_m2"
+          ],
+          "confidence": 0.15,
+          "notes": "316 Stainless Steel body. Cleaning Process: Special Cleaning and Packaging (SC-11) — meets ASTM G93 Level C oxygen cleanliness requirements. Connection: 1/2 in. Swagelok Tube Fitting both ends. Max temp: 600°F (315°C), Min temp: -65°F (-53°C). Regulating stem, straight pattern. Catalog lists working pressures up to 6000 psig (413 bar) for this series. Price requires login. No pressure rating in Pa explicitly stated on this page; catalog reference states up to 6000 psig (~41,368,543 Pa) for the series."
+        },
+        {
+          "item": "LOX feed valve",
+          "supplier": "McMaster-Carr",
+          "productName": "High-Pressure Threaded Precision Flow-Adjustment Valves for Steam, 316 Stainless Steel Body, 1/4 NPT Female × NPT Female",
+          "partNumber": "2841N11",
+          "productUrl": "https://www.mcmaster.com/2841N11",
+          "price": "$125.74",
+          "leadTime": null,
+          "pressure_rating_pa": 68947573,
+          "volume_l": null,
+          "minimum_cda_m2": 0.0000464,
+          "fluid_compatibility": [
+            "Steam"
+          ],
+          "oxygen_clean": false,
+          "cryogenic_compatible": null,
+          "matched_requirements": [
+            "pressure_rating_pa"
+          ],
+          "missing_requirements": [],
+          "failed_requirements": [
+            "minimum_cda_m2",
+            "fluid_compatibility",
+            "oxygen_clean"
+          ],
+          "confidence": 0,
+          "notes": "316 SS body, PTFE seal and packing, 316 SS needle and seat, temp range -40 to 400°F, max pressure 10,000 psi @ 200°F, max steam pressure 6,200 psi @ 355°F. Panel-mount. Does not list oxygen compatibility or oxygen-clean certification."
+        },
+        {
+          "item": "LOX feed valve",
+          "supplier": "McMaster-Carr",
+          "productName": "High-Pressure Threaded Precision Flow-Adjustment Valves for Steam, 316 Stainless Steel Body, 3/8 NPT Female × NPT Female",
+          "partNumber": "2841N12",
+          "productUrl": "https://www.mcmaster.com/2841N12",
+          "price": "$129.87",
+          "leadTime": null,
+          "pressure_rating_pa": 68947573,
+          "volume_l": null,
+          "minimum_cda_m2": 0.0000464,
+          "fluid_compatibility": [
+            "Steam"
+          ],
+          "oxygen_clean": false,
+          "cryogenic_compatible": null,
+          "matched_requirements": [
+            "pressure_rating_pa"
+          ],
+          "missing_requirements": [],
+          "failed_requirements": [
+            "minimum_cda_m2",
+            "fluid_compatibility",
+            "oxygen_clean"
+          ],
+          "confidence": 0,
+          "notes": "316 SS body, PTFE seal and packing, 316 SS needle and seat, temp range -40 to 400°F, max pressure 10,000 psi @ 200°F, max steam pressure 4,800 psi @ 355°F. Panel-mount. Does not list oxygen compatibility or oxygen-clean certification."
+        },
+        {
+          "item": "LOX feed valve",
+          "supplier": "McMaster-Carr",
+          "productName": "High-Pressure Threaded Precision Flow-Adjustment Valves for Steam, 316 Stainless Steel Body, 1/2 NPT Female × NPT Female",
+          "partNumber": "2841N13",
+          "productUrl": "https://www.mcmaster.com/2841N13",
+          "price": "$134.20",
+          "leadTime": null,
+          "pressure_rating_pa": 68947573,
+          "volume_l": null,
+          "minimum_cda_m2": 0.000048,
+          "fluid_compatibility": [
+            "Steam"
+          ],
+          "oxygen_clean": false,
+          "cryogenic_compatible": null,
+          "matched_requirements": [
+            "pressure_rating_pa"
+          ],
+          "missing_requirements": [],
+          "failed_requirements": [
+            "minimum_cda_m2",
+            "fluid_compatibility",
+            "oxygen_clean"
+          ],
+          "confidence": 0,
+          "notes": "316 SS body, PTFE seal and packing, 316 SS needle and seat, temp range -40 to 400°F, max pressure 10,000 psi @ 200°F, max steam pressure 4,800 psi @ 355°F. Panel-mount. Does not list oxygen compatibility or oxygen-clean certification."
+        }
+      ]
+    }
+  ],
+  "approvalRequired": true,
+  "sent": false
+}

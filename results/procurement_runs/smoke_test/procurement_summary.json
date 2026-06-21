@@ -1,0 +1,33 @@
+{
+  "ok": true,
+  "projectName": "Matthew Han propulsion procurement test",
+  "bomPath": "../../results/procurement_runs/smoke_test/bom.json",
+  "rfqDrafts": [
+    {
+      "item": "GN2 pressurant tank",
+      "supplier": "Swagelok",
+      "productUrl": "https://www.swagelok.com/-/media/distributor-media/c-g/ea/resources/seanz-regulator-assemblies.ashx",
+      "draftPath": "../../results/procurement_runs/smoke_test/rfqs/gn2_pressurant_tank_rfq.txt",
+      "approvalRequired": true,
+      "sent": false
+    },
+    {
+      "item": "LOX tank",
+      "supplier": "Swagelok",
+      "productUrl": "https://www.swagelok.com/-/media/distributor-media/l-n/nctn/services/primary-gas-pressure-control-sgp-sncet.ashx",
+      "draftPath": "../../results/procurement_runs/smoke_test/rfqs/lox_tank_rfq.txt",
+      "approvalRequired": true,
+      "sent": false
+    },
+    {
+      "item": "LOX feed valve",
+      "supplier": "Swagelok",
+      "productUrl": "https://www.swagelok.com/-/media/distributor-media/l-n/njfs/documents/swagelok-lab-gas-control-stick_application-solution.ashx",
+      "draftPath": "../../results/procurement_runs/smoke_test/rfqs/lox_feed_valve_rfq.txt",
+      "approvalRequired": true,
+      "sent": false
+    }
+  ],
+  "approvalRequired": true,
+  "sent": false
+}

@@ -1,0 +1,8 @@
+{
+  "ok": true,
+  "projectName": "Matthew Han propulsion procurement test",
+  "bomPath": "../../results/procurement_runs/smoke_test_v3/bom.json",
+  "rfqDrafts": [],
+  "approvalRequired": true,
+  "sent": false
+}

@@ -1,0 +1,48 @@
+Subject: RFQ Request — LOX feed valve
+
+Hello,
+
+We are requesting a quotation for the following component:
+
+Item: LOX feed valve
+Quantity: 1
+Candidate product: Stainless Steel 1-Piece 40G Series Ball Valve, 1.5 Cv, 3/8 in. Swagelok Tube Fitting, SC-11 Cleaned
+Part number: SS-43GS6-SC11
+Supplier: Swagelok
+Product URL: https://products.swagelok.com/en/c/2-way-straight-pattern/p/SS-43GS6-SC11
+
+Required specifications:
+{
+  "fluid": "Oxygen",
+  "minimum_cda_m2": 0.0001,
+  "pressure_rating_pa": 2000000,
+  "oxygen_clean": true
+}
+
+Extracted candidate specifications:
+Pressure rating: 20684270 Pa
+Volume: not found L
+Minimum CdA: not found m^2
+Fluid compatibility: not found
+Oxygen clean: true
+Cryogenic compatible: not found
+
+Requirement check:
+Matched: pressure_rating_pa, oxygen_clean
+Missing: minimum_cda_m2, fluid_compatibility
+Failed: none
+
+Please include:
+- Unit pricing
+- Lead time
+- Datasheet
+- Pressure rating documentation
+- Fluid compatibility documentation
+- Cleaning/compliance documentation where applicable
+- Any minimum order quantity
+- Shipping options
+
+Note: This RFQ draft was generated automatically from a simulation-derived BOM and requires engineering review before purchase or use.
+
+Best,
+Engineering Team

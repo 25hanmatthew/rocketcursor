@@ -1,0 +1,51 @@
+Subject: RFQ Request — GN2 pressurant tank
+
+Hello,
+
+We are requesting a quotation for the following component:
+
+Item: GN2 pressurant tank
+Quantity: 1
+Candidate product: Extraction failed
+Part number: not listed
+Supplier: Swagelok
+Product URL: https://www.swagelok.com/-/media/distributor-media/c-g/ea/resources/seanz-regulator-assemblies.ashx
+
+Required specifications:
+{
+  "fluid": "Nitrogen",
+  "minimum_pressure_rating_pa": 6000000,
+  "minimum_volume_l": 20,
+  "compatible_with": [
+    "Nitrogen"
+  ],
+  "notes": "Pressure rating should exceed max simulated tank pressure with margin."
+}
+
+Extracted candidate specifications:
+Pressure rating: not found Pa
+Volume: not found L
+Minimum CdA: not found m^2
+Fluid compatibility: not found
+Oxygen clean: not found
+Cryogenic compatible: not found
+
+Requirement check:
+Matched: none
+Missing: extraction_failed
+Failed: none
+
+Please include:
+- Unit pricing
+- Lead time
+- Datasheet
+- Pressure rating documentation
+- Fluid compatibility documentation
+- Cleaning/compliance documentation where applicable
+- Any minimum order quantity
+- Shipping options
+
+Note: This RFQ draft was generated automatically from a simulation-derived BOM and requires engineering review before purchase or use.
+
+Best,
+Engineering Team

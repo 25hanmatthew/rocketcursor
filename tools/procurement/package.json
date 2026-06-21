@@ -1,0 +1,23 @@
+{
+  "name": "procurement",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "procure": "tsx src/runProcurement.ts",
+    "send-rfqs": "tsx src/runSendRfqs.ts",
+    "submit-quotes": "tsx src/runSubmitQuotes.ts",
+    "create-context": "tsx src/createBrowserbaseContext.ts"
+  },
+  "dependencies": {
+    "@browserbasehq/sdk": "^2.14.1",
+    "@browserbasehq/stagehand": "^3.6.0",
+    "dotenv": "^17.4.2",
+    "zod": "^4.4.3"
+  },
+  "devDependencies": {
+    "@types/node": "^26.0.0",
+    "tsx": "^4.22.4",
+    "typescript": "^6.0.3"
+  }
+}

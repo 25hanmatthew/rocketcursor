@@ -16,6 +16,7 @@ from pydantic import BaseModel
 from loop.agent import _load_dotenv, run_loop
 from loop.monitoring import capture as sentry_capture
 from loop.monitoring import init_sentry
+from loop.procurement import run_procurement, send_rfqs_via_poke
 from loop.session_state import FileSessionStore, new_state
 from loop.spec_writer import drop_atmospheric_pressure_component_checks, nl_to_spec, revise_spec
 
@@ -49,6 +50,12 @@ class DesignRunRequest(BaseModel):
 class DesignRunRevisionRequest(BaseModel):
     message: str
     iteration: Optional[int] = None
+
+
+class ProcurementRunRequest(BaseModel):
+    iteration: int
+    materials: list[dict]
+    project_name: str = "Rocketcursor procurement run"
 
 
 app = FastAPI(title="General Fluid Network UI API")
@@ -593,3 +600,92 @@ def get_run_artifact(run_id: str, name: str):
         return _json_response_file(target)
     media_type = "text/csv" if target.suffix == ".csv" else "text/markdown"
     return FileResponse(target, media_type=media_type, filename=name)
+
+
+@app.post("/api/design-runs/{session_id}/procurement")
+def create_procurement_run(session_id: str, request: ProcurementRunRequest):
+    manifest = _load_manifest(session_id)
+    run_root = Path(manifest.get("loop_run_root", "")).resolve()
+
+    iter_dir = (run_root / f"iter_{request.iteration:02d}").resolve()
+    design_path = iter_dir / "design.json"
+    report_path = iter_dir / "report.json"
+
+    if not design_path.exists() or not report_path.exists():
+        raise HTTPException(status_code=404, detail="Design artifacts not found")
+
+    # Safety: do not procure from an unreviewed/nonexistent design.
+    report = _json_response_file(report_path)
+    status = report.get("status", {})
+    if isinstance(status, dict) and status.get("passed") is False:
+        raise HTTPException(status_code=400, detail="Cannot procure from failed design")
+
+    result = run_procurement(
+        design_path=design_path,
+        report_path=report_path,
+        materials=request.materials,
+        project_name=request.project_name,
+    )
+
+    if not result["ok"]:
+        return JSONResponse(status_code=400, content=result)
+
+    return result
+
+
+@app.get("/api/procurement-runs/{run_id}/bom")
+def get_procurement_bom(run_id: str):
+    if not run_id or any(ch not in "0123456789abcdef" for ch in run_id):
+        raise HTTPException(status_code=404, detail="Procurement run not found")
+
+    bom_path = ROOT / "results" / "procurement_runs" / run_id / "bom.json"
+    if not bom_path.exists():
+        raise HTTPException(status_code=404, detail="BOM not found")
+
+    return _json_response_file(bom_path)
+
+
+class DirectProcurementRunRequest(BaseModel):
+    materials: list[dict]
+    project_name: str = "Rocketcursor procurement run"
+
+
+@app.post("/api/procurement-runs")
+def create_direct_procurement_run(request: DirectProcurementRunRequest):
+    result = run_procurement(
+        design_path=None,
+        report_path=None,
+        materials=request.materials,
+        project_name=request.project_name,
+    )
+
+    if not result["ok"]:
+        return JSONResponse(status_code=400, content=result)
+
+    return result
+
+
+@app.get("/api/procurement-runs/{run_id}/summary")
+def get_procurement_summary(run_id: str):
+    if not run_id or any(ch not in "0123456789abcdef" for ch in run_id):
+        raise HTTPException(status_code=404, detail="Procurement run not found")
+
+    summary_path = ROOT / "results" / "procurement_runs" / run_id / "procurement_summary.json"
+
+    if not summary_path.exists():
+        raise HTTPException(status_code=404, detail="Procurement summary not found")
+
+    return _json_response_file(summary_path)
+
+
+@app.post("/api/procurement-runs/{run_id}/send-rfqs")
+def send_procurement_rfqs(run_id: str):
+    run_dir = ROOT / "results" / "procurement_runs" / run_id
+    if not run_dir.exists():
+        raise HTTPException(status_code=404, detail="Procurement run not found")
+
+    result = send_rfqs_via_poke(run_dir)
+    if not result["ok"]:
+        return JSONResponse(status_code=400, content=result)
+
+    return result

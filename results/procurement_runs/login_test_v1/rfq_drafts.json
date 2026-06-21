@@ -1,0 +1,12 @@
+[
+  {
+    "item": "LOX feed valve",
+    "supplier": "Swagelok",
+    "partNumber": "SS-45S8-SC11",
+    "productUrl": "https://products.swagelok.com/en/c/2-way-straight-pattern/p/SS-45S8-SC11",
+    "draftPath": "rfqs/lox_feed_valve_rfq.txt",
+    "approvalRequired": true,
+    "sent": false,
+    "transport": "portal"
+  }
+]

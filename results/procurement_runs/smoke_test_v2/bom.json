@@ -1,0 +1,44 @@
+{
+  "generatedAt": "2026-06-21T05:59:47.320Z",
+  "projectName": "Matthew Han propulsion procurement test",
+  "items": [
+    {
+      "item": "GN2 pressurant tank",
+      "quantity": 1,
+      "requirements": {
+        "fluid": "Nitrogen",
+        "minimum_pressure_rating_pa": 6000000,
+        "minimum_volume_l": 20,
+        "compatible_with": [
+          "Nitrogen"
+        ],
+        "notes": "Pressure rating should exceed max simulated tank pressure with margin."
+      },
+      "candidates": []
+    },
+    {
+      "item": "LOX tank",
+      "quantity": 1,
+      "requirements": {
+        "fluid": "Oxygen",
+        "cryogenic_compatible": true,
+        "minimum_volume_l": 50,
+        "minimum_pressure_rating_pa": 2000000
+      },
+      "candidates": []
+    },
+    {
+      "item": "LOX feed valve",
+      "quantity": 1,
+      "requirements": {
+        "fluid": "Oxygen",
+        "minimum_cda_m2": 0.0001,
+        "pressure_rating_pa": 2000000,
+        "oxygen_clean": true
+      },
+      "candidates": []
+    }
+  ],
+  "approvalRequired": true,
+  "sent": false
+}

@@ -1,0 +1,8 @@
+{
+  "ok": true,
+  "projectName": "McMaster login seed",
+  "bomPath": "../../results/procurement_runs/login_diag_test/bom.json",
+  "rfqDrafts": [],
+  "approvalRequired": true,
+  "sent": false
+}

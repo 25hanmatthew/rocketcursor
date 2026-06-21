@@ -1,0 +1,203 @@
+{
+  "generatedAt": "2026-06-21T09:27:30.815Z",
+  "projectName": "Matthew Han propulsion procurement test",
+  "items": [
+    {
+      "item": "GN2 pressurant tank",
+      "quantity": 1,
+      "requirements": {
+        "fluid": "Nitrogen",
+        "minimum_pressure_rating_pa": 6000000,
+        "minimum_volume_l": 20,
+        "compatible_with": [
+          "Nitrogen"
+        ],
+        "notes": "Pressure rating should exceed max simulated tank pressure with margin."
+      },
+      "candidates": [
+        {
+          "item": "GN2 pressurant tank",
+          "supplier": "McMaster-Carr",
+          "productName": "McMaster-Carr login required",
+          "partNumber": null,
+          "productUrl": "https://www.mcmaster.com/login",
+          "price": null,
+          "leadTime": null,
+          "pressure_rating_pa": null,
+          "volume_l": null,
+          "minimum_cda_m2": null,
+          "fluid_compatibility": [],
+          "oxygen_clean": null,
+          "cryogenic_compatible": null,
+          "matched_requirements": [],
+          "missing_requirements": [
+            "login_failed"
+          ],
+          "failed_requirements": [],
+          "confidence": 0,
+          "notes": "Supplier login failed"
+        }
+      ]
+    },
+    {
+      "item": "LOX tank",
+      "quantity": 1,
+      "requirements": {
+        "fluid": "Oxygen",
+        "cryogenic_compatible": true,
+        "minimum_volume_l": 50,
+        "minimum_pressure_rating_pa": 2000000
+      },
+      "candidates": [
+        {
+          "item": "LOX tank",
+          "supplier": "McMaster-Carr",
+          "productName": "McMaster-Carr login required",
+          "partNumber": null,
+          "productUrl": "https://www.mcmaster.com/login",
+          "price": null,
+          "leadTime": null,
+          "pressure_rating_pa": null,
+          "volume_l": null,
+          "minimum_cda_m2": null,
+          "fluid_compatibility": [],
+          "oxygen_clean": null,
+          "cryogenic_compatible": null,
+          "matched_requirements": [],
+          "missing_requirements": [
+            "login_failed"
+          ],
+          "failed_requirements": [],
+          "confidence": 0,
+          "notes": "Supplier login failed"
+        }
+      ]
+    },
+    {
+      "item": "LOX feed valve",
+      "quantity": 1,
+      "requirements": {
+        "fluid": "Oxygen",
+        "minimum_cda_m2": 0.0001,
+        "pressure_rating_pa": 2000000,
+        "oxygen_clean": true
+      },
+      "candidates": [
+        {
+          "item": "LOX feed valve",
+          "supplier": "Swagelok",
+          "productName": "Stainless Steel 1-Piece 40 Series Ball Valve, 12 Cv, 1/2 in. Swagelok Tube Fitting, SC-11",
+          "partNumber": "SS-45S8-SC11",
+          "productUrl": "https://products.swagelok.com/en/c/2-way-straight-pattern/p/SS-45S8-SC11",
+          "price": null,
+          "leadTime": null,
+          "pressure_rating_pa": 17236893,
+          "volume_l": null,
+          "minimum_cda_m2": 0.0009600000000000001,
+          "fluid_compatibility": [
+            "Oxygen"
+          ],
+          "oxygen_clean": true,
+          "cryogenic_compatible": null,
+          "matched_requirements": [
+            "pressure_rating_pa",
+            "minimum_cda_m2",
+            "fluid_compatibility",
+            "oxygen_clean"
+          ],
+          "missing_requirements": [],
+          "failed_requirements": [],
+          "confidence": 1,
+          "notes": "Cleaning Process: Special Cleaning and Packaging (SC-11). Body Material: 316 Stainless Steel. Ball/Stem Material: Stainless Steel. Packing Material: PTFE. Lubricant: Nonhydrocarbon lubricants. Ring/Disc Material: PTFE-Coated Stainless Steel. Room Temperature Pressure Rating: 2500 PSIG @ 100°F / 172 BAR @ 37°C (converted: ~17,236,893 Pa). Connection: 1/2 in. Swagelok Tube Fitting both ends. Flow Pattern: 2-Way, Shutoff, Straight. Orifice: 0.406 in / 10.3 mm. Low Emissions Certified: Yes. Service Class: General. The page does not explicitly state oxygen-clean or cryogenic compatibility; SC-11 denotes Special Cleaning and Packaging but oxygen-clean designation is not explicitly confirmed on this page."
+        },
+        {
+          "item": "LOX feed valve",
+          "supplier": "Swagelok",
+          "productName": "Stainless Steel Integral Bonnet Needle Valve, 0.37 Cv, 6 mm Swagelok Tube Fitting, Regulating Stem, SC-11 Cleaned",
+          "partNumber": "SS-1RS6MM-SC11",
+          "productUrl": "https://products.swagelok.com/en/c/straight-pattern-regulating-stem/p/SS-1RS6MM-SC11",
+          "price": null,
+          "leadTime": null,
+          "pressure_rating_pa": 21582670,
+          "volume_l": null,
+          "minimum_cda_m2": 0.0000296,
+          "fluid_compatibility": [
+            "Oxygen"
+          ],
+          "oxygen_clean": true,
+          "cryogenic_compatible": false,
+          "matched_requirements": [
+            "pressure_rating_pa",
+            "fluid_compatibility",
+            "oxygen_clean"
+          ],
+          "missing_requirements": [],
+          "failed_requirements": [
+            "minimum_cda_m2"
+          ],
+          "confidence": 0.5,
+          "notes": "316 Stainless Steel body. Cleaning Process: Special Cleaning and Packaging (SC-11) per ASTM G93 Level C. Max pressure rating: 3130 PSIG @ 600°F / 215 BAR @ 315°C (converted 3130 PSIG ≈ 21,582,670 Pa). Min temperature: -65°F (-53°C). Max temperature: 600°F (315°C). SC-11 cleaning is explicitly listed; oxygen compatibility is implied by SC-11 (ASTM G93 Level C oxygen cleaning) but the page does not explicitly state 'oxygen compatible' — marked true based on SC-11 designation. Cryogenic compatibility not stated; minimum temp is -53°C, not cryogenic range. Price requires login. Flow pattern: 2-Way, Shutoff, Straight. Needle/metering valve, not a shutoff ball valve — may not meet LOX feed valve duty requirements."
+        },
+        {
+          "item": "LOX feed valve",
+          "supplier": "Swagelok",
+          "productName": "Stainless Steel Integral Bonnet Needle Valve, 0.37 Cv, 1/4 in. Swagelok Tube Fitting, Regulating Stem, SC-11 Cleaned",
+          "partNumber": "SS-1RS4-SC11",
+          "productUrl": "https://products.swagelok.com/en/c/straight-pattern-regulating-stem/p/SS-1RS4-SC11",
+          "price": null,
+          "leadTime": null,
+          "pressure_rating_pa": 21582655,
+          "volume_l": null,
+          "minimum_cda_m2": 0.0000296,
+          "fluid_compatibility": [
+            "Oxygen"
+          ],
+          "oxygen_clean": true,
+          "cryogenic_compatible": null,
+          "matched_requirements": [
+            "pressure_rating_pa",
+            "fluid_compatibility",
+            "oxygen_clean"
+          ],
+          "missing_requirements": [],
+          "failed_requirements": [
+            "minimum_cda_m2"
+          ],
+          "confidence": 0.5,
+          "notes": "Body: 316 Stainless Steel. Cleaning Process: Special Cleaning and Packaging (SC-11) — compliant with ASTM G93 Level C, suitable for oxygen service. Max pressure rating: 3130 PSIG (21,582,655 Pa) at 600°F / 215 BAR at 315°C. Temperature range: -65°F (-53°C) to 450°F (232°C). Connection: 1/4 in. Swagelok Tube Fitting both ends. Regulating stem. Phenolic knob handle. Low Emissions Certified. Price requires login. Note: pressure rating of ~21.6 MPa exceeds the 2 MPa requirement. Cv of 0.37 is relatively low — LOX feed valve suitability depends on flow area calculation."
+        },
+        {
+          "item": "LOX feed valve",
+          "supplier": "Swagelok",
+          "productName": "Stainless Steel Integral Bonnet Needle Valve, 0.73 Cv, 1/2 in. Swagelok Tube Fitting, Regulating Stem, SC-11",
+          "partNumber": "SS-1RS8-SC11",
+          "productUrl": "https://products.swagelok.com/en/c/straight-pattern-regulating-stem/p/SS-1RS8-SC11",
+          "price": null,
+          "leadTime": null,
+          "pressure_rating_pa": null,
+          "volume_l": null,
+          "minimum_cda_m2": 0.0000584,
+          "fluid_compatibility": [
+            "Oxygen"
+          ],
+          "oxygen_clean": true,
+          "cryogenic_compatible": false,
+          "matched_requirements": [
+            "fluid_compatibility",
+            "oxygen_clean"
+          ],
+          "missing_requirements": [
+            "pressure_rating_pa"
+          ],
+          "failed_requirements": [
+            "minimum_cda_m2"
+          ],
+          "confidence": 0.15,
+          "notes": "316 Stainless Steel body. Cleaning Process: Special Cleaning and Packaging (SC-11) per ASTM G93 Level C — suitable for oxygen service. Connections: 1/2 in. Swagelok Tube Fitting (both ends). Max temp: 600°F (315°C), Min temp: -65°F (-53°C). Catalog lists working pressures up to 6000 psig (413 bar) for this series. Price requires login. SC-11 cleaning explicitly noted."
+        }
+      ]
+    }
+  ],
+  "approvalRequired": true,
+  "sent": false
+}

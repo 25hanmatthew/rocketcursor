@@ -1,0 +1,48 @@
+Subject: RFQ Request — LOX feed valve
+
+Hello,
+
+We are requesting a quotation for the following component:
+
+Item: LOX feed valve
+Quantity: 1
+Candidate product: Stainless Steel Integral Bonnet Needle Valve, 0.37 Cv, 1/4 in. Swagelok Tube Fitting, Regulating Stem, SC-11 Cleaned
+Part number: SS-1RS4-SC11
+Supplier: Swagelok
+Product URL: https://products.swagelok.com/en/c/straight-pattern-regulating-stem/p/SS-1RS4-SC11
+
+Required specifications:
+{
+  "fluid": "Oxygen",
+  "minimum_cda_m2": 0.0001,
+  "pressure_rating_pa": 2000000,
+  "oxygen_clean": true
+}
+
+Extracted candidate specifications:
+Pressure rating: 21582670 Pa
+Volume: not found L
+Minimum CdA: 0.0000296 m^2
+Fluid compatibility: Oxygen
+Oxygen clean: true
+Cryogenic compatible: false
+
+Requirement check:
+Matched: pressure_rating_pa, fluid_compatibility, oxygen_clean
+Missing: none
+Failed: minimum_cda_m2
+
+Please include:
+- Unit pricing
+- Lead time
+- Datasheet
+- Pressure rating documentation
+- Fluid compatibility documentation
+- Cleaning/compliance documentation where applicable
+- Any minimum order quantity
+- Shipping options
+
+Note: This RFQ draft was generated automatically from a simulation-derived BOM and requires engineering review before purchase or use.
+
+Best,
+Engineering Team

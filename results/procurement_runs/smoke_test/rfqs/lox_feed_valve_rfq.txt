@@ -1,0 +1,48 @@
+Subject: RFQ Request — LOX feed valve
+
+Hello,
+
+We are requesting a quotation for the following component:
+
+Item: LOX feed valve
+Quantity: 1
+Candidate product: Extraction failed
+Part number: not listed
+Supplier: Swagelok
+Product URL: https://www.swagelok.com/-/media/distributor-media/l-n/njfs/documents/swagelok-lab-gas-control-stick_application-solution.ashx
+
+Required specifications:
+{
+  "fluid": "Oxygen",
+  "minimum_cda_m2": 0.0001,
+  "pressure_rating_pa": 2000000,
+  "oxygen_clean": true
+}
+
+Extracted candidate specifications:
+Pressure rating: not found Pa
+Volume: not found L
+Minimum CdA: not found m^2
+Fluid compatibility: not found
+Oxygen clean: not found
+Cryogenic compatible: not found
+
+Requirement check:
+Matched: none
+Missing: extraction_failed
+Failed: none
+
+Please include:
+- Unit pricing
+- Lead time
+- Datasheet
+- Pressure rating documentation
+- Fluid compatibility documentation
+- Cleaning/compliance documentation where applicable
+- Any minimum order quantity
+- Shipping options
+
+Note: This RFQ draft was generated automatically from a simulation-derived BOM and requires engineering review before purchase or use.
+
+Best,
+Engineering Team

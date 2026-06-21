@@ -1,0 +1,269 @@
+{
+  "generatedAt": "2026-06-21T09:49:48.112Z",
+  "projectName": "Matthew Han propulsion procurement test",
+  "items": [
+    {
+      "item": "GN2 pressurant tank",
+      "quantity": 1,
+      "requirements": {
+        "fluid": "Nitrogen",
+        "minimum_pressure_rating_pa": 6000000,
+        "minimum_volume_l": 20,
+        "compatible_with": [
+          "Nitrogen"
+        ],
+        "notes": "Pressure rating should exceed max simulated tank pressure with margin."
+      },
+      "candidates": [
+        {
+          "item": "GN2 pressurant tank",
+          "supplier": "McMaster-Carr",
+          "productName": "McMaster-Carr login required",
+          "partNumber": null,
+          "productUrl": "https://www.mcmaster.com/",
+          "price": null,
+          "leadTime": null,
+          "pressure_rating_pa": null,
+          "volume_l": null,
+          "minimum_cda_m2": null,
+          "fluid_compatibility": [],
+          "oxygen_clean": null,
+          "cryogenic_compatible": null,
+          "matched_requirements": [],
+          "missing_requirements": [
+            "login_failed"
+          ],
+          "failed_requirements": [],
+          "confidence": 0,
+          "notes": "Supplier login failed: Sign-in did not complete"
+        }
+      ]
+    },
+    {
+      "item": "LOX tank",
+      "quantity": 1,
+      "requirements": {
+        "fluid": "Oxygen",
+        "cryogenic_compatible": true,
+        "minimum_volume_l": 50,
+        "minimum_pressure_rating_pa": 2000000
+      },
+      "candidates": [
+        {
+          "item": "LOX tank",
+          "supplier": "McMaster-Carr",
+          "productName": "CGA Gas Tanks",
+          "partNumber": null,
+          "productUrl": "https://www.mcmaster.com/products/cga-gas-tanks/",
+          "price": null,
+          "leadTime": null,
+          "pressure_rating_pa": null,
+          "volume_l": null,
+          "minimum_cda_m2": null,
+          "fluid_compatibility": [],
+          "oxygen_clean": null,
+          "cryogenic_compatible": null,
+          "matched_requirements": [],
+          "missing_requirements": [
+            "no_products_found"
+          ],
+          "failed_requirements": [],
+          "confidence": 0.02,
+          "notes": "No purchasable products extracted from https://www.mcmaster.com/products/cga-gas-tanks/"
+        },
+        {
+          "item": "LOX tank",
+          "supplier": "McMaster-Carr",
+          "productName": "Compressed Gas Tanks",
+          "partNumber": null,
+          "productUrl": "https://www.mcmaster.com/products/compressed-gas-tanks/",
+          "price": null,
+          "leadTime": null,
+          "pressure_rating_pa": null,
+          "volume_l": null,
+          "minimum_cda_m2": null,
+          "fluid_compatibility": [],
+          "oxygen_clean": null,
+          "cryogenic_compatible": null,
+          "matched_requirements": [],
+          "missing_requirements": [
+            "no_products_found"
+          ],
+          "failed_requirements": [],
+          "confidence": 0.02,
+          "notes": "No purchasable products extracted from https://www.mcmaster.com/products/compressed-gas-tanks/"
+        },
+        {
+          "item": "LOX tank",
+          "supplier": "McMaster-Carr",
+          "productName": "Gas Welding Tanks",
+          "partNumber": null,
+          "productUrl": "https://www.mcmaster.com/products/gas-welding-tanks/",
+          "price": null,
+          "leadTime": null,
+          "pressure_rating_pa": null,
+          "volume_l": null,
+          "minimum_cda_m2": null,
+          "fluid_compatibility": [],
+          "oxygen_clean": null,
+          "cryogenic_compatible": null,
+          "matched_requirements": [],
+          "missing_requirements": [
+            "no_products_found"
+          ],
+          "failed_requirements": [],
+          "confidence": 0.02,
+          "notes": "No purchasable products extracted from https://www.mcmaster.com/products/gas-welding-tanks/"
+        },
+        {
+          "item": "LOX tank",
+          "supplier": "McMaster-Carr",
+          "productName": "Pressure Vessels | McMaster-Carr",
+          "partNumber": null,
+          "productUrl": "https://www.mcmaster.com/products/pressure-vessels/",
+          "price": null,
+          "leadTime": null,
+          "pressure_rating_pa": null,
+          "volume_l": null,
+          "minimum_cda_m2": null,
+          "fluid_compatibility": [],
+          "oxygen_clean": null,
+          "cryogenic_compatible": null,
+          "matched_requirements": [],
+          "missing_requirements": [
+            "no_products_found"
+          ],
+          "failed_requirements": [],
+          "confidence": 0.02,
+          "notes": "No purchasable products extracted from https://www.mcmaster.com/products/pressure-vessels/"
+        }
+      ]
+    },
+    {
+      "item": "LOX feed valve",
+      "quantity": 1,
+      "requirements": {
+        "fluid": "Oxygen",
+        "minimum_cda_m2": 0.0001,
+        "pressure_rating_pa": 2000000,
+        "oxygen_clean": true
+      },
+      "candidates": [
+        {
+          "item": "LOX feed valve",
+          "supplier": "Swagelok",
+          "productName": "Stainless Steel 1-Piece 40 Series Ball Valve, 12 Cv, 1/2 in. Swagelok Tube Fitting, SC-11",
+          "partNumber": "SS-45S8-SC11",
+          "productUrl": "https://products.swagelok.com/en/c/2-way-straight-pattern/p/SS-45S8-SC11",
+          "price": null,
+          "leadTime": null,
+          "pressure_rating_pa": 17236893,
+          "volume_l": null,
+          "minimum_cda_m2": 0.0009600000000000001,
+          "fluid_compatibility": [
+            "Oxygen"
+          ],
+          "oxygen_clean": true,
+          "cryogenic_compatible": null,
+          "matched_requirements": [
+            "pressure_rating_pa",
+            "minimum_cda_m2",
+            "fluid_compatibility",
+            "oxygen_clean"
+          ],
+          "missing_requirements": [],
+          "failed_requirements": [],
+          "confidence": 1,
+          "notes": "Room Temperature Pressure Rating: 2500 PSIG @ 100°F / 172 BAR @ 37°C. Cleaning Process: Special Cleaning and Packaging (SC-11). Body Material: 316 Stainless Steel. Ball/Stem Material: Stainless Steel. Packing Material: PTFE. Lubricant: Nonhydrocarbon lubricants. Flow Pattern: 2-Way, Shutoff, Straight. Orifice: 0.406 in / 10.3 mm. Low Emissions Certified: Yes. Service Class: General. Testing according to WS-22. The page lists SC-11 (Special Cleaning and Packaging) but does not explicitly state oxygen-clean certification on this page."
+        },
+        {
+          "item": "LOX feed valve",
+          "supplier": "Swagelok",
+          "productName": "Stainless Steel Integral Bonnet Needle Valve, 0.37 Cv, 1/4 in. Swagelok Tube Fitting, Regulating Stem, SC-11 Cleaned",
+          "partNumber": "SS-1RS4-SC11",
+          "productUrl": "https://products.swagelok.com/en/c/straight-pattern-regulating-stem/p/SS-1RS4-SC11",
+          "price": null,
+          "leadTime": null,
+          "pressure_rating_pa": 21580670,
+          "volume_l": null,
+          "minimum_cda_m2": 0.0000296,
+          "fluid_compatibility": [
+            "Oxygen"
+          ],
+          "oxygen_clean": true,
+          "cryogenic_compatible": null,
+          "matched_requirements": [
+            "pressure_rating_pa",
+            "fluid_compatibility",
+            "oxygen_clean"
+          ],
+          "missing_requirements": [],
+          "failed_requirements": [
+            "minimum_cda_m2"
+          ],
+          "confidence": 0.5,
+          "notes": "Body Material: 316 Stainless Steel. Cleaning Process: Special Cleaning and Packaging (SC-11) — compliant with ASTM G93 Level C. Max Temperature Pressure Rating: 600°F @ 3130 PSIG / 315°C @ 215 BAR. Pressure rating converted: 3130 PSIG ≈ 21,580,670 Pa. Min Temperature: -65°F (-53°C). Max Temperature: 450°F (232°C). Connection: 1/4 in. Swagelok Tube Fitting both ends. Stem Type: Regulating. SC-11 cleaning specification indicates oxygen-clean per ASTM G93 Level C. Note: Cv of 0.37 is small; suitability for minimum_cda_m2 requirement of 0.0001 m² should be verified. Price requires login."
+        },
+        {
+          "item": "LOX feed valve",
+          "supplier": "Swagelok",
+          "productName": "Stainless Steel Integral Bonnet Needle Valve, 0.37 Cv, 6 mm Swagelok Tube Fitting, Regulating Stem, SC-11 Cleaned",
+          "partNumber": "SS-1RS6MM-SC11",
+          "productUrl": "https://products.swagelok.com/en/c/straight-pattern-regulating-stem/p/SS-1RS6MM-SC11",
+          "price": null,
+          "leadTime": null,
+          "pressure_rating_pa": 21582690,
+          "volume_l": null,
+          "minimum_cda_m2": 0.0000296,
+          "fluid_compatibility": [
+            "Oxygen"
+          ],
+          "oxygen_clean": true,
+          "cryogenic_compatible": false,
+          "matched_requirements": [
+            "pressure_rating_pa",
+            "fluid_compatibility",
+            "oxygen_clean"
+          ],
+          "missing_requirements": [],
+          "failed_requirements": [
+            "minimum_cda_m2"
+          ],
+          "confidence": 0.5,
+          "notes": "Body: 316 Stainless Steel. Cleaning Process: Special Cleaning and Packaging (SC-11) — compliant with ASTM G93 Level C (oxygen clean). Max pressure rating: 3130 PSIG @ 600°F / 215 BAR @ 315°C (converted: 3130 PSIG ≈ 21,582,690 Pa). Min temp: -65°F (-53°C). Max temp: 600°F (315°C). Connections: 6 mm Swagelok Tube Fitting both ends. Stem type: Regulating. Flow pattern: 2-Way, Shutoff, Straight. Note: Cv of 0.37 is a needle/metering valve; does not meet minimum_cda_m2 of 0.0001 m² requirement — likely undersized for LOX feed valve application. Pressure rating of ~21.6 MPa exceeds 2 MPa requirement. Oxygen compatibility confirmed via SC-11 cleaning."
+        },
+        {
+          "item": "LOX feed valve",
+          "supplier": "Swagelok",
+          "productName": "Stainless Steel Integral Bonnet Needle Valve, 0.73 Cv, 1/2 in. Swagelok Tube Fitting, Regulating Stem, SC-11",
+          "partNumber": "SS-1RS8-SC11",
+          "productUrl": "https://products.swagelok.com/en/c/straight-pattern-regulating-stem/p/SS-1RS8-SC11",
+          "price": null,
+          "leadTime": null,
+          "pressure_rating_pa": null,
+          "volume_l": null,
+          "minimum_cda_m2": 0.0000584,
+          "fluid_compatibility": [
+            "Oxygen"
+          ],
+          "oxygen_clean": true,
+          "cryogenic_compatible": null,
+          "matched_requirements": [
+            "fluid_compatibility",
+            "oxygen_clean"
+          ],
+          "missing_requirements": [
+            "pressure_rating_pa"
+          ],
+          "failed_requirements": [
+            "minimum_cda_m2"
+          ],
+          "confidence": 0.15,
+          "notes": "316 Stainless Steel body. Cleaning Process: Special Cleaning and Packaging (SC-11) — compliant with ASTM G93 Level C per catalog document. Connection: 1/2 in. Swagelok Tube Fitting (both ends). Max temp: 600°F (315°C), Min temp: -65°F (-53°C). SC-11 cleaning indicates oxygen-clean per ASTM G93 Level C as stated in the SC-11 specification document linked on the page. Pressure rating not explicitly stated on this page. Price requires login."
+        }
+      ]
+    }
+  ],
+  "approvalRequired": true,
+  "sent": false
+}

@@ -1,0 +1,19 @@
+{
+  "needsReview": [
+    {
+      "item": "LOX tank",
+      "status": "needsReview",
+      "reason": "failed:cryogenic_compatible",
+      "bestPartNumber": "7986A31",
+      "bestSupplier": "McMaster-Carr",
+      "bestProductUrl": "https://www.mcmaster.com/7986A31",
+      "confidence": 0.5,
+      "failedRequirements": [
+        "cryogenic_compatible"
+      ],
+      "missingRequirements": [],
+      "suggestedAction": "Find a cryogenic vendor or relax the cryogenic requirement."
+    }
+  ],
+  "noMatch": []
+}

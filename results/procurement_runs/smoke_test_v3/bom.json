@@ -1,0 +1,355 @@
+{
+  "generatedAt": "2026-06-21T06:02:58.468Z",
+  "projectName": "Matthew Han propulsion procurement test",
+  "items": [
+    {
+      "item": "GN2 pressurant tank",
+      "quantity": 1,
+      "requirements": {
+        "fluid": "Nitrogen",
+        "minimum_pressure_rating_pa": 6000000,
+        "minimum_volume_l": 20,
+        "compatible_with": [
+          "Nitrogen"
+        ],
+        "notes": "Pressure rating should exceed max simulated tank pressure with margin."
+      },
+      "candidates": [
+        {
+          "item": "GN2 pressurant tank",
+          "supplier": "McMaster-Carr",
+          "productName": "Compressed Gas Tanks | McMaster-Carr",
+          "partNumber": null,
+          "productUrl": "https://www.mcmaster.com/products/compressed-gas-tanks/",
+          "price": null,
+          "leadTime": null,
+          "pressure_rating_pa": null,
+          "volume_l": null,
+          "minimum_cda_m2": null,
+          "fluid_compatibility": [],
+          "oxygen_clean": null,
+          "cryogenic_compatible": null,
+          "matched_requirements": [],
+          "missing_requirements": [
+            "no_products_found"
+          ],
+          "failed_requirements": [],
+          "confidence": 0.02,
+          "notes": "No purchasable products extracted from https://www.mcmaster.com/products/compressed-gas-tanks/"
+        },
+        {
+          "item": "GN2 pressurant tank",
+          "supplier": "McMaster-Carr",
+          "productName": "CGA Gas Tanks | McMaster-Carr",
+          "partNumber": null,
+          "productUrl": "https://www.mcmaster.com/products/cga-gas-tanks/",
+          "price": null,
+          "leadTime": null,
+          "pressure_rating_pa": null,
+          "volume_l": null,
+          "minimum_cda_m2": null,
+          "fluid_compatibility": [],
+          "oxygen_clean": null,
+          "cryogenic_compatible": null,
+          "matched_requirements": [],
+          "missing_requirements": [
+            "no_products_found"
+          ],
+          "failed_requirements": [],
+          "confidence": 0.02,
+          "notes": "No purchasable products extracted from https://www.mcmaster.com/products/cga-gas-tanks/"
+        },
+        {
+          "item": "GN2 pressurant tank",
+          "supplier": "McMaster-Carr",
+          "productName": "Gas Welding Tanks | McMaster-Carr",
+          "partNumber": null,
+          "productUrl": "https://www.mcmaster.com/products/gas-welding-tanks/",
+          "price": null,
+          "leadTime": null,
+          "pressure_rating_pa": null,
+          "volume_l": null,
+          "minimum_cda_m2": null,
+          "fluid_compatibility": [],
+          "oxygen_clean": null,
+          "cryogenic_compatible": null,
+          "matched_requirements": [],
+          "missing_requirements": [
+            "no_products_found"
+          ],
+          "failed_requirements": [],
+          "confidence": 0.02,
+          "notes": "No purchasable products extracted from https://www.mcmaster.com/products/gas-welding-tanks/"
+        }
+      ]
+    },
+    {
+      "item": "LOX tank",
+      "quantity": 1,
+      "requirements": {
+        "fluid": "Oxygen",
+        "cryogenic_compatible": true,
+        "minimum_volume_l": 50,
+        "minimum_pressure_rating_pa": 2000000
+      },
+      "candidates": [
+        {
+          "item": "LOX tank",
+          "supplier": "McMaster-Carr",
+          "productName": "CGA Gas Tanks | McMaster-Carr",
+          "partNumber": null,
+          "productUrl": "https://www.mcmaster.com/products/cga-gas-tanks/",
+          "price": null,
+          "leadTime": null,
+          "pressure_rating_pa": null,
+          "volume_l": null,
+          "minimum_cda_m2": null,
+          "fluid_compatibility": [],
+          "oxygen_clean": null,
+          "cryogenic_compatible": null,
+          "matched_requirements": [],
+          "missing_requirements": [
+            "no_products_found"
+          ],
+          "failed_requirements": [],
+          "confidence": 0.02,
+          "notes": "No purchasable products extracted from https://www.mcmaster.com/products/cga-gas-tanks/"
+        },
+        {
+          "item": "LOX tank",
+          "supplier": "McMaster-Carr",
+          "productName": "Compressed Gas Tanks | McMaster-Carr",
+          "partNumber": null,
+          "productUrl": "https://www.mcmaster.com/products/compressed-gas-tanks/",
+          "price": null,
+          "leadTime": null,
+          "pressure_rating_pa": null,
+          "volume_l": null,
+          "minimum_cda_m2": null,
+          "fluid_compatibility": [],
+          "oxygen_clean": null,
+          "cryogenic_compatible": null,
+          "matched_requirements": [],
+          "missing_requirements": [
+            "no_products_found"
+          ],
+          "failed_requirements": [],
+          "confidence": 0.02,
+          "notes": "No purchasable products extracted from https://www.mcmaster.com/products/compressed-gas-tanks/"
+        },
+        {
+          "item": "LOX tank",
+          "supplier": "McMaster-Carr",
+          "productName": "Gas Welding Tanks | McMaster-Carr",
+          "partNumber": null,
+          "productUrl": "https://www.mcmaster.com/products/gas-welding-tanks/",
+          "price": null,
+          "leadTime": null,
+          "pressure_rating_pa": null,
+          "volume_l": null,
+          "minimum_cda_m2": null,
+          "fluid_compatibility": [],
+          "oxygen_clean": null,
+          "cryogenic_compatible": null,
+          "matched_requirements": [],
+          "missing_requirements": [
+            "no_products_found"
+          ],
+          "failed_requirements": [],
+          "confidence": 0.02,
+          "notes": "No purchasable products extracted from https://www.mcmaster.com/products/gas-welding-tanks/"
+        }
+      ]
+    },
+    {
+      "item": "LOX feed valve",
+      "quantity": 1,
+      "requirements": {
+        "fluid": "Oxygen",
+        "minimum_cda_m2": 0.0001,
+        "pressure_rating_pa": 2000000,
+        "oxygen_clean": true
+      },
+      "candidates": [
+        {
+          "item": "LOX feed valve",
+          "supplier": "McMaster-Carr",
+          "productName": "Valves for Oxygen | McMaster-Carr",
+          "partNumber": null,
+          "productUrl": "https://www.mcmaster.com/products/valves/for-use-with~oxygen-2/",
+          "price": null,
+          "leadTime": null,
+          "pressure_rating_pa": null,
+          "volume_l": null,
+          "minimum_cda_m2": null,
+          "fluid_compatibility": [],
+          "oxygen_clean": null,
+          "cryogenic_compatible": null,
+          "matched_requirements": [],
+          "missing_requirements": [
+            "no_products_found"
+          ],
+          "failed_requirements": [],
+          "confidence": 0.02,
+          "notes": "No purchasable products extracted from https://www.mcmaster.com/products/valves/for-use-with~oxygen-2/"
+        },
+        {
+          "item": "LOX feed valve",
+          "supplier": "McMaster-Carr",
+          "productName": "Valves for Liquid Oxygen | McMaster-Carr",
+          "partNumber": null,
+          "productUrl": "https://www.mcmaster.com/products/valves/for-use-with~liquid-oxygen/",
+          "price": null,
+          "leadTime": null,
+          "pressure_rating_pa": null,
+          "volume_l": null,
+          "minimum_cda_m2": null,
+          "fluid_compatibility": [],
+          "oxygen_clean": null,
+          "cryogenic_compatible": null,
+          "matched_requirements": [],
+          "missing_requirements": [
+            "no_products_found"
+          ],
+          "failed_requirements": [],
+          "confidence": 0.02,
+          "notes": "No purchasable products extracted from https://www.mcmaster.com/products/valves/for-use-with~liquid-oxygen/"
+        },
+        {
+          "item": "LOX feed valve",
+          "supplier": "McMaster-Carr",
+          "productName": "Panel-Mount Needle Valves | McMaster-Carr",
+          "partNumber": null,
+          "productUrl": "https://www.mcmaster.com/products/panel-mount-needle-valves/",
+          "price": null,
+          "leadTime": null,
+          "pressure_rating_pa": null,
+          "volume_l": null,
+          "minimum_cda_m2": null,
+          "fluid_compatibility": [],
+          "oxygen_clean": null,
+          "cryogenic_compatible": null,
+          "matched_requirements": [],
+          "missing_requirements": [
+            "no_products_found"
+          ],
+          "failed_requirements": [],
+          "confidence": 0.02,
+          "notes": "No purchasable products extracted from https://www.mcmaster.com/products/panel-mount-needle-valves/"
+        },
+        {
+          "item": "LOX feed valve",
+          "supplier": "Swagelok",
+          "productName": "Stainless Steel Severe Service Union Bonnet Needle Valve, 0.86 Cv, 1/2 in. Swagelok Tube Fitting, Ball Stem, Grafoil Packing | Swagelok",
+          "partNumber": null,
+          "productUrl": "https://products.swagelok.com/en/c/straight-pattern-ball-stem/p/SS-6NBS8-G",
+          "price": null,
+          "leadTime": null,
+          "pressure_rating_pa": null,
+          "volume_l": null,
+          "minimum_cda_m2": null,
+          "fluid_compatibility": [],
+          "oxygen_clean": null,
+          "cryogenic_compatible": null,
+          "matched_requirements": [],
+          "missing_requirements": [
+            "no_products_found"
+          ],
+          "failed_requirements": [],
+          "confidence": 0.02,
+          "notes": "No purchasable products extracted from https://products.swagelok.com/en/c/straight-pattern-ball-stem/p/SS-6NBS8-G"
+        },
+        {
+          "item": "LOX feed valve",
+          "supplier": "Swagelok",
+          "productName": "Stainless Steel Severe Service Union Bonnet Needle Valve, 0.35 Cv, 1/4 in. Swagelok Tube Fitting, Ball Stem, Grafoil Packing | Swagelok",
+          "partNumber": null,
+          "productUrl": "https://products.swagelok.com/en/c/straight-pattern-ball-stem/p/SS-3NBS4-G",
+          "price": null,
+          "leadTime": null,
+          "pressure_rating_pa": null,
+          "volume_l": null,
+          "minimum_cda_m2": null,
+          "fluid_compatibility": [],
+          "oxygen_clean": null,
+          "cryogenic_compatible": null,
+          "matched_requirements": [],
+          "missing_requirements": [
+            "no_products_found"
+          ],
+          "failed_requirements": [],
+          "confidence": 0.02,
+          "notes": "No purchasable products extracted from https://products.swagelok.com/en/c/straight-pattern-ball-stem/p/SS-3NBS4-G"
+        },
+        {
+          "item": "LOX feed valve",
+          "supplier": "Swagelok",
+          "productName": "Stainless Steel 1-Piece 40G Series Ball Valve, 1.5 Cv, 3/8 in. Swagelok Tube Fitting, SC-11 Cleaned | Swagelok",
+          "partNumber": null,
+          "productUrl": "https://products.swagelok.com/en/c/2-way-straight-pattern/p/SS-43GS6-SC11",
+          "price": null,
+          "leadTime": null,
+          "pressure_rating_pa": null,
+          "volume_l": null,
+          "minimum_cda_m2": null,
+          "fluid_compatibility": [],
+          "oxygen_clean": null,
+          "cryogenic_compatible": null,
+          "matched_requirements": [],
+          "missing_requirements": [
+            "no_products_found"
+          ],
+          "failed_requirements": [],
+          "confidence": 0.02,
+          "notes": "No purchasable products extracted from https://products.swagelok.com/en/c/2-way-straight-pattern/p/SS-43GS6-SC11"
+        },
+        {
+          "item": "LOX feed valve",
+          "supplier": "Parker",
+          "productName": "Needle Valve, FCNV Series - 22,500 PSI | Parker NA",
+          "partNumber": null,
+          "productUrl": "https://ph.parker.com/us/en/22500-psi-needle-valve-fcnv-series",
+          "price": null,
+          "leadTime": null,
+          "pressure_rating_pa": null,
+          "volume_l": null,
+          "minimum_cda_m2": null,
+          "fluid_compatibility": [],
+          "oxygen_clean": null,
+          "cryogenic_compatible": null,
+          "matched_requirements": [],
+          "missing_requirements": [
+            "no_products_found"
+          ],
+          "failed_requirements": [],
+          "confidence": 0.02,
+          "notes": "No purchasable products extracted from https://ph.parker.com/us/en/22500-psi-needle-valve-fcnv-series"
+        },
+        {
+          "item": "LOX feed valve",
+          "supplier": "Parker",
+          "productName": "Item # 12MP7-MAB12LPK-V-SSP, MAB Series Valves - 2 Way Ball Valves",
+          "partNumber": null,
+          "productUrl": "https://ipd.parker.com/item/mpi-mab-series-ball-valves-actuators/mab-series-2-way-ball-valves/12mp7-mab12lpk-v-ssp",
+          "price": null,
+          "leadTime": null,
+          "pressure_rating_pa": null,
+          "volume_l": null,
+          "minimum_cda_m2": null,
+          "fluid_compatibility": [],
+          "oxygen_clean": null,
+          "cryogenic_compatible": null,
+          "matched_requirements": [],
+          "missing_requirements": [
+            "no_products_found"
+          ],
+          "failed_requirements": [],
+          "confidence": 0.02,
+          "notes": "No purchasable products extracted from https://ipd.parker.com/item/mpi-mab-series-ball-valves-actuators/mab-series-2-way-ball-valves/12mp7-mab12lpk-v-ssp"
+        }
+      ]
+    }
+  ],
+  "approvalRequired": true,
+  "sent": false
+}

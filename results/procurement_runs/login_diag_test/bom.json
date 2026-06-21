@@ -1,0 +1,110 @@
+{
+  "generatedAt": "2026-06-21T10:05:27.667Z",
+  "projectName": "McMaster login seed",
+  "items": [
+    {
+      "item": "GN2 pressurant tank",
+      "quantity": 1,
+      "requirements": {
+        "fluid": "Nitrogen",
+        "minimum_pressure_rating_pa": 6000000,
+        "minimum_volume_l": 20,
+        "compatible_with": [
+          "Nitrogen"
+        ]
+      },
+      "candidates": [
+        {
+          "item": "GN2 pressurant tank",
+          "supplier": "McMaster-Carr",
+          "productName": "Compressed Gas Tanks",
+          "partNumber": null,
+          "productUrl": "https://www.mcmaster.com/products/compressed-gas-tanks/",
+          "price": null,
+          "leadTime": null,
+          "pressure_rating_pa": null,
+          "volume_l": null,
+          "minimum_cda_m2": null,
+          "fluid_compatibility": [],
+          "oxygen_clean": null,
+          "cryogenic_compatible": null,
+          "matched_requirements": [],
+          "missing_requirements": [
+            "no_products_found"
+          ],
+          "failed_requirements": [],
+          "confidence": 0.02,
+          "notes": "No purchasable products extracted from https://www.mcmaster.com/products/compressed-gas-tanks/"
+        },
+        {
+          "item": "GN2 pressurant tank",
+          "supplier": "McMaster-Carr",
+          "productName": "CGA Gas Tanks",
+          "partNumber": null,
+          "productUrl": "https://www.mcmaster.com/products/cga-gas-tanks/",
+          "price": null,
+          "leadTime": null,
+          "pressure_rating_pa": null,
+          "volume_l": null,
+          "minimum_cda_m2": null,
+          "fluid_compatibility": [],
+          "oxygen_clean": null,
+          "cryogenic_compatible": null,
+          "matched_requirements": [],
+          "missing_requirements": [
+            "no_products_found"
+          ],
+          "failed_requirements": [],
+          "confidence": 0.02,
+          "notes": "No purchasable products extracted from https://www.mcmaster.com/products/cga-gas-tanks/"
+        },
+        {
+          "item": "GN2 pressurant tank",
+          "supplier": "McMaster-Carr",
+          "productName": "Gas Welding Tanks",
+          "partNumber": null,
+          "productUrl": "https://www.mcmaster.com/products/gas-welding-tanks/",
+          "price": null,
+          "leadTime": null,
+          "pressure_rating_pa": null,
+          "volume_l": null,
+          "minimum_cda_m2": null,
+          "fluid_compatibility": [],
+          "oxygen_clean": null,
+          "cryogenic_compatible": null,
+          "matched_requirements": [],
+          "missing_requirements": [
+            "no_products_found"
+          ],
+          "failed_requirements": [],
+          "confidence": 0.02,
+          "notes": "No purchasable products extracted from https://www.mcmaster.com/products/gas-welding-tanks/"
+        },
+        {
+          "item": "GN2 pressurant tank",
+          "supplier": "McMaster-Carr",
+          "productName": "Pressure Vessels | McMaster-Carr",
+          "partNumber": null,
+          "productUrl": "https://www.mcmaster.com/products/pressure-vessels/",
+          "price": null,
+          "leadTime": null,
+          "pressure_rating_pa": null,
+          "volume_l": null,
+          "minimum_cda_m2": null,
+          "fluid_compatibility": [],
+          "oxygen_clean": null,
+          "cryogenic_compatible": null,
+          "matched_requirements": [],
+          "missing_requirements": [
+            "no_products_found"
+          ],
+          "failed_requirements": [],
+          "confidence": 0.02,
+          "notes": "No purchasable products extracted from https://www.mcmaster.com/products/pressure-vessels/"
+        }
+      ]
+    }
+  ],
+  "approvalRequired": true,
+  "sent": false
+}

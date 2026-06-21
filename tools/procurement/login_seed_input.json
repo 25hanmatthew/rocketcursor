@@ -1,0 +1,15 @@
+{
+  "projectName": "McMaster login seed",
+  "materials": [
+    {
+      "item": "GN2 pressurant tank",
+      "quantity": 1,
+      "requirements": {
+        "fluid": "Nitrogen",
+        "minimum_pressure_rating_pa": 6000000,
+        "minimum_volume_l": 20,
+        "compatible_with": ["Nitrogen"]
+      }
+    }
+  ]
+}

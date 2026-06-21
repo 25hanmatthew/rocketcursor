@@ -1,0 +1,22 @@
+[
+  {
+    "item": "GN2 pressurant tank",
+    "supplier": "McMaster-Carr",
+    "partNumber": "7822A12",
+    "productUrl": "https://www.mcmaster.com/7822A12",
+    "draftPath": "rfqs/gn2_pressurant_tank_rfq.txt",
+    "approvalRequired": true,
+    "sent": false,
+    "transport": "portal"
+  },
+  {
+    "item": "LOX feed valve",
+    "supplier": "Swagelok",
+    "partNumber": "SS-45S8-SC11",
+    "productUrl": "https://products.swagelok.com/en/c/2-way-straight-pattern/p/SS-45S8-SC11",
+    "draftPath": "rfqs/lox_feed_valve_rfq.txt",
+    "approvalRequired": true,
+    "sent": false,
+    "transport": "portal"
+  }
+]

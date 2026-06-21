@@ -1,0 +1,245 @@
+{
+  "generatedAt": "2026-06-21T05:54:41.354Z",
+  "projectName": "Matthew Han propulsion procurement test",
+  "items": [
+    {
+      "item": "GN2 pressurant tank",
+      "quantity": 1,
+      "requirements": {
+        "fluid": "Nitrogen",
+        "minimum_pressure_rating_pa": 6000000,
+        "minimum_volume_l": 20,
+        "compatible_with": [
+          "Nitrogen"
+        ],
+        "notes": "Pressure rating should exceed max simulated tank pressure with margin."
+      },
+      "candidates": [
+        {
+          "item": "GN2 pressurant tank",
+          "supplier": "Swagelok",
+          "productName": "Extraction failed",
+          "partNumber": null,
+          "productUrl": "https://www.swagelok.com/-/media/distributor-media/c-g/ea/resources/seanz-regulator-assemblies.ashx",
+          "price": null,
+          "leadTime": null,
+          "pressure_rating_pa": null,
+          "volume_l": null,
+          "minimum_cda_m2": null,
+          "fluid_compatibility": [],
+          "oxygen_clean": null,
+          "cryogenic_compatible": null,
+          "matched_requirements": [],
+          "missing_requirements": [
+            "extraction_failed"
+          ],
+          "failed_requirements": [],
+          "confidence": 0.05,
+          "notes": "Extraction failed: StagehandHttpError: Unknown error: 403"
+        },
+        {
+          "item": "GN2 pressurant tank",
+          "supplier": "Swagelok",
+          "productName": "Extraction failed",
+          "partNumber": null,
+          "productUrl": "https://www.swagelok.com/-/media/distributor-media/o-s/scotland/services/regulator-assemblies.ashx",
+          "price": null,
+          "leadTime": null,
+          "pressure_rating_pa": null,
+          "volume_l": null,
+          "minimum_cda_m2": null,
+          "fluid_compatibility": [],
+          "oxygen_clean": null,
+          "cryogenic_compatible": null,
+          "matched_requirements": [],
+          "missing_requirements": [
+            "extraction_failed"
+          ],
+          "failed_requirements": [],
+          "confidence": 0.05,
+          "notes": "Extraction failed: StagehandHttpError: Unknown error: 403"
+        },
+        {
+          "item": "GN2 pressurant tank",
+          "supplier": "Swagelok",
+          "productName": "Tank Blanketing Pressure Regulators, RHPS Series (MS-02-431;rev_G;en-US;Catalog)",
+          "partNumber": null,
+          "productUrl": "https://www.swagelok.com/downloads/webcatalogs/en/ms-02-431.pdf",
+          "price": null,
+          "leadTime": null,
+          "pressure_rating_pa": null,
+          "volume_l": null,
+          "minimum_cda_m2": null,
+          "fluid_compatibility": [],
+          "oxygen_clean": null,
+          "cryogenic_compatible": null,
+          "matched_requirements": [],
+          "missing_requirements": [
+            "extraction_failed"
+          ],
+          "failed_requirements": [],
+          "confidence": 0.05,
+          "notes": "Extraction failed: StagehandHttpError: Unknown error: 403"
+        }
+      ]
+    },
+    {
+      "item": "LOX tank",
+      "quantity": 1,
+      "requirements": {
+        "fluid": "Oxygen",
+        "cryogenic_compatible": true,
+        "minimum_volume_l": 50,
+        "minimum_pressure_rating_pa": 2000000
+      },
+      "candidates": [
+        {
+          "item": "LOX tank",
+          "supplier": "Swagelok",
+          "productName": "Extraction failed",
+          "partNumber": null,
+          "productUrl": "https://www.swagelok.com/-/media/distributor-media/l-n/nctn/services/primary-gas-pressure-control-sgp-sncet.ashx",
+          "price": null,
+          "leadTime": null,
+          "pressure_rating_pa": null,
+          "volume_l": null,
+          "minimum_cda_m2": null,
+          "fluid_compatibility": [],
+          "oxygen_clean": null,
+          "cryogenic_compatible": null,
+          "matched_requirements": [],
+          "missing_requirements": [
+            "extraction_failed"
+          ],
+          "failed_requirements": [],
+          "confidence": 0.05,
+          "notes": "Extraction failed: StagehandHttpError: Unknown error: 403"
+        },
+        {
+          "item": "LOX tank",
+          "supplier": "Swagelok",
+          "productName": "Extraction failed",
+          "partNumber": null,
+          "productUrl": "https://www.swagelok.com/-/media/distributor-media/c-g/ea/resources/seanz-regulator-assemblies.ashx",
+          "price": null,
+          "leadTime": null,
+          "pressure_rating_pa": null,
+          "volume_l": null,
+          "minimum_cda_m2": null,
+          "fluid_compatibility": [],
+          "oxygen_clean": null,
+          "cryogenic_compatible": null,
+          "matched_requirements": [],
+          "missing_requirements": [
+            "extraction_failed"
+          ],
+          "failed_requirements": [],
+          "confidence": 0.05,
+          "notes": "Extraction failed: StagehandHttpError: Unknown error: 403"
+        },
+        {
+          "item": "LOX tank",
+          "supplier": "Swagelok",
+          "productName": "Extraction failed",
+          "partNumber": null,
+          "productUrl": "https://www.swagelok.com/-/media/distributor-media/o-s/scotland/services/regulator-assemblies.ashx",
+          "price": null,
+          "leadTime": null,
+          "pressure_rating_pa": null,
+          "volume_l": null,
+          "minimum_cda_m2": null,
+          "fluid_compatibility": [],
+          "oxygen_clean": null,
+          "cryogenic_compatible": null,
+          "matched_requirements": [],
+          "missing_requirements": [
+            "extraction_failed"
+          ],
+          "failed_requirements": [],
+          "confidence": 0.05,
+          "notes": "Extraction failed: StagehandHttpError: Unknown error: 403"
+        }
+      ]
+    },
+    {
+      "item": "LOX feed valve",
+      "quantity": 1,
+      "requirements": {
+        "fluid": "Oxygen",
+        "minimum_cda_m2": 0.0001,
+        "pressure_rating_pa": 2000000,
+        "oxygen_clean": true
+      },
+      "candidates": [
+        {
+          "item": "LOX feed valve",
+          "supplier": "Swagelok",
+          "productName": "Extraction failed",
+          "partNumber": null,
+          "productUrl": "https://www.swagelok.com/-/media/distributor-media/l-n/njfs/documents/swagelok-lab-gas-control-stick_application-solution.ashx",
+          "price": null,
+          "leadTime": null,
+          "pressure_rating_pa": null,
+          "volume_l": null,
+          "minimum_cda_m2": null,
+          "fluid_compatibility": [],
+          "oxygen_clean": null,
+          "cryogenic_compatible": null,
+          "matched_requirements": [],
+          "missing_requirements": [
+            "extraction_failed"
+          ],
+          "failed_requirements": [],
+          "confidence": 0.05,
+          "notes": "Extraction failed: StagehandHttpError: Unknown error: 403"
+        },
+        {
+          "item": "LOX feed valve",
+          "supplier": "Swagelok",
+          "productName": "RD(H)20/25 Pressure-Reducing Regulator User Manual (MS-CRD-0182;rev_D;en-US;Maintenance)",
+          "partNumber": null,
+          "productUrl": "https://www.swagelok.com/downloads/webcatalogs/en/MS-CRD-0182.PDF",
+          "price": null,
+          "leadTime": null,
+          "pressure_rating_pa": null,
+          "volume_l": null,
+          "minimum_cda_m2": null,
+          "fluid_compatibility": [],
+          "oxygen_clean": null,
+          "cryogenic_compatible": null,
+          "matched_requirements": [],
+          "missing_requirements": [
+            "extraction_failed"
+          ],
+          "failed_requirements": [],
+          "confidence": 0.05,
+          "notes": "Extraction failed: StagehandHttpError: Unknown error: 403"
+        },
+        {
+          "item": "LOX feed valve",
+          "supplier": "Swagelok",
+          "productName": "High-Flow, Manual Gas Pressure Regulators, HF Series (MS-02-157;rev_J;en-US;Catalog)",
+          "partNumber": null,
+          "productUrl": "https://www.swagelok.com/downloads/webcatalogs/en/ms-02-157.pdf",
+          "price": null,
+          "leadTime": null,
+          "pressure_rating_pa": null,
+          "volume_l": null,
+          "minimum_cda_m2": null,
+          "fluid_compatibility": [],
+          "oxygen_clean": null,
+          "cryogenic_compatible": null,
+          "matched_requirements": [],
+          "missing_requirements": [
+            "extraction_failed"
+          ],
+          "failed_requirements": [],
+          "confidence": 0.05,
+          "notes": "Extraction failed: StagehandHttpError: Unknown error: 403"
+        }
+      ]
+    }
+  ],
+  "approvalRequired": true,
+  "sent": false
+}

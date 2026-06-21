@@ -1,0 +1,51 @@
+Subject: RFQ Request — GN2 pressurant tank
+
+Hello,
+
+We are requesting a quotation for the following component:
+
+Item: GN2 pressurant tank
+Quantity: 1
+Candidate product: Empty High-Pressure Inert Gas Tank - HP40
+Part number: 7822A12
+Supplier: McMaster-Carr
+Product URL: https://www.mcmaster.com/products/gas-welding-tanks/
+
+Required specifications:
+{
+  "fluid": "Nitrogen",
+  "minimum_pressure_rating_pa": 6000000,
+  "minimum_volume_l": 20,
+  "compatible_with": [
+    "Nitrogen"
+  ],
+  "notes": "Pressure rating should exceed max simulated tank pressure with margin."
+}
+
+Extracted candidate specifications:
+Pressure rating: 13893350 Pa
+Volume: not found L
+Minimum CdA: not found m^2
+Fluid compatibility: Argon, Argon/Carbon Dioxide Blend, Helium, Nitrogen
+Oxygen clean: false
+Cryogenic compatible: false
+
+Requirement check:
+Matched: pressure_rating_pa, fluid_compatibility, compatible_with:Nitrogen
+Missing: volume_l
+Failed: none
+
+Please include:
+- Unit pricing
+- Lead time
+- Datasheet
+- Pressure rating documentation
+- Fluid compatibility documentation
+- Cleaning/compliance documentation where applicable
+- Any minimum order quantity
+- Shipping options
+
+Note: This RFQ draft was generated automatically from a simulation-derived BOM and requires engineering review before purchase or use.
+
+Best,
+Engineering Team

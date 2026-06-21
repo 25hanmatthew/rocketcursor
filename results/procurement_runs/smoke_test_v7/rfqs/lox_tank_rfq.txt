@@ -1,0 +1,48 @@
+Subject: RFQ Request — LOX tank
+
+Hello,
+
+We are requesting a quotation for the following component:
+
+Item: LOX tank
+Quantity: 1
+Candidate product: Empty High-Pressure Oxygen Tank
+Part number: 7986A31
+Supplier: McMaster-Carr
+Product URL: https://www.mcmaster.com/7986A31
+
+Required specifications:
+{
+  "fluid": "Oxygen",
+  "cryogenic_compatible": true,
+  "minimum_volume_l": 50,
+  "minimum_pressure_rating_pa": 2000000
+}
+
+Extracted candidate specifications:
+Pressure rating: 13893225 Pa
+Volume: 566.337 L
+Minimum CdA: not found m^2
+Fluid compatibility: Oxygen
+Oxygen clean: not found
+Cryogenic compatible: not found
+
+Requirement check:
+Matched: pressure_rating_pa, volume_l, fluid_compatibility
+Missing: cryogenic_compatible
+Failed: none
+
+Please include:
+- Unit pricing
+- Lead time
+- Datasheet
+- Pressure rating documentation
+- Fluid compatibility documentation
+- Cleaning/compliance documentation where applicable
+- Any minimum order quantity
+- Shipping options
+
+Note: This RFQ draft was generated automatically from a simulation-derived BOM and requires engineering review before purchase or use.
+
+Best,
+Engineering Team

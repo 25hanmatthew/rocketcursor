@@ -1,0 +1,26 @@
+[
+  {
+    "item": "GN2 pressurant tank",
+    "supplier": "McMaster-Carr",
+    "productUrl": "https://www.mcmaster.com/products/gas-welding-tanks/",
+    "draftPath": "../../results/procurement_runs/smoke_test_v6/rfqs/gn2_pressurant_tank_rfq.txt",
+    "approvalRequired": true,
+    "sent": false
+  },
+  {
+    "item": "LOX tank",
+    "supplier": "McMaster-Carr",
+    "productUrl": "https://www.mcmaster.com/products/gas-welding-tanks/",
+    "draftPath": "../../results/procurement_runs/smoke_test_v6/rfqs/lox_tank_rfq.txt",
+    "approvalRequired": true,
+    "sent": false
+  },
+  {
+    "item": "LOX feed valve",
+    "supplier": "Swagelok",
+    "productUrl": "https://products.swagelok.com/en/c/straight-pattern-regulating-stem/p/SS-1RS4-SC11",
+    "draftPath": "../../results/procurement_runs/smoke_test_v6/rfqs/lox_feed_valve_rfq.txt",
+    "approvalRequired": true,
+    "sent": false
+  }
+]

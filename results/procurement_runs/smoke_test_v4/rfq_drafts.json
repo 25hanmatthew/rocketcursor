@@ -1,0 +1,10 @@
+[
+  {
+    "item": "LOX feed valve",
+    "supplier": "Swagelok",
+    "productUrl": "https://products.swagelok.com/en/c/2-way-straight-pattern/p/SS-43GS6-SC11",
+    "draftPath": "../../results/procurement_runs/smoke_test_v4/rfqs/lox_feed_valve_rfq.txt",
+    "approvalRequired": true,
+    "sent": false
+  }
+]
