@@ -1,5 +1,5 @@
 import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Box, FileText, Gauge, Layers, MessageSquare, Mic, Moon, PanelLeft, Pause, Play, Rocket, RotateCcw, Send, Sun, Workflow } from "lucide-react";
+import { Box, Braces, FileText, Gauge, Layers, MessageSquare, Mic, Moon, PanelLeft, Pause, Play, Rocket, RotateCcw, Send, Sun, Workflow } from "lucide-react";
 import { PidCanvas } from "./components/PidCanvas";
 
 /* The 3D twin pulls in three.js (~600 KB) — lazy-load it so the default P&ID
@@ -42,7 +42,7 @@ function selectedName(selectedId: string | null): string | null {
   return selectedId?.split(":").slice(1).join(":") ?? null;
 }
 
-type InputMode = "chat" | "voice";
+type InputMode = "chat" | "json" | "voice";
 
 /* Turn structured voice extraction into a plain-text requirements block so the
    existing chat/revision endpoint consumes it exactly like a typed request. */
@@ -376,6 +376,7 @@ const SIDEBAR_RAIL = 40;
 export default function App() {
   const [inputMode, setInputMode] = useState<InputMode>("chat");
   const [chatText, setChatText] = useState("");
+  const [jsonText, setJsonText] = useState("");
   const [chatHistory, setChatHistory] = useState<ChatHistoryItem[]>([]);
   const [designSessionId, setDesignSessionId] = useState<string | null>(null);
   const [designState, setDesignState] = useState<SessionState | null>(null);
@@ -512,6 +513,34 @@ export default function App() {
       setFlightBusy(false);
     }
   }, [designSessionId, loadedIteration, flightBusy]);
+
+  // JSON input mode: load a pasted NetworkConfig straight into the viewer (no
+  // backend / LLM) so any P&ID can be visualized in 2D + 3D. No telemetry until
+  // it's simulated, so the timeline/summary stay empty until a run produces it.
+  function loadDesignJson() {
+    setError(null);
+    let parsed: NetworkConfig;
+    try {
+      parsed = JSON.parse(jsonText) as NetworkConfig;
+    } catch {
+      setError("That is not valid JSON.");
+      return;
+    }
+    if (!parsed || !Array.isArray(parsed.nodes) || !Array.isArray(parsed.connections)) {
+      setError("JSON must be a NetworkConfig with 'nodes' and 'connections' arrays.");
+      return;
+    }
+    const built = buildDiagram(parsed);
+    setConfig(parsed);
+    setDiagram(built);
+    setReport(null);
+    setNodeRows([]);
+    setConnectionRows([]);
+    setSelectedId(built.nodes[0] ? `node:${built.nodes[0].name}` : null);
+    setTime(0);
+    setPhase(0);
+    setView("2d");
+  }
 
   function loadRunArtifacts(parsed: NetworkConfig, runReport: RunReport, nodesCsv: string, connectionsCsv: string) {
     const built = buildDiagram(parsed);
@@ -927,6 +956,14 @@ export default function App() {
           </button>
           <button
             type="button"
+            className={inputMode === "json" ? "selected" : ""}
+            onClick={() => setInputMode("json")}
+          >
+            <Braces size={15} />
+            JSON
+          </button>
+          <button
+            type="button"
             className={inputMode === "voice" ? "selected" : ""}
             onClick={() => setInputMode("voice")}
           >
@@ -958,6 +995,29 @@ export default function App() {
             <button className="primary-action" type="submit" disabled={busy || !chatText.trim()}>
               <Send size={18} />
               {busy && designSessionId ? "Loop running..." : canReviseDesign ? "Revise design" : "Run design loop"}
+            </button>
+          </form>
+        )}
+
+        {inputMode === "json" && (
+          <form
+            className="chat-runner"
+            onSubmit={(event) => {
+              event.preventDefault();
+              loadDesignJson();
+            }}
+          >
+            <textarea
+              className="json-input"
+              value={jsonText}
+              onChange={(event) => setJsonText(event.target.value)}
+              placeholder='Paste a NetworkConfig design JSON ({ "nodes": [...], "connections": [...] }) to visualize it.'
+              spellCheck={false}
+              rows={16}
+            />
+            <button className="primary-action" type="submit" disabled={!jsonText.trim()}>
+              <Braces size={18} />
+              Load JSON
             </button>
           </form>
         )}

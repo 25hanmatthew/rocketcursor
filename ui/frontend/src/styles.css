@@ -323,7 +323,7 @@ select {
 /* ---- Input mode / chat runner ---- */
 .mode-switch {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 4px;
   padding: 4px;
   border: 1px solid var(--border);
@@ -2351,3 +2351,18 @@ select:hover {
 }
 .report-button:hover { filter: brightness(1.1); border-color: var(--accent); }
 .report-button.is-disabled { opacity: 0.5; pointer-events: none; }
+
+/* JSON input mode: monospace textarea for pasting a NetworkConfig design. */
+.json-input {
+  width: 100%;
+  resize: vertical;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--text-1);
+  background: var(--surface-inset);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  padding: var(--sp-3);
+}
+.json-input:focus-visible { border-color: var(--accent); }
