@@ -1,0 +1,4 @@
+{
+  "prompt": "Design a simple pressure fed fluid system with a rocket engine block that uses kerosene and lox as the propellants and nitrogen as the pressurant gas.",
+  "spec_name": "pressure_fed_lox_kerosene_demo"
+}

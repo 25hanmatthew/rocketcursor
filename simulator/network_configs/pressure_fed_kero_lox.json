@@ -1,0 +1,175 @@
+{
+  "version": 1.1,
+  "settings": {
+    "duration": 3.0,
+    "dt": 0.02
+  },
+  "nodes": [
+    {
+      "id": 0,
+      "type": "Node",
+      "x": 0.0,
+      "y": 0.0,
+      "params": {
+        "fluid": "Nitrogen",
+        "P": 31026407.819256,
+        "V": 18.0,
+        "T": 293.15,
+        "name": "gn2_pressurant_bottle"
+      }
+    },
+    {
+      "id": 1,
+      "type": "Tank",
+      "x": -220.0,
+      "y": 220.0,
+      "params": {
+        "V_total_L": 20.0,
+        "fluid_liq": "Oxygen",
+        "m_liq": 19.43,
+        "T_liq": 90.0,
+        "fluid_ullage": "Nitrogen",
+        "P_ullage": 3447378.646584,
+        "T_ullage": 150.0,
+        "radius": 0.2,
+        "htc": 500.0,
+        "name": "lox_tank"
+      }
+    },
+    {
+      "id": 2,
+      "type": "Tank",
+      "x": 220.0,
+      "y": 220.0,
+      "params": {
+        "V_total_L": 16.0,
+        "fluid_liq": "n-Dodecane",
+        "m_liq": 9.7,
+        "T_liq": 293.15,
+        "fluid_ullage": "Nitrogen",
+        "P_ullage": 3447378.646584,
+        "T_ullage": 293.15,
+        "radius": 0.1,
+        "htc": 0.0,
+        "name": "kerosene_tank"
+      }
+    },
+    {
+      "id": 3,
+      "type": "Engine",
+      "x": 0.0,
+      "y": 520.0,
+      "params": {
+        "fuel": "Kerosene",
+        "oxidizer": "LOX",
+        "eta_cstar": 0.92,
+        "eta_cf": 0.96,
+        "At": 0.00041968,
+        "Ae": 0.00268451,
+        "Pa": 101325.0,
+        "name": "engine"
+      }
+    }
+  ],
+  "connections": [
+    {
+      "type": "BangBang",
+      "start_id": 0,
+      "end_id": 1,
+      "params": {
+        "CdA": 2.04e-6,
+        "target_pressure": 3447378.646584,
+        "hysteresis": 34473.78646584,
+        "qdot": 0.0,
+        "location": 1.0,
+        "normal_state": 1,
+        "checking": 1,
+        "name": "gn2_to_lox_pressurization"
+      }
+    },
+    {
+      "type": "BangBang",
+      "start_id": 0,
+      "end_id": 2,
+      "params": {
+        "CdA": 1.02e-6,
+        "target_pressure": 3447378.646584,
+        "hysteresis": 34473.78646584,
+        "qdot": 0.0,
+        "location": 1.0,
+        "normal_state": 1,
+        "checking": 1,
+        "name": "gn2_to_kerosene_pressurization"
+      }
+    },
+    {
+      "type": "Series",
+      "start_id": 1,
+      "end_id": 3,
+      "params": {
+        "connections": [
+          {
+            "type": "Line",
+            "params": {
+              "ID": 0.009,
+              "length": 0.8,
+              "roughness": 0.0002,
+              "qdot": 0.0,
+              "location": 0.0,
+              "normal_state": 1,
+              "checking": 1,
+              "name": "lox_main_valve_and_line"
+            }
+          },
+          {
+            "type": "Connection",
+            "params": {
+              "CdA": 1.53e-5,
+              "qdot": 0.0,
+              "location": 0.0,
+              "normal_state": 1,
+              "checking": 1,
+              "name": "lox_engine_injector"
+            }
+          }
+        ],
+        "name": "lox_feed_line"
+      }
+    },
+    {
+      "type": "Series",
+      "start_id": 2,
+      "end_id": 3,
+      "params": {
+        "connections": [
+          {
+            "type": "Line",
+            "params": {
+              "ID": 0.0081,
+              "length": 0.8,
+              "roughness": 0.0002,
+              "qdot": 0.0,
+              "location": 0.0,
+              "normal_state": 1,
+              "checking": 1,
+              "name": "kerosene_main_valve_and_line"
+            }
+          },
+          {
+            "type": "Connection",
+            "params": {
+              "CdA": 1.06e-5,
+              "qdot": 0.0,
+              "location": 0.0,
+              "normal_state": 1,
+              "checking": 1,
+              "name": "kerosene_engine_injector"
+            }
+          }
+        ],
+        "name": "kerosene_feed_line"
+      }
+    }
+  ],
+  "actions": []
+}

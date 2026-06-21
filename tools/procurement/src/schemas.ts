@@ -38,9 +38,20 @@ export const SupplierCandidateSchema = z.object({
   confidence: z.number().min(0).max(1),
   notes: z.string(),
 
-  // Portal quote submission fields (populated after approval-gated quote step).
+  // Portal quote fields. "parked" = RFQ draft text placed into the supplier's
+  // on-site quote box (McMaster "Get a Quote", Swagelok quote notes) but NOT sent.
   quoteStatus: z
-    .enum(["not_requested", "draft", "submitted", "pending_review", "failed"])
+    .enum([
+      "not_requested",
+      "draft",
+      "parked",
+      "form_filled",
+      "draft_not_placed",
+      "no_quote_box",
+      "submitted",
+      "pending_review",
+      "failed"
+    ])
     .optional(),
   quoteConfirmation: z.string().nullable().optional(),
   quotedPrice: z.string().nullable().optional(),
@@ -51,7 +62,7 @@ export const QuoteConfirmationSchema = z.object({
   confirmationNumber: z.string().nullable().optional(),
   quotedPrice: z.string().nullable().optional(),
   quotedLeadTime: z.string().nullable().optional(),
-  quoteStatus: z.enum(["draft", "submitted", "pending_review"]).optional()
+  quoteStatus: z.enum(["draft", "parked", "submitted", "pending_review"]).optional()
 });
 
 export const BOMSchema = z.object({

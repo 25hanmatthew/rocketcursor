@@ -1,0 +1,49 @@
+{
+  "passed": true,
+  "summary": "All requirements met (5/5 checks passed).",
+  "checks": [
+    {
+      "id": "ran",
+      "description": "Simulation runs without invalid-config or solver crash.",
+      "op": "==",
+      "expected": "ok",
+      "actual": "ok",
+      "passed": true
+    },
+    {
+      "id": "node_telemetry",
+      "description": "Node telemetry recorded for every component.",
+      "op": "==",
+      "expected": true,
+      "actual": true,
+      "passed": true
+    },
+    {
+      "id": "connection_telemetry",
+      "description": "Feed-line telemetry recorded.",
+      "op": "==",
+      "expected": true,
+      "actual": true,
+      "passed": true
+    },
+    {
+      "id": "flow_happens",
+      "description": "Propellant actually flows from tanks to engine.",
+      "op": "==",
+      "expected": true,
+      "actual": true,
+      "passed": true
+    },
+    {
+      "id": "chamber_pressure",
+      "description": "Engine reaches a usable chamber pressure (>= 1.2 MPa).",
+      "op": ">=",
+      "expected": 1200000.0,
+      "actual": 2884605.0,
+      "passed": true,
+      "component": "engine",
+      "field": "P",
+      "stat": "final"
+    }
+  ]
+}

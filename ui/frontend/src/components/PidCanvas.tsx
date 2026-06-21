@@ -556,7 +556,7 @@ function EngineNode({
     `L ${x + 19} ${y - 16} C ${x + 31} ${y + 22} ${x + 51} ${y + 55} ${x + 61} ${exitY} ` +
     `L ${x - 61} ${exitY} C ${x - 51} ${y + 55} ${x - 31} ${y + 22} ${x - 19} ${y - 16} L ${x - 40} ${y - 38} Z`;
   return (
-    <g className={`pid-hit pid-node ${ring.warning ? "is-warning" : ""}`} onClick={() => onSelect(`node:${node.name}`)} tabIndex={0}>
+    <g className={`pid-hit pid-node pid-engine ${ring.warning ? "is-warning" : ""}`} onClick={() => onSelect(`node:${node.name}`)} tabIndex={0}>
       {flameActive && (
         <g className="engine-flame">
           <path d={`M ${x - flameWidth} ${exitY} C ${x - flameWidth * 0.6} ${exitY + 24}, ${x - 12} ${exitY + flameLength * 0.65}, ${x} ${exitY + flameLength} C ${x + 12} ${exitY + flameLength * 0.65}, ${x + flameWidth * 0.6} ${exitY + 24}, ${x + flameWidth} ${exitY} Z`} />
@@ -1026,9 +1026,11 @@ export function PidCanvas({
             <stop offset="100%" stopColor="#0e141d" />
           </linearGradient>
           <linearGradient id="flame-grad" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="#fff7bc" />
-            <stop offset="35%" stopColor="#ff9f43" />
-            <stop offset="100%" stopColor="#f15b2a" stopOpacity="0.15" />
+            <stop offset="0%" stopColor="#eaf2ff" />
+            <stop offset="14%" stopColor="#fff7bc" />
+            <stop offset="42%" stopColor="#ffb04a" />
+            <stop offset="74%" stopColor="#ff7a36" stopOpacity="0.7" />
+            <stop offset="100%" stopColor="#f15b2a" stopOpacity="0" />
           </linearGradient>
           <filter id="node-shadow" x="-40%" y="-40%" width="180%" height="180%">
             <feDropShadow dx="0" dy="2" stdDeviation="5" floodColor="#000000" floodOpacity="0.5" />

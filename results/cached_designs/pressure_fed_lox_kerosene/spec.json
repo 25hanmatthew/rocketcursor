@@ -1,0 +1,44 @@
+{
+  "name": "pressure_fed_lox_kerosene_demo",
+  "description": "Pressure-fed liquid rocket feed system: a nitrogen (GN2) pressurant bottle regulates ullage pressure into a LOX tank and a kerosene tank, which feed a rocket engine block. Verify the system simulates cleanly, propellant flows, and the engine reaches a usable chamber pressure.",
+  "checks": [
+    {
+      "id": "ran",
+      "type": "sim",
+      "op": "==",
+      "value": "ok",
+      "description": "Simulation runs without invalid-config or solver crash."
+    },
+    {
+      "id": "node_telemetry",
+      "type": "sim",
+      "op": "==",
+      "value": true,
+      "description": "Node telemetry recorded for every component."
+    },
+    {
+      "id": "connection_telemetry",
+      "type": "sim",
+      "op": "==",
+      "value": true,
+      "description": "Feed-line telemetry recorded."
+    },
+    {
+      "id": "flow_happens",
+      "type": "sim",
+      "op": "==",
+      "value": true,
+      "description": "Propellant actually flows from tanks to engine."
+    },
+    {
+      "id": "chamber_pressure",
+      "type": "component",
+      "op": ">=",
+      "value": 1200000.0,
+      "description": "Engine reaches a usable chamber pressure (>= 1.2 MPa).",
+      "component": "engine",
+      "field": "P",
+      "stat": "final"
+    }
+  ]
+}
