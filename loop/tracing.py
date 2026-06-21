@@ -32,14 +32,24 @@ def enable_tracing(project_name: str | None = None) -> bool:
         return False
     try:
         from arize.otel import register
-        from openinference.instrumentation.openai import OpenAIInstrumentor
 
         tracer_provider = register(
             space_id=space_id,
             api_key=api_key,
             project_name=project_name or os.environ.get("ARIZE_PROJECT_NAME", "rocketcursor-loop"),
         )
-        OpenAIInstrumentor().instrument(tracer_provider=tracer_provider)
+        # Instrument both SDKs so reasoning is traced regardless of LLM_PROVIDER:
+        # ASI1 goes through the OpenAI SDK, Claude through the Anthropic SDK.
+        try:
+            from openinference.instrumentation.openai import OpenAIInstrumentor
+            OpenAIInstrumentor().instrument(tracer_provider=tracer_provider)
+        except Exception:  # noqa: BLE001 - optional instrumentor
+            pass
+        try:
+            from openinference.instrumentation.anthropic import AnthropicInstrumentor
+            AnthropicInstrumentor().instrument(tracer_provider=tracer_provider)
+        except Exception:  # noqa: BLE001 - optional instrumentor
+            pass
         _ENABLED = True
         print(f"[tracing] Arize AX tracing ENABLED (project="
               f"{project_name or os.environ.get('ARIZE_PROJECT_NAME', 'rocketcursor-loop')})")
