@@ -1,0 +1,99 @@
+{
+  "config_path": "/tmp/cfg.json",
+  "duration": 10.0,
+  "dt": 0.01,
+  "component_counts": {
+    "nodes": 2,
+    "connections": 1,
+    "actions": 0
+  },
+  "warnings": [
+    {
+      "message": "Non-ambient node 'GasNode' has unchanged P history.",
+      "component": "GasNode",
+      "field": "P"
+    },
+    {
+      "message": "Non-ambient node 'GasNode' has unchanged m history.",
+      "component": "GasNode",
+      "field": "m"
+    },
+    {
+      "message": "Connection 'Restriction' has all-zero mdot history.",
+      "component": "Restriction",
+      "field": "mdot"
+    }
+  ],
+  "final_nodes": {
+    "GasNode": {
+      "time": 10.0,
+      "Q": null,
+      "P": 101325.0,
+      "T": 293.15,
+      "U": 252.8535312393855,
+      "h": 304060.2292320228,
+      "d": 1.1648301789877347,
+      "m": 0.0011648301789877347,
+      "m_l": 0.0,
+      "m_v": 0.0011648301789877347,
+      "fill_level": 0.0,
+      "s": 6817.681364557649
+    },
+    "Ambient": {
+      "time": 10.0,
+      "Q": null,
+      "P": 101325.0,
+      "T": 293.15,
+      "U": 217073.30029783506,
+      "h": 304060.2292320228,
+      "d": 1.1648301789877347,
+      "m": 1.0,
+      "m_l": 0.0,
+      "m_v": 1.0,
+      "fill_level": 0.0,
+      "s": 6817.681364557649
+    }
+  },
+  "diagnostics": {
+    "step_count": 1000,
+    "duration": 10.0,
+    "dt": 0.01,
+    "action_count": 0,
+    "action_times": [],
+    "out_of_window_actions": [],
+    "node_count": 2,
+    "connection_count": 1,
+    "warnings": [
+      {
+        "message": "Non-ambient node 'GasNode' has unchanged P history.",
+        "component": "GasNode",
+        "field": "P"
+      },
+      {
+        "message": "Non-ambient node 'GasNode' has unchanged m history.",
+        "component": "GasNode",
+        "field": "m"
+      },
+      {
+        "message": "Connection 'Restriction' has all-zero mdot history.",
+        "component": "Restriction",
+        "field": "mdot"
+      }
+    ],
+    "checks": {
+      "has_node_samples": true,
+      "has_connection_samples": true,
+      "has_nonzero_flow": false
+    }
+  },
+  "output_files": {
+    "nodes_csv": "results/cfg/nodes.csv",
+    "connections_csv": "results/cfg/connections.csv",
+    "summary_json": "results/cfg/summary.json",
+    "nodes_summary_json": "results/cfg/nodes_summary.json",
+    "connections_summary_json": "results/cfg/connections_summary.json",
+    "diagnostics_json": "results/cfg/diagnostics.json",
+    "report_json": "results/cfg/report.json",
+    "report_markdown": "results/cfg/report.md"
+  }
+}

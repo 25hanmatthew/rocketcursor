@@ -1,0 +1,445 @@
+{
+  "schema_version": "1.1",
+  "ok": false,
+  "config_path": "/tmp/cfg.json",
+  "duration": 10.0,
+  "dt": 0.01,
+  "component_counts": {
+    "nodes": 2,
+    "connections": 1,
+    "actions": 0
+  },
+  "run": {
+    "config_path": "/tmp/cfg.json",
+    "duration_s": 10.0,
+    "dt_s": 0.01,
+    "step_count": 1000,
+    "component_counts": {
+      "nodes": 2,
+      "connections": 1,
+      "actions": 0
+    }
+  },
+  "status": {
+    "passed": false,
+    "failures": [
+      {
+        "check": "has_nonzero_flow",
+        "message": "No nonzero mass-flow samples were detected."
+      }
+    ],
+    "warnings": [
+      {
+        "message": "Non-ambient node 'GasNode' has unchanged P history.",
+        "component": "GasNode",
+        "field": "P"
+      },
+      {
+        "message": "Non-ambient node 'GasNode' has unchanged m history.",
+        "component": "GasNode",
+        "field": "m"
+      },
+      {
+        "message": "Connection 'Restriction' has all-zero mdot history.",
+        "component": "Restriction",
+        "field": "mdot"
+      }
+    ],
+    "checks": {
+      "has_node_samples": true,
+      "has_connection_samples": true,
+      "has_nonzero_flow": false
+    }
+  },
+  "status_policy": {
+    "warnings_fail_run": false,
+    "required_checks": [
+      "has_node_samples",
+      "has_connection_samples",
+      "has_nonzero_flow"
+    ]
+  },
+  "units": {
+    "P": "Pa",
+    "T": "K",
+    "m": "kg",
+    "d": "kg/m^3",
+    "fill_level": "fraction",
+    "mdot": "kg/s",
+    "dP": "Pa",
+    "Hdot": "J/s",
+    "qdot": "J/s",
+    "CdA": "m^2",
+    "state": "dimensionless"
+  },
+  "components": {
+    "GasNode": {
+      "kind": "Node",
+      "role": "node",
+      "category": "node",
+      "sample_count": 1000
+    },
+    "Ambient": {
+      "kind": "Ambient",
+      "role": "boundary",
+      "category": "node",
+      "sample_count": 1000
+    },
+    "Restriction": {
+      "kind": "Connection",
+      "role": "connection",
+      "category": "connection",
+      "sample_count": 1000
+    }
+  },
+  "diagnostics": {
+    "step_count": 1000,
+    "duration": 10.0,
+    "dt": 0.01,
+    "action_count": 0,
+    "action_times": [],
+    "out_of_window_actions": [],
+    "node_count": 2,
+    "connection_count": 1,
+    "warnings": [
+      {
+        "message": "Non-ambient node 'GasNode' has unchanged P history.",
+        "component": "GasNode",
+        "field": "P"
+      },
+      {
+        "message": "Non-ambient node 'GasNode' has unchanged m history.",
+        "component": "GasNode",
+        "field": "m"
+      },
+      {
+        "message": "Connection 'Restriction' has all-zero mdot history.",
+        "component": "Restriction",
+        "field": "mdot"
+      }
+    ],
+    "checks": {
+      "has_node_samples": true,
+      "has_connection_samples": true,
+      "has_nonzero_flow": false
+    }
+  },
+  "final_nodes": {
+    "GasNode": {
+      "time": 10.0,
+      "Q": null,
+      "P": 101325.0,
+      "T": 293.15,
+      "U": 252.8535312393855,
+      "h": 304060.2292320228,
+      "d": 1.1648301789877347,
+      "m": 0.0011648301789877347,
+      "m_l": 0.0,
+      "m_v": 0.0011648301789877347,
+      "fill_level": 0.0,
+      "s": 6817.681364557649
+    },
+    "Ambient": {
+      "time": 10.0,
+      "Q": null,
+      "P": 101325.0,
+      "T": 293.15,
+      "U": 217073.30029783506,
+      "h": 304060.2292320228,
+      "d": 1.1648301789877347,
+      "m": 1.0,
+      "m_l": 0.0,
+      "m_v": 1.0,
+      "fill_level": 0.0,
+      "s": 6817.681364557649
+    }
+  },
+  "key_stats": {
+    "nodes": {
+      "GasNode": {
+        "component": "GasNode",
+        "kind": "Node",
+        "time": {
+          "first": 0.0,
+          "final": 10.0,
+          "sample_count": 1000
+        },
+        "fields": {
+          "P": {
+            "first": 101325.0,
+            "final": 101325.0,
+            "min": 101325.0,
+            "max": 101325.0,
+            "delta": 0.0,
+            "range": 0.0,
+            "nonzero_count": 1000,
+            "sample_count": 1000,
+            "label": "pressure",
+            "unit": "Pa"
+          },
+          "T": {
+            "first": 293.15,
+            "final": 293.15,
+            "min": 293.15,
+            "max": 293.15,
+            "delta": 0.0,
+            "range": 0.0,
+            "nonzero_count": 1000,
+            "sample_count": 1000,
+            "label": "temperature",
+            "unit": "K"
+          },
+          "d": {
+            "first": 1.1648301789877347,
+            "final": 1.1648301789877347,
+            "min": 1.1648301789877347,
+            "max": 1.1648301789877347,
+            "delta": 0.0,
+            "range": 0.0,
+            "nonzero_count": 1000,
+            "sample_count": 1000,
+            "label": "density",
+            "unit": "kg/m^3"
+          },
+          "m": {
+            "first": 0.0011648301789877347,
+            "final": 0.0011648301789877347,
+            "min": 0.0011648301789877347,
+            "max": 0.0011648301789877347,
+            "delta": 0.0,
+            "range": 0.0,
+            "nonzero_count": 1000,
+            "sample_count": 1000,
+            "label": "mass",
+            "unit": "kg"
+          },
+          "fill_level": {
+            "first": 0.0,
+            "final": 0.0,
+            "min": 0.0,
+            "max": 0.0,
+            "delta": 0.0,
+            "range": 0.0,
+            "nonzero_count": 0,
+            "sample_count": 1000,
+            "label": "fill level",
+            "unit": "fraction"
+          }
+        }
+      },
+      "Ambient": {
+        "component": "Ambient",
+        "kind": "Ambient",
+        "time": {
+          "first": 0.0,
+          "final": 10.0,
+          "sample_count": 1000
+        },
+        "fields": {
+          "P": {
+            "first": 101325.0,
+            "final": 101325.0,
+            "min": 101325.0,
+            "max": 101325.0,
+            "delta": 0.0,
+            "range": 0.0,
+            "nonzero_count": 1000,
+            "sample_count": 1000,
+            "label": "pressure",
+            "unit": "Pa"
+          },
+          "T": {
+            "first": 293.15,
+            "final": 293.15,
+            "min": 293.15,
+            "max": 293.15,
+            "delta": 0.0,
+            "range": 0.0,
+            "nonzero_count": 1000,
+            "sample_count": 1000,
+            "label": "temperature",
+            "unit": "K"
+          },
+          "d": {
+            "first": 1.1648301789877347,
+            "final": 1.1648301789877347,
+            "min": 1.1648301789877347,
+            "max": 1.1648301789877347,
+            "delta": 0.0,
+            "range": 0.0,
+            "nonzero_count": 1000,
+            "sample_count": 1000,
+            "label": "density",
+            "unit": "kg/m^3"
+          },
+          "m": {
+            "first": 1.0,
+            "final": 1.0,
+            "min": 1.0,
+            "max": 1.0,
+            "delta": 0.0,
+            "range": 0.0,
+            "nonzero_count": 1000,
+            "sample_count": 1000,
+            "label": "mass",
+            "unit": "kg"
+          },
+          "fill_level": {
+            "first": 0.0,
+            "final": 0.0,
+            "min": 0.0,
+            "max": 0.0,
+            "delta": 0.0,
+            "range": 0.0,
+            "nonzero_count": 0,
+            "sample_count": 1000,
+            "label": "fill level",
+            "unit": "fraction"
+          }
+        }
+      }
+    },
+    "connections": {
+      "Restriction": {
+        "component": "Restriction",
+        "kind": "Connection",
+        "time": {
+          "first": 0.0,
+          "final": 10.0,
+          "sample_count": 1000
+        },
+        "fields": {
+          "CdA": {
+            "first": 1e-06,
+            "final": 1e-06,
+            "min": 1e-06,
+            "max": 1e-06,
+            "delta": 0.0,
+            "range": 0.0,
+            "nonzero_count": 1000,
+            "sample_count": 1000,
+            "label": "effective flow area",
+            "unit": "m^2"
+          },
+          "qdot": {
+            "first": 0.0,
+            "final": 0.0,
+            "min": 0.0,
+            "max": 0.0,
+            "delta": 0.0,
+            "range": 0.0,
+            "nonzero_count": 0,
+            "sample_count": 1000,
+            "label": "heat flow",
+            "unit": "J/s"
+          },
+          "mdot": {
+            "first": 0.0,
+            "final": 0.0,
+            "min": 0.0,
+            "max": 0.0,
+            "delta": 0.0,
+            "range": 0.0,
+            "nonzero_count": 0,
+            "sample_count": 1000,
+            "label": "mass flow",
+            "unit": "kg/s"
+          },
+          "Hdot": {
+            "first": 0.0,
+            "final": 0.0,
+            "min": 0.0,
+            "max": 0.0,
+            "delta": 0.0,
+            "range": 0.0,
+            "nonzero_count": 0,
+            "sample_count": 1000,
+            "label": "enthalpy flow",
+            "unit": "J/s"
+          },
+          "dP": {
+            "first": 0.0,
+            "final": 0.0,
+            "min": 0.0,
+            "max": 0.0,
+            "delta": 0.0,
+            "range": 0.0,
+            "nonzero_count": 0,
+            "sample_count": 1000,
+            "label": "pressure drop",
+            "unit": "Pa"
+          }
+        }
+      }
+    }
+  },
+  "derived_stats": {
+    "nodes": {
+      "GasNode": {
+        "kind": "Node",
+        "initial_pressure_pa": 101325.0,
+        "final_pressure_pa": 101325.0,
+        "pressure_change_pa": 0.0,
+        "pressure_change_percent": 0.0,
+        "pressure_drop_pa": 0.0,
+        "pressure_drop_percent": 0.0,
+        "initial_mass_kg": 0.0011648301789877347,
+        "final_mass_kg": 0.0011648301789877347,
+        "mass_change_kg": 0.0,
+        "mass_change_percent": 0.0,
+        "mass_lost_kg": 0.0
+      },
+      "Ambient": {
+        "kind": "Ambient",
+        "initial_pressure_pa": 101325.0,
+        "final_pressure_pa": 101325.0,
+        "pressure_change_pa": 0.0,
+        "pressure_change_percent": 0.0,
+        "pressure_drop_pa": 0.0,
+        "pressure_drop_percent": 0.0,
+        "initial_mass_kg": 1.0,
+        "final_mass_kg": 1.0,
+        "mass_change_kg": 0.0,
+        "mass_change_percent": 0.0,
+        "mass_lost_kg": 0.0
+      }
+    },
+    "connections": {
+      "Restriction": {
+        "kind": "Connection",
+        "initial_mass_flow_kg_s": 0.0,
+        "final_mass_flow_kg_s": 0.0,
+        "max_mass_flow_kg_s": 0.0,
+        "min_mass_flow_kg_s": 0.0,
+        "mass_flow_change_kg_s": 0.0,
+        "flow_stayed_nonzero": false,
+        "nonzero_sample_fraction": 0.0,
+        "initial_pressure_drop_pa": 0.0,
+        "final_pressure_drop_pa": 0.0,
+        "max_pressure_drop_pa": 0.0,
+        "pressure_drop_change_pa": 0.0
+      }
+    }
+  },
+  "interpretation": {
+    "outcome": "failed",
+    "summary": "Run completed with failed status checks.",
+    "important_observations": [
+      "Restriction mass flow included zero samples; max mdot was 0 kg/s and final mdot was 0 kg/s."
+    ],
+    "recommended_next_actions": [
+      "Resolve failed status checks before using the run for analysis.",
+      "Review warnings before comparing this run against requirements."
+    ]
+  },
+  "artifacts": {
+    "nodes_csv": "results/cfg/nodes.csv",
+    "connections_csv": "results/cfg/connections.csv",
+    "summary_json": "results/cfg/summary.json",
+    "nodes_summary_json": "results/cfg/nodes_summary.json",
+    "connections_summary_json": "results/cfg/connections_summary.json",
+    "diagnostics_json": "results/cfg/diagnostics.json",
+    "report_json": "results/cfg/report.json",
+    "report_markdown": "results/cfg/report.md"
+  }
+}

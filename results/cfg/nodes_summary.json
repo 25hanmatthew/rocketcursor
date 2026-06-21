@@ -1,0 +1,224 @@
+{
+  "GasNode": {
+    "component": "GasNode",
+    "kind": "Node",
+    "time": {
+      "first": 0.0,
+      "final": 10.0,
+      "sample_count": 1000
+    },
+    "fields": {
+      "P": {
+        "first": 101325.0,
+        "final": 101325.0,
+        "min": 101325.0,
+        "max": 101325.0,
+        "delta": 0.0,
+        "range": 0.0,
+        "nonzero_count": 1000,
+        "sample_count": 1000
+      },
+      "T": {
+        "first": 293.15,
+        "final": 293.15,
+        "min": 293.15,
+        "max": 293.15,
+        "delta": 0.0,
+        "range": 0.0,
+        "nonzero_count": 1000,
+        "sample_count": 1000
+      },
+      "U": {
+        "first": 252.8535312393855,
+        "final": 252.8535312393855,
+        "min": 252.8535312393855,
+        "max": 252.8535312393855,
+        "delta": 0.0,
+        "range": 0.0,
+        "nonzero_count": 1000,
+        "sample_count": 1000
+      },
+      "h": {
+        "first": 304060.2292320228,
+        "final": 304060.2292320228,
+        "min": 304060.2292320228,
+        "max": 304060.2292320228,
+        "delta": 0.0,
+        "range": 0.0,
+        "nonzero_count": 1000,
+        "sample_count": 1000
+      },
+      "d": {
+        "first": 1.1648301789877347,
+        "final": 1.1648301789877347,
+        "min": 1.1648301789877347,
+        "max": 1.1648301789877347,
+        "delta": 0.0,
+        "range": 0.0,
+        "nonzero_count": 1000,
+        "sample_count": 1000
+      },
+      "m": {
+        "first": 0.0011648301789877347,
+        "final": 0.0011648301789877347,
+        "min": 0.0011648301789877347,
+        "max": 0.0011648301789877347,
+        "delta": 0.0,
+        "range": 0.0,
+        "nonzero_count": 1000,
+        "sample_count": 1000
+      },
+      "m_l": {
+        "first": 0.0,
+        "final": 0.0,
+        "min": 0.0,
+        "max": 0.0,
+        "delta": 0.0,
+        "range": 0.0,
+        "nonzero_count": 0,
+        "sample_count": 1000
+      },
+      "m_v": {
+        "first": 0.0011648301789877347,
+        "final": 0.0011648301789877347,
+        "min": 0.0011648301789877347,
+        "max": 0.0011648301789877347,
+        "delta": 0.0,
+        "range": 0.0,
+        "nonzero_count": 1000,
+        "sample_count": 1000
+      },
+      "fill_level": {
+        "first": 0.0,
+        "final": 0.0,
+        "min": 0.0,
+        "max": 0.0,
+        "delta": 0.0,
+        "range": 0.0,
+        "nonzero_count": 0,
+        "sample_count": 1000
+      },
+      "s": {
+        "first": 6817.681364557649,
+        "final": 6817.681364557649,
+        "min": 6817.681364557649,
+        "max": 6817.681364557649,
+        "delta": 0.0,
+        "range": 0.0,
+        "nonzero_count": 1000,
+        "sample_count": 1000
+      }
+    }
+  },
+  "Ambient": {
+    "component": "Ambient",
+    "kind": "Ambient",
+    "time": {
+      "first": 0.0,
+      "final": 10.0,
+      "sample_count": 1000
+    },
+    "fields": {
+      "P": {
+        "first": 101325.0,
+        "final": 101325.0,
+        "min": 101325.0,
+        "max": 101325.0,
+        "delta": 0.0,
+        "range": 0.0,
+        "nonzero_count": 1000,
+        "sample_count": 1000
+      },
+      "T": {
+        "first": 293.15,
+        "final": 293.15,
+        "min": 293.15,
+        "max": 293.15,
+        "delta": 0.0,
+        "range": 0.0,
+        "nonzero_count": 1000,
+        "sample_count": 1000
+      },
+      "U": {
+        "first": 217073.30029783506,
+        "final": 217073.30029783506,
+        "min": 217073.30029783506,
+        "max": 217073.30029783506,
+        "delta": 0.0,
+        "range": 0.0,
+        "nonzero_count": 1000,
+        "sample_count": 1000
+      },
+      "h": {
+        "first": 304060.2292320228,
+        "final": 304060.2292320228,
+        "min": 304060.2292320228,
+        "max": 304060.2292320228,
+        "delta": 0.0,
+        "range": 0.0,
+        "nonzero_count": 1000,
+        "sample_count": 1000
+      },
+      "d": {
+        "first": 1.1648301789877347,
+        "final": 1.1648301789877347,
+        "min": 1.1648301789877347,
+        "max": 1.1648301789877347,
+        "delta": 0.0,
+        "range": 0.0,
+        "nonzero_count": 1000,
+        "sample_count": 1000
+      },
+      "m": {
+        "first": 1.0,
+        "final": 1.0,
+        "min": 1.0,
+        "max": 1.0,
+        "delta": 0.0,
+        "range": 0.0,
+        "nonzero_count": 1000,
+        "sample_count": 1000
+      },
+      "m_l": {
+        "first": 0.0,
+        "final": 0.0,
+        "min": 0.0,
+        "max": 0.0,
+        "delta": 0.0,
+        "range": 0.0,
+        "nonzero_count": 0,
+        "sample_count": 1000
+      },
+      "m_v": {
+        "first": 1.0,
+        "final": 1.0,
+        "min": 1.0,
+        "max": 1.0,
+        "delta": 0.0,
+        "range": 0.0,
+        "nonzero_count": 1000,
+        "sample_count": 1000
+      },
+      "fill_level": {
+        "first": 0.0,
+        "final": 0.0,
+        "min": 0.0,
+        "max": 0.0,
+        "delta": 0.0,
+        "range": 0.0,
+        "nonzero_count": 0,
+        "sample_count": 1000
+      },
+      "s": {
+        "first": 6817.681364557649,
+        "final": 6817.681364557649,
+        "min": 6817.681364557649,
+        "max": 6817.681364557649,
+        "delta": 0.0,
+        "range": 0.0,
+        "nonzero_count": 1000,
+        "sample_count": 1000
+      }
+    }
+  }
+}

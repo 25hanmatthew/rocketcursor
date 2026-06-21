@@ -32,6 +32,15 @@ dimensions (`VECTOR_DIM=1024`, frozen — do not change without re-indexing). Re
 external failures (scraped or hand-seeded prior art) share the **same** index; a `source`
 tag distinguishes `"internal"` from `"external"`.
 
+**Full documents** fetched from the web are stored separately from the extracted failure
+records. Each lives at `doc:{source}:{doc_id}` (full text + provenance: `url`,
+`canonical_url`, `title`, `sha256`, `fetched_at`, `content_type`). A dedup hash
+`doc:url_index` maps `sha256(canonical_url)` to the stored key so a source is never fetched
+twice (`has_document_by_url`). Document text is chunked and embedded into a second
+RediSearch index, `idx:docs`, over the `docchunk:{doc_id}:{n}` prefix (same frozen
+`VECTOR_DIM=1024` model), searchable via `search_documents`. This is what powers
+passage-level retrieval in `memory.research`.
+
 ## 2. Setup / connection
 
 **Redis Stack (Docker, one line):**
@@ -192,6 +201,29 @@ history = m.get_design_history("run-abc")
   etc.)
 
 Both paths call `write_failure("external", ...)`. Everything lands as `source="external"`.
+
+During `--extract`, `ingest_failures.py` also captures the **full document text** into
+Redis (best-effort) via `write_document`: NTRS PDF text under `doc:ntrs:{citation_id}` and
+LLIS page text under `doc:llis:{lesson_id}`. This is skipped silently if Redis is
+unavailable, and the `doc:url_index` dedup hash prevents re-storing an already-captured URL.
+
+**Self-contained research (`research.py`)**
+
+`memory.research.research_failure_mode(query, *, mem, ...)` is a reusable, retrieval-first
+research function (it does **not** import or touch the `loop` package):
+
+1. Queries existing memory first — `search_failures` + `search_documents`.
+2. Only if local coverage is weak (too few hits, or the closest hit is beyond
+   `max_local_distance`) and Browserbase env vars are set, it searches the web (reusing the
+   NTRS Google-search + extraction primitives from `ingest_failures.py`), deduping via
+   `has_document_by_url`.
+3. Writes any newly fetched source back to Redis (`write_document` + `write_failure`).
+4. Returns a ranked, provenance-tagged list of cases with an IRIS transferability note per
+   case (internal → direct constraint; external → requires an explicit structural analogy),
+   ready for a future caller to inject into an agent prompt.
+
+Web access is best-effort: missing env, CAPTCHA, or network failures degrade to local-only
+results and never raise. A wall-clock `budget_sec` and `max_web_sources` bound the work.
 
 **Internal (runtime)**
 

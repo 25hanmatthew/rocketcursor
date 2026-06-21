@@ -1,0 +1,48 @@
+{
+  "pdf": "memory/llm/results/sample_report.pdf",
+  "token_budget": 1200,
+  "ok": true,
+  "attempts": 1,
+  "validation_errors": [],
+  "metrics": {
+    "tokens_in_full_document": 3044,
+    "tokens_to_frontier": 2556,
+    "baseline_tokens_to_frontier": 4418,
+    "tokens_out": 392,
+    "prompt_overhead_tokens": 1374,
+    "frontier_reduction_pct": 42.15,
+    "compression_ratio_doc_to_artifact": 7.77,
+    "estimated_input_cost_saved_usd": 0.005586
+  },
+  "manifest": {
+    "token_budget": 1200,
+    "chunk_tokens": 512,
+    "selection_method": "embedding",
+    "chunks_total": 6,
+    "chunks_kept": 3,
+    "model": "claude-sonnet-4-6"
+  },
+  "downstream_runnable": {
+    "runnable": true,
+    "errors": [],
+    "warnings": []
+  },
+  "qa_roundtrip": {
+    "agreement_score": 1.0,
+    "questions_evaluated": 2,
+    "per_question": [
+      {
+        "question": "What is the effective area (CdA) of the single fixed orifice used in the vent path?",
+        "answer_full": "Based on the information provided in **Section 4 (Test Article Configuration)** of the report, the effective area (CdA) of the single fixed orifice used in the vent path is:\n\n**CdA = 1.0 \u00d7 10\u207b\u2076 m\u00b2**",
+        "answer_compressed": "Based on the provided context, the effective area (CdA) of the single fixed orifice used in the vent path is **1\u00d710\u207b\u2076 m\u00b2** (0.000001 m\u00b2), as specified in the `VentOrifice` connection parameters.",
+        "agree": true
+      },
+      {
+        "question": "What is the tank's initial pressure at the start of the test?",
+        "answer_full": "Based on the information provided in **Section 4 (Test Article Configuration)** of the report:\n\nThe tank's initial pressure at the start of the test is **5.0 MPa (5,000,000 Pa)**.",
+        "answer_compressed": "Based on the provided context, the tank's initial pressure at the start of the test is **5,000,000 Pa (5 MPa)**, as specified in both the `source_extracted_numbers` section (`tank_initial_pressure_Pa: 5000000`) and the node parameters for the \"NitrogenTank\" node (`\"P\": 5000000`).",
+        "agree": true
+      }
+    ]
+  }
+}

@@ -3,3 +3,7 @@ pypdf
 redis
 stagehand
 voyageai
+
+# ingest_failures.py --emit-config additionally requires the LLM + solver stack:
+#   pip install -r memory/llm/requirements.txt
+# (network_io imports general_fluid_network, so the solver deps must be present.)

@@ -1,0 +1,63 @@
+{
+  "Restriction": {
+    "component": "Restriction",
+    "kind": "Connection",
+    "time": {
+      "first": 0.0,
+      "final": 10.0,
+      "sample_count": 1000
+    },
+    "fields": {
+      "CdA": {
+        "first": 1e-06,
+        "final": 1e-06,
+        "min": 1e-06,
+        "max": 1e-06,
+        "delta": 0.0,
+        "range": 0.0,
+        "nonzero_count": 1000,
+        "sample_count": 1000
+      },
+      "qdot": {
+        "first": 0.0,
+        "final": 0.0,
+        "min": 0.0,
+        "max": 0.0,
+        "delta": 0.0,
+        "range": 0.0,
+        "nonzero_count": 0,
+        "sample_count": 1000
+      },
+      "mdot": {
+        "first": 0.0,
+        "final": 0.0,
+        "min": 0.0,
+        "max": 0.0,
+        "delta": 0.0,
+        "range": 0.0,
+        "nonzero_count": 0,
+        "sample_count": 1000
+      },
+      "Hdot": {
+        "first": 0.0,
+        "final": 0.0,
+        "min": 0.0,
+        "max": 0.0,
+        "delta": 0.0,
+        "range": 0.0,
+        "nonzero_count": 0,
+        "sample_count": 1000
+      },
+      "dP": {
+        "first": 0.0,
+        "final": 0.0,
+        "min": 0.0,
+        "max": 0.0,
+        "delta": 0.0,
+        "range": 0.0,
+        "nonzero_count": 0,
+        "sample_count": 1000
+      }
+    }
+  }
+}

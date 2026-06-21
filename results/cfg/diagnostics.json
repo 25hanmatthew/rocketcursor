@@ -1,0 +1,32 @@
+{
+  "step_count": 1000,
+  "duration": 10.0,
+  "dt": 0.01,
+  "action_count": 0,
+  "action_times": [],
+  "out_of_window_actions": [],
+  "node_count": 2,
+  "connection_count": 1,
+  "warnings": [
+    {
+      "message": "Non-ambient node 'GasNode' has unchanged P history.",
+      "component": "GasNode",
+      "field": "P"
+    },
+    {
+      "message": "Non-ambient node 'GasNode' has unchanged m history.",
+      "component": "GasNode",
+      "field": "m"
+    },
+    {
+      "message": "Connection 'Restriction' has all-zero mdot history.",
+      "component": "Restriction",
+      "field": "mdot"
+    }
+  ],
+  "checks": {
+    "has_node_samples": true,
+    "has_connection_samples": true,
+    "has_nonzero_flow": false
+  }
+}

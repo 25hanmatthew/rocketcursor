@@ -38,7 +38,9 @@ from stagehand._exceptions import APIStatusError
 
 from memory.core import Memory
 from memory.paths import (
+    CONFIG_OUT_DIR,
     FIELDS_CACHE,
+    NTRS_CONFIGS_CACHE,
     NTRS_FIELDS_CACHE,
     NTRS_SOURCES_CACHE,
     PDF_CACHE_DIR,
@@ -892,6 +894,39 @@ def _run_discover_ntrs(
     return merged
 
 
+def _capture_document(
+    doc_mem: Memory | None,
+    source_tag: str,
+    doc_id: str,
+    url: str,
+    title: str,
+    full_text: str,
+) -> None:
+    """Best-effort: store one full document in Redis during extraction.
+
+    Skips when Redis/Memory is unavailable, when there is no text or id, or when
+    the URL is already stored (the dedup hash owns re-fetch avoidance). Never
+    raises -- document capture must not disrupt the extraction phase.
+    """
+    if doc_mem is None or not doc_id or not (full_text or "").strip():
+        return
+    try:
+        if url and doc_mem.has_document_by_url(url):
+            print(f"  document already stored, skipping: {url}")
+            return
+        doc_mem.write_document(
+            source_tag,
+            doc_id,
+            url=url,
+            title=title,
+            full_text=full_text,
+            content_type="pdf" if source_tag == "ntrs" else "html",
+        )
+        print(f"  stored document doc:{source_tag}:{doc_id} ({len(full_text)} chars)")
+    except Exception as exc:  # noqa: BLE001 - document capture is best-effort
+        print(f"  document capture failed for {url or doc_id}: {type(exc).__name__}: {exc}")
+
+
 def _run_extract_ntrs(
     client: Stagehand,
     session_id: str,
@@ -900,6 +935,7 @@ def _run_extract_ntrs(
     refresh: bool,
     stats: dict[str, int],
     errors: list[str],
+    doc_mem: Memory | None = None,
 ) -> None:
     fields_cache = _read_ntrs_fields_cache()
     remaining = limit
@@ -929,6 +965,20 @@ def _run_extract_ntrs(
                 stats["kept"] += 1
                 summary = _one_line_summary(fields)
                 print(f"  extracted {source['citation_id']}: {summary}")
+                if doc_mem is not None:
+                    try:
+                        full_text = _pdf_text(
+                            _download_ntrs_pdf(pdf_url, source["citation_id"])
+                        )
+                    except Exception as exc:  # noqa: BLE001 - best-effort text read
+                        full_text = ""
+                        print(
+                            f"  document text read failed for {pdf_url}: "
+                            f"{type(exc).__name__}: {exc}"
+                        )
+                    _capture_document(
+                        doc_mem, "ntrs", source["citation_id"], pdf_url, title, full_text
+                    )
         except Exception as exc:
             errored += 1
             stats["errored"] += 1
@@ -1014,6 +1064,115 @@ def _run_load_ntrs(
             }
         _load_ntrs_report(source, fields, mem, dry_run, stats, errors)
         remaining -= 1
+
+
+def _read_ntrs_configs_cache() -> dict[str, dict[str, Any]]:
+    if not NTRS_CONFIGS_CACHE.exists():
+        return {}
+    try:
+        with open(NTRS_CONFIGS_CACHE, encoding="utf-8") as fh:
+            data = json.load(fh)
+    except json.JSONDecodeError as exc:
+        print(
+            f"Malformed {NTRS_CONFIGS_CACHE}: {exc}. "
+            "Re-run with --emit-config --refresh to rebuild.",
+            file=sys.stderr,
+        )
+        sys.exit(1)
+    if not isinstance(data, dict):
+        print(
+            f"Malformed {NTRS_CONFIGS_CACHE}: expected a JSON object.",
+            file=sys.stderr,
+        )
+        sys.exit(1)
+    return {str(url): rec for url, rec in data.items() if isinstance(rec, dict)}
+
+
+def _write_ntrs_configs_cache(configs_by_url: dict[str, dict[str, Any]]) -> None:
+    try:
+        with open(NTRS_CONFIGS_CACHE, "w", encoding="utf-8") as fh:
+            json.dump(configs_by_url, fh, indent=2)
+            fh.write("\n")
+    except OSError as exc:
+        print(f"Failed to write {NTRS_CONFIGS_CACHE}: {exc}", file=sys.stderr)
+        sys.exit(1)
+
+
+def _run_emit_config_ntrs(
+    sources: list[NtrsSource],
+    limit: int,
+    refresh: bool,
+    stats: dict[str, int],
+    errors: list[str],
+) -> None:
+    """Download NTRS PDFs and convert each into a validated fluid-network config.
+
+    No browser session is required: PDFs are fetched over HTTP and configs are
+    produced via the Anthropic API in memory.llm.
+    """
+    from memory.llm.pdf_config_generator import generate_config_from_pdf
+
+    configs_cache = _read_ntrs_configs_cache()
+    CONFIG_OUT_DIR.mkdir(parents=True, exist_ok=True)
+    remaining = limit
+    generated = 0
+    failed = 0
+
+    for source in sources:
+        if remaining <= 0:
+            break
+        pdf_url = source["pdf_url"]
+        citation_id = source["citation_id"]
+        cached = configs_cache.get(pdf_url)
+        if cached and cached.get("ok") and not refresh:
+            stats["skipped"] += 1
+            continue
+
+        stats["scraped"] += 1
+        try:
+            pdf_path = _download_ntrs_pdf(pdf_url, citation_id)
+            result = generate_config_from_pdf(pdf_path=str(pdf_path))
+            if result.get("ok"):
+                out_path = CONFIG_OUT_DIR / f"{citation_id}.json"
+                out_path.write_text(
+                    json.dumps(result["config"], indent=2), encoding="utf-8"
+                )
+                configs_cache[pdf_url] = {
+                    "ok": True,
+                    "config_path": str(out_path),
+                    "attempts": result.get("attempts"),
+                    "validation_errors": [],
+                }
+                generated += 1
+                stats["kept"] += 1
+                print(f"  generated config {citation_id} -> {out_path}")
+            else:
+                configs_cache[pdf_url] = {
+                    "ok": False,
+                    "config_path": "",
+                    "attempts": result.get("attempts"),
+                    "validation_errors": result.get("validation_errors", []),
+                }
+                failed += 1
+                stats["skipped"] += 1
+                print(
+                    f"  config validation failed for {citation_id} after "
+                    f"{result.get('attempts')} attempt(s)"
+                )
+        except Exception as exc:
+            failed += 1
+            stats["errored"] += 1
+            msg = f"{pdf_url}: {type(exc).__name__}: {exc}"
+            errors.append(msg)
+            print(f"  error: {msg}")
+        finally:
+            if REPORT_DELAY_SEC > 0:
+                time.sleep(REPORT_DELAY_SEC)
+        remaining -= 1
+
+    _write_ntrs_configs_cache(configs_cache)
+    print(f"\nWrote {len(configs_cache)} NTRS config record(s) to {NTRS_CONFIGS_CACHE}")
+    print(f"Emit-config summary — generated={generated} failed={failed}")
 
 
 def _filter_llis_lesson_links(raw_hrefs: list[str]) -> list[tuple[str, str]]:
@@ -1300,6 +1459,8 @@ def _run_extract_llis(
     refresh: bool,
     stats: dict[str, int],
     errors: list[str],
+    doc_mem: Memory | None = None,
+    cdp_url: str = "",
 ) -> None:
     fields_cache = _read_fields_cache()
     remaining = limit
@@ -1328,6 +1489,23 @@ def _run_extract_llis(
                 stats["kept"] += 1
                 summary = _one_line_summary(fields)
                 print(f"  extracted {report_url}: {summary}")
+                if doc_mem is not None:
+                    try:
+                        raw_text = _session_evaluate_js(
+                            client, session_id, _PAGE_TEXT_JS, cdp_url=cdp_url
+                        )
+                        full_text = str(raw_text or "")
+                    except Exception as exc:  # noqa: BLE001 - best-effort text read
+                        full_text = ""
+                        print(
+                            f"  document text read failed for {report_url}: "
+                            f"{type(exc).__name__}: {exc}"
+                        )
+                    lesson_match = re.search(r"/lesson/(\d+)", report_url)
+                    doc_id = lesson_match.group(1) if lesson_match else _make_slug(title, report_url)
+                    _capture_document(
+                        doc_mem, "llis", doc_id, report_url, title, full_text
+                    )
         except Exception as exc:
             errored += 1
             stats["errored"] += 1
@@ -1433,6 +1611,17 @@ def run(
     if "load" in phases and not dry_run:
         mem = Memory()
 
+    # Best-effort full-document capture during extraction (reuses the load Memory
+    # when present). Disabled silently if Redis/Memory is unavailable so that
+    # extraction still works without Redis.
+    doc_mem: Memory | None = None
+    if "extract" in phases:
+        try:
+            doc_mem = mem if mem is not None else Memory()
+        except Exception as exc:  # noqa: BLE001 - capture is optional
+            print(f"Document capture disabled (Memory unavailable: {exc})")
+            doc_mem = None
+
     client: Stagehand | None = None
     session_id: str | None = None
     cdp_url = ""
@@ -1465,11 +1654,16 @@ def run(
             if run_llis:
                 urls = _read_urls_cache()
                 print(f"\nExtract LLIS: {len(urls)} URL(s) in {URLS_CACHE}")
-                _run_extract_llis(client, session_id, urls, limit, refresh, stats, errors)
+                _run_extract_llis(
+                    client, session_id, urls, limit, refresh, stats, errors,
+                    doc_mem, cdp_url,
+                )
             if run_ntrs:
                 sources = _require_ntrs_sources_cache()
                 print(f"\nExtract NTRS: {len(sources)} PDF(s) in {NTRS_SOURCES_CACHE}")
-                _run_extract_ntrs(client, session_id, sources, limit, refresh, stats, errors)
+                _run_extract_ntrs(
+                    client, session_id, sources, limit, refresh, stats, errors, doc_mem
+                )
 
         if "load" in phases:
             if run_llis:
@@ -1481,6 +1675,19 @@ def run(
                 ntrs_fields = _require_ntrs_fields_cache()
                 print(f"\nLoad NTRS: {len(ntrs_fields)} record(s) in {NTRS_FIELDS_CACHE}")
                 _run_load_ntrs(ntrs_sources, ntrs_fields, limit, dry_run, mem, stats, errors)
+
+        if "emit_config" in phases:
+            if run_ntrs:
+                ntrs_sources = _require_ntrs_sources_cache()
+                print(
+                    f"\nEmit-config NTRS: {len(ntrs_sources)} PDF(s) in {NTRS_SOURCES_CACHE}"
+                )
+                _run_emit_config_ntrs(ntrs_sources, limit, refresh, stats, errors)
+            if run_llis and not run_ntrs:
+                print(
+                    "emit-config skipped: LLIS has no PDF source. Use --source ntrs or all.",
+                    file=sys.stderr,
+                )
     finally:
         if session_id and client:
             client.sessions.end(id=session_id)
@@ -1516,6 +1723,15 @@ def main() -> None:
         "--load",
         action="store_true",
         help="Apply the relevance gate and load cached fields into Redis.",
+    )
+    parser.add_argument(
+        "--emit-config",
+        action="store_true",
+        dest="emit_config",
+        help=(
+            "NTRS only: download cached PDFs and convert each into a validated "
+            "fluid-network config via memory.llm (no browser; needs ntrs_sources.json)."
+        ),
     )
     parser.add_argument(
         "--refresh",
@@ -1563,7 +1779,7 @@ def main() -> None:
         print("--google-pages must be at least 1", file=sys.stderr)
         sys.exit(1)
 
-    if args.discover or args.extract or args.load:
+    if args.discover or args.extract or args.load or args.emit_config:
         phases = []
         if args.discover:
             phases.append("discover")
@@ -1571,6 +1787,8 @@ def main() -> None:
             phases.append("extract")
         if args.load:
             phases.append("load")
+        if args.emit_config:
+            phases.append("emit_config")
     else:
         phases = ["discover", "extract", "load"]
 
