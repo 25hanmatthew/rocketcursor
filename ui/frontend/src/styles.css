@@ -1050,11 +1050,14 @@ select:hover {
   align-self: stretch;
   overflow: hidden;
   background:
-    linear-gradient(var(--grid-line) 1px, transparent 1px),
-    linear-gradient(90deg, var(--grid-line) 1px, transparent 1px),
-    radial-gradient(1000px 700px at 50% 30%, rgba(59, 157, 255, 0.05), transparent 70%),
+    linear-gradient(rgba(142, 165, 196, 0.075) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(142, 165, 196, 0.075) 1px, transparent 1px),
+    linear-gradient(rgba(142, 165, 196, 0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(142, 165, 196, 0.035) 1px, transparent 1px),
+    radial-gradient(1000px 700px at 50% 30%, rgba(37, 184, 255, 0.08), transparent 70%),
+    radial-gradient(900px 500px at 88% 70%, rgba(255, 138, 31, 0.045), transparent 65%),
     var(--bg-canvas);
-  background-size: 32px 32px, 32px 32px, 100% 100%, 100% 100%;
+  background-size: 32px 32px, 32px 32px, 8px 8px, 8px 8px, 100% 100%, 100% 100%, 100% 100%;
 }
 
 .pid-viewport {
@@ -1162,7 +1165,7 @@ select:hover {
 
 .pid-label {
   font-family: var(--font-mono);
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 600;
   fill: var(--text-1);
   paint-order: stroke;
@@ -1176,11 +1179,12 @@ select:hover {
   fill: var(--text-2);
   font-weight: 600;
   letter-spacing: 0.3px;
+  font-family: var(--font-mono);
 }
 
 .pid-readout {
   font-family: var(--font-mono);
-  font-size: 13px;
+  font-size: 11px;
   font-weight: 600;
   fill: var(--text-1);
   paint-order: stroke;
@@ -1188,27 +1192,102 @@ select:hover {
   stroke-width: 4px;
 }
 
+.pid-tank-title {
+  font-family: var(--font-mono);
+  font-size: 14px;
+  font-weight: 700;
+  fill: var(--text-1);
+  text-transform: uppercase;
+  paint-order: stroke;
+  stroke: var(--bg-canvas);
+  stroke-width: 5px;
+}
+
+.pid-fluid-label {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  font-weight: 700;
+  fill: var(--text-2);
+  paint-order: stroke;
+  stroke: var(--bg-canvas);
+  stroke-width: 5px;
+}
+
 /* Pipework */
 .pipe-casing {
   fill: none;
-  stroke: var(--border-strong);
+  stroke: #1e2938;
   stroke-linecap: round;
+  stroke-linejoin: round;
 }
 
 .pipe-core {
   fill: none;
   stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.pipe-shadowline,
+.pipe-glow,
+.pipe-flow-dash,
+.pipe-warning-pulse,
+.combined-engine-feed {
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.pipe-shadowline {
+  stroke: rgba(255, 255, 255, 0.12);
+}
+
+.pipe-glow,
+.combined-engine-feed {
+  filter: url(#flow-glow);
+  pointer-events: none;
 }
 
 .pipe-flow-dash {
-  fill: none;
-  stroke-linecap: round;
-  stroke-dasharray: 2 14;
+  stroke-dasharray: 4 16;
   opacity: 0.9;
+  filter: url(#flow-glow);
+  pointer-events: none;
+}
+
+.pipe-run.is-lowPressure .pipe-flow-dash {
+  opacity: 0.52;
+}
+
+.pipe-run.is-closed .pipe-core,
+.pipe-run.is-idle .pipe-core {
+  stroke-dasharray: 10 7;
+}
+
+.pipe-run.is-blocked .pipe-core {
+  stroke-dasharray: 7 5;
+}
+
+.pipe-run.is-warning .pipe-core,
+.pipe-run.is-warning .pipe-flow-dash {
+  stroke: var(--danger);
+}
+
+.pipe-warning-pulse {
+  stroke: var(--danger);
+  opacity: 0.28;
+  filter: url(#flow-glow);
+  animation: warning-pulse 1.2s var(--ease) infinite;
 }
 
 .flow-particle {
   filter: url(#flow-glow);
+  mix-blend-mode: screen;
+  pointer-events: none;
+}
+
+.flow-direction {
+  filter: url(#flow-glow);
+  pointer-events: none;
 }
 
 .node-particles {
@@ -1219,8 +1298,8 @@ select:hover {
 
 /* Component glyphs */
 .series-component .glyph-body {
-  fill: var(--surface-3);
-  stroke: var(--text-2);
+  fill: #101722;
+  stroke: #cbd5e1;
   stroke-width: 1.6px;
 }
 
@@ -1230,15 +1309,55 @@ select:hover {
 }
 
 .series-line-glyph {
-  fill: var(--surface-3);
+  fill: #111a27;
   stroke: var(--text-2);
   stroke-width: 1.5px;
 }
 
-.node-icon {
-  width: 22px;
-  height: 22px;
-  color: var(--text-2);
+.series-component .valve-stem,
+.series-component .glyph-line,
+.series-component .vent-line {
+  stroke: #cbd5e1;
+  stroke-width: 1.5px;
+  fill: none;
+}
+
+.series-component .valve-handle {
+  fill: #0b1018;
+  stroke: #cbd5e1;
+  stroke-width: 1.2px;
+}
+
+.series-component .closed-blade {
+  stroke: var(--danger);
+  stroke-width: 2.5px;
+  stroke-linecap: round;
+}
+
+.series-component .filter-mesh,
+.series-component .reg-spring,
+.series-component .vent-arrow {
+  fill: none;
+  stroke: #cbd5e1;
+  stroke-width: 1.1px;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  opacity: 0.8;
+}
+
+.series-component.is-warning .glyph-body {
+  stroke: var(--danger);
+  filter: url(#flow-glow);
+  animation: warning-pulse 1.2s var(--ease) infinite;
+}
+
+.series-component.is-selected .glyph-body {
+  stroke: var(--accent);
+}
+
+.pid-node.is-warning {
+  filter: url(#flow-glow);
+  animation: warning-pulse 1.2s var(--ease) infinite;
 }
 
 /* Instrumentation tags */
@@ -1279,13 +1398,29 @@ select:hover {
   opacity: 0.95;
 }
 
+.combined-engine-feed {
+  stroke-dasharray: 8 10;
+  opacity: 0.9;
+}
+
+@keyframes warning-pulse {
+  0%,
+  100% {
+    opacity: 0.32;
+  }
+  50% {
+    opacity: 0.82;
+  }
+}
+
 /* ---- Flow legend ---- */
 .flow-legend {
   position: absolute;
   z-index: 2;
-  top: var(--sp-4);
+  bottom: var(--sp-4);
+  top: auto;
   left: var(--sp-4);
-  min-width: 158px;
+  min-width: 190px;
   padding: var(--sp-3);
   border: 1px solid var(--border-strong);
   border-radius: var(--r-md);
@@ -1310,15 +1445,51 @@ select:hover {
   align-items: center;
   gap: var(--sp-2);
   min-height: 22px;
-  font-size: 12px;
+  font-size: 11px;
   font-family: var(--font-mono);
 }
 
 .flow-legend-swatch {
-  width: 26px;
+  width: 34px;
   height: 5px;
   flex: 0 0 auto;
   border-radius: var(--r-pill);
+}
+
+.system-status-card {
+  position: absolute;
+  z-index: 2;
+  right: var(--sp-4);
+  bottom: var(--sp-4);
+  min-width: 210px;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 4px 10px;
+  align-items: center;
+  padding: var(--sp-3) var(--sp-4);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--r-md);
+  color: var(--text-2);
+  background: color-mix(in srgb, var(--surface-2) 82%, transparent);
+  backdrop-filter: blur(8px);
+  box-shadow: var(--shadow-2);
+  pointer-events: none;
+  font-family: var(--font-mono);
+  font-size: 11px;
+}
+
+.system-status-card strong {
+  grid-column: 2;
+  color: var(--ok);
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.flow-arrow-mini {
+  grid-row: span 2;
+  color: var(--text-1);
+  font-size: 22px;
+  line-height: 1;
 }
 
 /* ============================================================================

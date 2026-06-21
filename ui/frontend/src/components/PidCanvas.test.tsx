@@ -92,8 +92,9 @@ describe("PidCanvas tank fill", () => {
       />
     );
 
-    expect(html).toContain(">Pressure: 500 psi</text>");
-    expect(html).toContain(">Temperature: 68 F</text>");
+    expect(html).not.toContain(">PT</text>");
+    expect(html).toContain(">P: 500 psi</text>");
+    expect(html).toContain(">T: 68 F</text>");
   });
 
   it("does not render internal particles inside tanks", () => {
@@ -254,9 +255,9 @@ describe("PidCanvas tank fill", () => {
     );
 
     expect(html).toContain("Flow key");
-    expect(html).toContain(">Nitrogen</span>");
-    // Pipes are neutral metal; fluid identity is carried by the flowing particles.
-    expect(html).toContain('fill="#2563eb"');
+    expect(html).toContain(">PRESSURANT</span>");
+    expect(html).toContain("fluid-pressurant");
+    expect(html).toContain('fill="#67f085"');
   });
 
   it("renders series subcomponents instead of a generic series count", () => {
@@ -302,5 +303,190 @@ describe("PidCanvas tank fill", () => {
     expect(html).not.toContain("2 in series");
     expect(html).toContain("<title>feed_line</title>");
     expect(html).toContain("<title>injector</title>");
+  });
+
+  it("renders rocket-like diagrams with pressurant, fuel, oxidizer, and combined engine flow styling", () => {
+    const rocketDiagram: DiagramModel = {
+      nodes: [
+        { id: 1, name: "gn2_supply", type: "Node", x: -500, y: 0, params: { fluid: "Nitrogen", P: 20_000_000 } },
+        { id: 2, name: "fuel_tank", type: "Tank", x: -120, y: -160, params: { fluid_liq: "n-Dodecane", fluid_ullage: "Nitrogen" } },
+        { id: 3, name: "lox_tank", type: "Tank", x: -120, y: 160, params: { fluid_liq: "Oxygen", fluid_ullage: "Nitrogen" } },
+        { id: 4, name: "engine", type: "Engine", x: 460, y: 0, params: { fuel: "Kerosene", oxidizer: "LOX" } }
+      ],
+      connections: [
+        { id: "pr_f_0", name: "press_fuel", type: "BangBang", startId: 1, endId: 2, params: { location: 1 } },
+        { id: "pr_ox_0", name: "press_ox", type: "BangBang", startId: 1, endId: 3, params: { location: 1 } },
+        { id: "fuel_feed_0", name: "fuel_feed", type: "Series", startId: 2, endId: 4, params: { connections: [{ type: "Line", params: { name: "fuel_line", location: 0 } }] } },
+        { id: "ox_feed_0", name: "ox_feed", type: "Series", startId: 3, endId: 4, params: { connections: [{ type: "Line", params: { name: "ox_line", location: 0 } }] } }
+      ],
+      bounds: { minX: -700, minY: -260, width: 1300, height: 560 }
+    };
+
+    const html = renderToStaticMarkup(
+      <PidCanvas
+        diagram={rocketDiagram}
+        nodeSamples={{
+          gn2_supply: [{ component: "gn2_supply", kind: "Node", time: 0, P: 20_000_000 }],
+          fuel_tank: [tankRow(0, 0.8)],
+          lox_tank: [{ component: "lox_tank", kind: "Tank", time: 0, fill_level: 0.8 }],
+          engine: [{ component: "engine", kind: "Engine", time: 0, P: 2_000_000, T: 310, thrust: 1000 }]
+        }}
+        connectionSamples={{
+          press_fuel: [{ component: "press_fuel", kind: "BangBang", time: 0, mdot: 0.04, dP: 10_000, state: 1 }],
+          press_ox: [{ component: "press_ox", kind: "BangBang", time: 0, mdot: 0.04, dP: 10_000, state: 1 }],
+          fuel_feed: [{ component: "fuel_feed", kind: "Series", time: 0, mdot: 0.2, dP: 10_000, state: 1 }],
+          ox_feed: [{ component: "ox_feed", kind: "Series", time: 0, mdot: 0.25, dP: 10_000, state: 1 }]
+        }}
+        selectedId={null}
+        metric="P"
+        time={0}
+        phase={0.25}
+        onSelect={() => undefined}
+      />
+    );
+
+    expect(html).toContain("fluid-pressurant");
+    expect(html).toContain("fluid-fuel");
+    expect(html).toContain("fluid-oxidizer");
+    expect(html).toContain("combined-engine-feed");
+    expect(html).toContain("combined-flow-particle");
+    expect(html).toContain("<title>FCV-F</title>");
+    expect(html).toContain("<title>FIL-OX</title>");
+  });
+
+  it("keeps the engine and combined feed stable even when instantaneous propellant telemetry is idle", () => {
+    const rocketDiagram: DiagramModel = {
+      nodes: [
+        { id: 1, name: "gn2_supply", type: "Node", x: -500, y: 0, params: { fluid: "Nitrogen", P: 20_000_000 } },
+        { id: 2, name: "fuel_tank", type: "Tank", x: -120, y: -160, params: { fluid_liq: "n-Dodecane", fluid_ullage: "Nitrogen" } },
+        { id: 3, name: "lox_tank", type: "Tank", x: -120, y: 160, params: { fluid_liq: "Oxygen", fluid_ullage: "Nitrogen" } },
+        { id: 4, name: "engine", type: "Engine", x: 460, y: 0, params: { fuel: "Kerosene", oxidizer: "LOX" } }
+      ],
+      connections: [
+        { id: "fuel_feed_0", name: "fuel_feed", type: "Series", startId: 2, endId: 4, params: { connections: [{ type: "Line", params: { name: "fuel_line", location: 0 } }] } },
+        { id: "ox_feed_0", name: "ox_feed", type: "Series", startId: 3, endId: 4, params: { connections: [{ type: "Line", params: { name: "ox_line", location: 0 } }] } }
+      ],
+      bounds: { minX: -700, minY: -260, width: 1300, height: 560 }
+    };
+
+    const html = renderToStaticMarkup(
+      <PidCanvas
+        diagram={rocketDiagram}
+        nodeSamples={{
+          gn2_supply: [{ component: "gn2_supply", kind: "Node", time: 0, P: 20_000_000 }],
+          fuel_tank: [tankRow(0, 0.8)],
+          lox_tank: [{ component: "lox_tank", kind: "Tank", time: 0, fill_level: 0.8 }],
+          engine: [{ component: "engine", kind: "Engine", time: 0, P: 2_000_000, T: 310, thrust: 0 }]
+        }}
+        connectionSamples={{
+          fuel_feed: [{ component: "fuel_feed", kind: "Series", time: 0, mdot: 0, state: 0 }],
+          ox_feed: [{ component: "ox_feed", kind: "Series", time: 0, mdot: 0, state: 0 }]
+        }}
+        selectedId={null}
+        metric="P"
+        time={0}
+        phase={0.25}
+        onSelect={() => undefined}
+      />
+    );
+
+    expect(html).toContain("combined-engine-feed");
+    expect(html).toContain("combined-flow-particle");
+    expect(html).toContain("engine-flame");
+  });
+
+  it("suppresses flow particles and marks a closed valve on closed connections", () => {
+    const html = renderToStaticMarkup(
+      <PidCanvas
+        diagram={{
+          nodes: [
+            { id: 1, name: "tank", type: "Tank", x: 0, y: 0, params: { fluid_liq: "n-Dodecane" } },
+            { id: 2, name: "engine", type: "Engine", x: 180, y: 0, params: {} }
+          ],
+          connections: [{ id: "feed_0", name: "feed", type: "ThrottleValve", startId: 1, endId: 2, params: { name: "main_valve", location: 0 } }],
+          bounds: { minX: -80, minY: -120, width: 340, height: 240 }
+        }}
+        nodeSamples={{
+          tank: [tankRow(0, 0.8)],
+          engine: [{ component: "engine", kind: "Engine", time: 0, P: 101325, T: 293.15, thrust: 0 }]
+        }}
+        connectionSamples={{
+          feed: [{ component: "feed", kind: "ThrottleValve", time: 0, mdot: 0, state: 0 }]
+        }}
+        selectedId={null}
+        metric="P"
+        time={0}
+        phase={0}
+        onSelect={() => undefined}
+      />
+    );
+
+    expect(html).toContain("pipe-run is-closed");
+    expect(html).toContain("series-component component-valve is-closed");
+    expect(html).not.toContain('class="flow-particle"');
+  });
+
+  it("keeps pressurant flow steady when controller state is false but mdot is nonzero", () => {
+    const html = renderToStaticMarkup(
+      <PidCanvas
+        diagram={{
+          nodes: [
+            { id: 1, name: "gn2", type: "Node", x: -180, y: 0, params: { fluid: "Nitrogen", P: 20_000_000 } },
+            { id: 2, name: "fuel_tank", type: "Tank", x: 0, y: 0, params: { fluid_liq: "n-Dodecane", fluid_ullage: "Nitrogen" } }
+          ],
+          connections: [{ id: "press_0", name: "press", type: "BangBang", startId: 1, endId: 2, params: { location: 1 } }],
+          bounds: { minX: -260, minY: -120, width: 520, height: 240 }
+        }}
+        nodeSamples={{
+          gn2: [{ component: "gn2", kind: "Node", time: 0, P: 20_000_000, T: 293.15 }],
+          fuel_tank: [tankRow(0, 0.8)]
+        }}
+        connectionSamples={{
+          press: [{ component: "press", kind: "BangBang", time: 0, mdot: 0.04, dP: 10_000, state: "False" }]
+        }}
+        selectedId={null}
+        metric="P"
+        time={0}
+        phase={0.25}
+        onSelect={() => undefined}
+      />
+    );
+
+    expect(html).toContain("pipe-run is-flowing fluid-pressurant");
+    expect(html).not.toContain("pipe-run is-blocked");
+    expect(html).not.toContain("component-valve is-closed");
+    expect(html).toContain('class="flow-particle"');
+  });
+
+  it("renders warning classes for components referenced by nodeStatus", () => {
+    const html = renderToStaticMarkup(
+      <PidCanvas
+        diagram={{
+          nodes: [
+            { id: 1, name: "tank", type: "Tank", x: 0, y: 0, params: { fluid_liq: "n-Dodecane" } },
+            { id: 2, name: "engine", type: "Engine", x: 180, y: 0, params: {} }
+          ],
+          connections: [{ id: "feed_0", name: "feed", type: "Connection", startId: 1, endId: 2, params: { location: 0 } }],
+          bounds: { minX: -80, minY: -120, width: 340, height: 240 }
+        }}
+        nodeSamples={{
+          tank: [tankRow(0, 0.8)],
+          engine: [{ component: "engine", kind: "Engine", time: 0, P: 101325, T: 293.15, thrust: 0 }]
+        }}
+        connectionSamples={{
+          feed: [{ component: "feed", kind: "Connection", time: 0, mdot: 0.1, dP: 10_000, state: 1 }]
+        }}
+        selectedId={null}
+        metric="P"
+        time={0}
+        phase={0}
+        nodeStatus={{ tank: "red", feed: "red" }}
+        onSelect={() => undefined}
+      />
+    );
+
+    expect(html).toContain("pipe-run is-warning");
+    expect(html).toContain("pid-node is-warning");
+    expect(html).toContain("pipe-warning-pulse");
   });
 });
