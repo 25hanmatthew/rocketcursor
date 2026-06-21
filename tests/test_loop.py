@@ -10,6 +10,7 @@ import json
 import tempfile
 import unittest
 from pathlib import Path
+from unittest import mock
 
 from loop.evaluator import evaluate
 from loop.simulator_adapter import run_design
@@ -296,6 +297,8 @@ class TestDesignSeeds(unittest.TestCase):
         )
         seed = get_design_seed("pressure_fed_lox_kerosene")
         self.assertIsNotNone(seed)
+        self.assertEqual(seed["design"]["settings"]["duration"], 3.0)
+        self.assertEqual(seed["design"]["settings"]["dt"], 0.02)
         nodes = {node["params"]["name"]: node for node in seed["design"]["nodes"]}
         self.assertEqual(nodes["engine"]["type"], "Engine")
         self.assertIn("lox_tank", nodes)
@@ -394,6 +397,13 @@ class TestSpecWriterSeeds(unittest.TestCase):
 
         self.assertIn("do not create Ambient/atm/atmosphere pressure component", SPEC_WRITER_SYSTEM)
         self.assertIn("Engine design parameter", SPEC_WRITER_SYSTEM)
+
+    def test_spec_writer_prompt_preserves_duration_and_guides_dt(self):
+        from loop.spec_writer import SPEC_WRITER_SYSTEM
+
+        self.assertIn("Do not shorten user-requested or seed duration", SPEC_WRITER_SYSTEM)
+        self.assertIn("dt around\n  0.02", SPEC_WRITER_SYSTEM)
+        self.assertIn("pressure-window blowdown", SPEC_WRITER_SYSTEM)
 
     def test_blowdown_seed_normalizes_duplicate_alias_names(self):
         from loop.spec_writer import apply_seed_guidance
@@ -513,6 +523,14 @@ class TestAgentPrompt(unittest.TestCase):
         self.assertIn("if thrust is too low", prompt)
         self.assertIn("Preserve the oxidizer/fuel CdA ratio", SYSTEM_PROMPT)
 
+    def test_design_prompt_preserves_duration_and_guides_dt(self):
+        from loop.agent import SYSTEM_PROMPT
+
+        self.assertIn("preserve requested or seed duration", SYSTEM_PROMPT)
+        self.assertIn("Do not shorten", SYSTEM_PROMPT)
+        self.assertIn("dt around 0.02", SYSTEM_PROMPT)
+        self.assertIn("pressure-window blowdown", SYSTEM_PROMPT)
+
     def test_first_prompt_includes_seed_design_when_present(self):
         from loop.agent import _first_user_message
         from loop.design_seeds import get_design_seed
@@ -589,6 +607,243 @@ class TestAgentPrompt(unittest.TestCase):
         feedback = _verdict_feedback(low, {"status": "ok"})
         self.assertIn("Thrust is too low", feedback)
         self.assertIn("Increase BOTH oxidizer and fuel feed/injector CdA", feedback)
+
+
+class TestRunLoopSeedDirect(unittest.TestCase):
+    def _write_spec(self, root: Path, spec: dict) -> Path:
+        path = root / "spec.json"
+        path.write_text(json.dumps(spec), encoding="utf-8")
+        return path
+
+    def _result(self, iter_dir: Path) -> dict:
+        return {
+            "status": "ok",
+            "errors": [],
+            "diagnostics": {"warnings": []},
+            "components": {},
+            "design_path": str(iter_dir / "design.json"),
+        }
+
+    def _verdict(self, passed: bool):
+        from loop.evaluator import CheckResult, Verdict
+
+        actual = "ok" if passed else "not_ok"
+        return Verdict(
+            passed=passed,
+            summary="1/1 checks passed" if passed else "0/1 checks passed",
+            checks=[CheckResult("ran", "Simulation runs", passed, "==", "ok", actual)],
+        )
+
+    def _patch_loop(self, root: Path, seed: dict | None, session):
+        patches = [
+            mock.patch("loop.agent.REPO_ROOT", root),
+            mock.patch("loop.agent.get_design_seed", return_value=seed),
+            mock.patch("loop.agent.ToolLoopSession", return_value=session),
+            mock.patch("loop.agent.retrieve_failure_context", return_value=("", [])),
+            mock.patch("loop.agent.memory_status", return_value="disabled"),
+            mock.patch("loop.agent.enable_tracing"),
+            mock.patch("loop.agent.init_sentry"),
+        ]
+        for patch in patches:
+            patch.start()
+            self.addCleanup(patch.stop)
+
+    def test_seeded_first_run_passes_without_initial_llm_call(self):
+        from loop.agent import run_loop
+        from loop.session_state import FileSessionStore
+
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            seed_design = {"settings": {"duration": 1.0, "dt": 0.1}, "nodes": [], "connections": []}
+            seed = {"name": "demo_seed", "metadata": {}, "design": seed_design}
+            spec_path = self._write_spec(root, {
+                "name": "seed_pass",
+                "design_guidance": {"design_seed": "demo_seed"},
+                "checks": [],
+            })
+            session = mock.Mock()
+            session.provider = "fake"
+            session.model = "fake"
+            session.first.side_effect = AssertionError("initial design LLM should be skipped")
+            seen_designs = []
+
+            def fake_run_design(design, iter_dir):
+                seen_designs.append(design)
+                return self._result(Path(iter_dir))
+
+            self._patch_loop(root, seed, session)
+            with mock.patch("loop.agent.run_design", side_effect=fake_run_design), \
+                    mock.patch("loop.agent.evaluate", return_value=self._verdict(True)):
+                trace = run_loop(
+                    spec_path,
+                    max_iters=4,
+                    store=FileSessionStore(root=root / "sessions"),
+                    session_id="sess",
+                )
+
+            session.first.assert_not_called()
+            self.assertEqual(trace["initial_design_source"], "seed")
+            self.assertEqual(trace["iterations"][0]["design_source"], "seed")
+            self.assertTrue(trace["passed"])
+            self.assertEqual(len(seen_designs), 1)
+            self.assertEqual(seen_designs[0], seed_design)
+            self.assertIsNot(seen_designs[0], seed_design)
+
+    def test_seeded_first_run_failure_calls_llm_for_second_iteration(self):
+        from loop.agent import run_loop
+        from loop.session_state import FileSessionStore
+
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            seed_design = {"settings": {"duration": 1.0, "dt": 0.1}, "nodes": [], "connections": []}
+            revised_design = {"settings": {"duration": 1.0, "dt": 0.1}, "nodes": [{"id": 0}], "connections": []}
+            seed = {"name": "demo_seed", "metadata": {"tunable": ["CdA"]}, "design": seed_design}
+            spec_path = self._write_spec(root, {
+                "name": "seed_revise",
+                "design_guidance": {"design_seed": "demo_seed"},
+                "checks": [],
+            })
+            session = mock.Mock()
+            session.provider = "fake"
+            session.model = "fake"
+            session.first.return_value = revised_design
+            seen_designs = []
+
+            def fake_run_design(design, iter_dir):
+                seen_designs.append(design)
+                return self._result(Path(iter_dir))
+
+            self._patch_loop(root, seed, session)
+            with mock.patch("loop.agent.run_design", side_effect=fake_run_design), \
+                    mock.patch("loop.agent.evaluate", side_effect=[self._verdict(False), self._verdict(True)]):
+                trace = run_loop(
+                    spec_path,
+                    max_iters=4,
+                    store=FileSessionStore(root=root / "sessions"),
+                    session_id="sess",
+                )
+
+            self.assertEqual(session.first.call_count, 1)
+            prompt = session.first.call_args.args[0]
+            self.assertIn("ITERATION 0 VERDICT FEEDBACK", prompt)
+            self.assertIn("SEED DESIGN JSON", prompt)
+            session.tool_result.assert_not_called()
+            self.assertEqual(seen_designs, [seed_design, revised_design])
+            self.assertEqual([item["design_source"] for item in trace["iterations"]], ["seed", "llm"])
+            self.assertTrue(trace["passed"])
+
+    def test_seeded_failure_with_one_max_iter_does_not_call_llm(self):
+        from loop.agent import run_loop
+        from loop.session_state import FileSessionStore
+
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            seed = {
+                "name": "demo_seed",
+                "metadata": {},
+                "design": {"settings": {"duration": 1.0, "dt": 0.1}, "nodes": [], "connections": []},
+            }
+            spec_path = self._write_spec(root, {
+                "name": "seed_one_iter",
+                "design_guidance": {"design_seed": "demo_seed"},
+                "checks": [],
+            })
+            session = mock.Mock()
+            session.provider = "fake"
+            session.model = "fake"
+            session.first.side_effect = AssertionError("no LLM call should be made after final iteration")
+
+            self._patch_loop(root, seed, session)
+            with mock.patch("loop.agent.run_design", side_effect=lambda design, iter_dir: self._result(Path(iter_dir))), \
+                    mock.patch("loop.agent.evaluate", return_value=self._verdict(False)):
+                trace = run_loop(
+                    spec_path,
+                    max_iters=1,
+                    store=FileSessionStore(root=root / "sessions"),
+                    session_id="sess",
+                )
+
+            session.first.assert_not_called()
+            self.assertFalse(trace["passed"])
+            self.assertEqual(trace["iterations_used"], 1)
+            self.assertEqual(trace["iterations"][0]["design_source"], "seed")
+
+    def test_unknown_seed_uses_current_llm_first_design_path(self):
+        from loop.agent import run_loop
+        from loop.session_state import FileSessionStore
+
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            design = {"settings": {"duration": 1.0, "dt": 0.1}, "nodes": [], "connections": []}
+            spec_path = self._write_spec(root, {
+                "name": "unknown_seed",
+                "design_guidance": {"design_seed": "missing_seed"},
+                "checks": [],
+            })
+            session = mock.Mock()
+            session.provider = "fake"
+            session.model = "fake"
+            session.first.return_value = design
+
+            self._patch_loop(root, None, session)
+            with mock.patch("loop.agent.run_design", side_effect=lambda design, iter_dir: self._result(Path(iter_dir))), \
+                    mock.patch("loop.agent.evaluate", return_value=self._verdict(True)):
+                trace = run_loop(
+                    spec_path,
+                    max_iters=1,
+                    store=FileSessionStore(root=root / "sessions"),
+                    session_id="sess",
+                )
+
+            session.first.assert_called_once()
+            self.assertEqual(trace["initial_design_source"], "llm")
+            self.assertEqual(trace["iterations"][0]["design_source"], "llm")
+
+    def test_revision_context_skips_seed_direct_mode(self):
+        from loop.agent import run_loop
+        from loop.session_state import FileSessionStore
+
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            seed = {
+                "name": "demo_seed",
+                "metadata": {},
+                "design": {"settings": {"duration": 1.0, "dt": 0.1}, "nodes": [], "connections": []},
+            }
+            revised_design = {"settings": {"duration": 1.0, "dt": 0.1}, "nodes": [{"id": 0}], "connections": []}
+            spec_path = self._write_spec(root, {
+                "name": "revision_seed",
+                "design_guidance": {"design_seed": "demo_seed"},
+                "checks": [],
+            })
+            session = mock.Mock()
+            session.provider = "fake"
+            session.model = "fake"
+            session.first.return_value = revised_design
+            revision_context = {
+                "message": "make it smaller",
+                "parent_session_id": "parent",
+                "parent_iteration": 0,
+                "base_design": seed["design"],
+                "base_report": {"status": {"passed": True, "failures": [], "warnings": []}},
+                "base_simulation_result": {"status": "ok"},
+            }
+
+            self._patch_loop(root, seed, session)
+            with mock.patch("loop.agent.run_design", side_effect=lambda design, iter_dir: self._result(Path(iter_dir))), \
+                    mock.patch("loop.agent.evaluate", return_value=self._verdict(True)):
+                trace = run_loop(
+                    spec_path,
+                    max_iters=1,
+                    store=FileSessionStore(root=root / "sessions"),
+                    session_id="sess",
+                    revision_context=revision_context,
+                )
+
+            session.first.assert_called_once()
+            self.assertIn("REVISION CONTEXT", session.first.call_args.args[0])
+            self.assertEqual(trace["initial_design_source"], "llm")
+            self.assertEqual(trace["iterations"][0]["design_source"], "llm")
 
 
 class TestMemoryHook(unittest.TestCase):

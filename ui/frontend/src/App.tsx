@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { FileJson, Gauge, MessageSquare, Mic, Pause, Play, RotateCcw, Send, Upload } from "lucide-react";
+import { Gauge, MessageSquare, Mic, Pause, Play, RotateCcw, Send } from "lucide-react";
 import { PidCanvas } from "./components/PidCanvas";
 import { VoiceAgentCopilot } from "./components/VoiceAgentCopilot";
 import { TelemetryPlots } from "./components/TelemetryPlots";
@@ -16,7 +16,6 @@ import type {
   LatestPlayableRun,
   NetworkConfig,
   RunReport,
-  RunResponse,
   SampleRow,
   SessionIteration,
   SessionState
@@ -35,7 +34,7 @@ function selectedName(selectedId: string | null): string | null {
   return selectedId?.split(":").slice(1).join(":") ?? null;
 }
 
-type InputMode = "chat" | "json" | "voice";
+type InputMode = "chat" | "voice";
 
 /* Turn structured voice extraction into a plain-text requirements block so the
    existing chat/revision endpoint consumes it exactly like a typed request. */
@@ -303,7 +302,6 @@ export default function App() {
   const [showPartLabels, setShowPartLabels] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const fileInput = useRef<HTMLInputElement>(null);
 
   const nodeSamples = useMemo(() => rowsByComponent(nodeRows), [nodeRows]);
   const connectionSamples = useMemo(() => rowsByComponent(connectionRows), [connectionRows]);
@@ -440,40 +438,6 @@ export default function App() {
       window.clearTimeout(timer);
     };
   }, [designSessionId, latestLoadedDesignKey]);
-
-  async function submitFile(file: File) {
-    setBusy(true);
-    setError(null);
-    setPlaying(false);
-    setDesignSessionId(null);
-    setDesignState(null);
-    setLatestLoadedDesignKey(null);
-    setChatHistory([]);
-    lastConsoleState.current = "";
-    try {
-      const text = await file.text();
-      const parsed = JSON.parse(text) as NetworkConfig;
-      const form = new FormData();
-      form.append("file", new Blob([text], { type: "application/json" }), file.name);
-
-      const response = await fetch("/api/runs", { method: "POST", body: form });
-      const payload = (await response.json()) as RunResponse;
-      if (!response.ok || !payload.ok || !payload.report) {
-        throw new Error(payload.stderr || payload.message || "Run failed");
-      }
-
-      const [nodesCsv, connectionsCsv] = await Promise.all([
-        fetch(`/api/runs/${payload.run_id}/artifact/nodes.csv`).then((res) => res.text()),
-        fetch(`/api/runs/${payload.run_id}/artifact/connections.csv`).then((res) => res.text())
-      ]);
-
-      loadRunArtifacts(parsed, payload.report, nodesCsv, connectionsCsv);
-    } catch (exc) {
-      setError(exc instanceof Error ? exc.message : String(exc));
-    } finally {
-      setBusy(false);
-    }
-  }
 
   async function submitChatMessage(messageText: string): Promise<boolean> {
     const message = messageText.trim();
@@ -642,7 +606,7 @@ export default function App() {
         {
           key: "starting",
           label: designSessionId ? "Starting design loop" : "Starting simulation",
-          detail: designSessionId ? "Waiting for requirements status" : "Submitting JSON to simulator",
+          detail: designSessionId ? "Waiting for requirements status" : "Starting run",
           tone: "current" as ActivityTone
         }
       ];
@@ -665,16 +629,6 @@ export default function App() {
           </div>
         </div>
 
-        <input
-          ref={fileInput}
-          type="file"
-          accept="application/json,.json"
-          hidden
-          onChange={(event) => {
-            const file = event.target.files?.[0];
-            if (file) void submitFile(file);
-          }}
-        />
         <div className="mode-switch" role="tablist" aria-label="Input mode">
           <button
             type="button"
@@ -683,14 +637,6 @@ export default function App() {
           >
             <MessageSquare size={15} />
             Chat
-          </button>
-          <button
-            type="button"
-            className={inputMode === "json" ? "selected" : ""}
-            onClick={() => setInputMode("json")}
-          >
-            <FileJson size={15} />
-            JSON
           </button>
           <button
             type="button"
@@ -729,13 +675,6 @@ export default function App() {
           </form>
         )}
 
-        {inputMode === "json" && (
-          <button className="primary-action" type="button" onClick={() => fileInput.current?.click()} disabled={busy}>
-            <Upload size={18} />
-            {busy ? "Running simulation..." : "Submit network JSON"}
-          </button>
-        )}
-
         {inputMode === "voice" && (
           <VoiceAgentCopilot
             onStartDesign={(summary) => void submitChatMessage(summary)}
@@ -756,7 +695,7 @@ export default function App() {
             <span>
               {config
                 ? `${config.nodes.length} nodes · ${config.connections.length} connections`
-                : "Start a chat design loop or submit a JSON config."}
+                : "Start a chat design loop or use voice input."}
             </span>
           </div>
           <div className="toolbar-controls">

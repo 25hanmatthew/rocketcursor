@@ -17,6 +17,7 @@ summarizing every iteration is written at the run root.
 from __future__ import annotations
 
 import argparse
+import copy
 import json
 import os
 import sys
@@ -154,6 +155,10 @@ Network format (SI units unless noted; Node/Tank volumes are in LITERS):
   normal_state=1, checking=1, location=0.0), "Line", "Regulator", "BangBang",
   "ThrottleValve", "Series".
 - Each connection has start_id and end_id referencing node ids.
+- Simulation settings: preserve requested or seed duration. Do not shorten
+  duration as a speed shortcut. For pressure-fed engine/feed iteration, prefer
+  dt around 0.02 unless the spec explicitly requires a smaller timestep. For
+  pressure-window blowdown or final-pressure targeting, keep dt conservative.
 
 Engine designs (liquid rocket engines):
 - An "Engine" node burns an oxidizer and a fuel. params: fuel and oxidizer
@@ -283,6 +288,31 @@ def _first_user_message(
     return message + "Call submit_design with your design now."
 
 
+def _should_use_seed_direct(seed: dict | None, revision_context: dict | None) -> bool:
+    return bool(seed and seed.get("design") and not revision_context)
+
+
+def _seed_failed_revision_message(
+    spec: dict,
+    seed: dict,
+    feedback: str,
+    protect=lambda s: s,
+) -> str:
+    return (
+        "A known-good seed design was simulated as iteration 0 for this "
+        "requirements spec, but it did not pass every check. Revise the seed "
+        "design using the deterministic verdict below. Preserve the seed "
+        "topology and component names unless the requirements make that "
+        "impossible; tune numeric values first. Submit a complete full JSON "
+        "design, not a patch.\n\n"
+        "SPEC:\n" + protect(json.dumps(spec, indent=2)) + "\n\n"
+        "SEED METADATA:\n" + protect(json.dumps(seed.get("metadata") or {}, indent=2)) + "\n\n"
+        "SEED DESIGN JSON:\n" + protect(json.dumps(seed.get("design") or {}, indent=2)) + "\n\n"
+        "ITERATION 0 VERDICT FEEDBACK:\n" + protect(feedback) + "\n\n"
+        "Call submit_design with the revised complete design now."
+    )
+
+
 def _verdict_feedback(verdict, result) -> str:
     lines = [f"VERDICT: {verdict.summary}", ""]
     advice = []
@@ -373,6 +403,7 @@ def run_loop(spec_path: str | Path, max_iters: int = 4, use_compression: bool = 
     if seed_name and seed is None:
         print(f"[loop] unknown design_seed {seed_name!r}; continuing without seed")
     first_msg = _first_user_message(spec, protect, seed=seed, revision_context=revision_context)
+    seed_direct = _should_use_seed_direct(seed, revision_context)
 
     # Ground the design in real prior failures (PRD "memory retrieval"). Guarded:
     # no-op without the memory layer (Redis + VOYAGE_API_KEY). Prose, so it's safe
@@ -391,10 +422,19 @@ def run_loop(spec_path: str | Path, max_iters: int = 4, use_compression: bool = 
     line: list[IterationOutcome] = []   # outcomes since the last restart
     restarts_used = 0
     dead_ends: list[str] = []
-    design = session.first(first_msg)
+    llm_started = False
+    if seed_direct:
+        design = copy.deepcopy(seed["design"])
+        trace["initial_design_source"] = "seed"
+        print(f"[loop] using design_seed {seed_name!r} as iteration 0; skipping initial design LLM")
+    else:
+        design = session.first(first_msg)
+        llm_started = True
+        trace["initial_design_source"] = "llm"
     for i in range(max_iters):
         if design is None:
             design = session.nudge("You did not call submit_design. Call it now with a full design.")
+            llm_started = True
             if design is None:
                 break
             continue
@@ -421,6 +461,7 @@ def run_loop(spec_path: str | Path, max_iters: int = 4, use_compression: bool = 
         trace["iterations"].append({
             "iteration": i, "status": result["status"], "verdict": verdict_dict,
             "design_path": result["design_path"],
+            "design_source": "seed" if seed_direct and i == 0 else "llm",
             "decision": {"action": decision.action, "reason": decision.reason},
         })
         # emit the live design + per-node status + checklist + decision for the UI
@@ -431,6 +472,9 @@ def run_loop(spec_path: str | Path, max_iters: int = 4, use_compression: bool = 
         store.write(state)
 
         if verdict.passed:
+            break
+
+        if i >= max_iters - 1:
             break
 
         if decision.action == "scrap":
@@ -447,9 +491,15 @@ def run_loop(spec_path: str | Path, max_iters: int = 4, use_compression: bool = 
                 "Your earlier design approaches FAILED — do NOT repeat them; try a "
                 "materially different design:\n" + "\n".join(dead_ends))
             design = session.first(restart_msg)
+            llm_started = True
         else:
             # feed the deterministic verdict back; protect() keeps numbers byte-exact under TTC
-            design = session.tool_result(protect(feedback), is_error=not verdict.passed)
+            if llm_started:
+                design = session.tool_result(protect(feedback), is_error=not verdict.passed)
+            else:
+                state["stage"] = "design"; store.write(state)
+                design = session.first(_seed_failed_revision_message(spec, seed, feedback, protect))
+                llm_started = True
 
     trace["passed"] = bool(final_verdict and final_verdict.passed)
     trace["iterations_used"] = len(trace["iterations"])

@@ -126,6 +126,10 @@ Rules:
   100 Pa unless the user gives a different tolerance.
 - A fixed start condition becomes a check on stat "first" (e.g. tank starts at 6 MPa
   -> two checks bracketing P.first). A fixed duration becomes diagnostics duration checks.
+- Do not shorten user-requested or seed duration to make runs faster. For
+  pressure-fed engine/feed designs, prefer design guidance/settings with dt around
+  0.02 for faster iteration. For pressure-window blowdown/final-pressure targeting,
+  keep dt conservative enough to resolve the pressure transient.
 - Name every component explicitly, list them in design_guidance.must_include_nodes /
   must_include_connections, restate the fixed-vs-tunable split in the description, and
   reference those EXACT names in the component checks.
