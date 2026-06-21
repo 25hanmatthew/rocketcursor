@@ -171,6 +171,11 @@ Engine designs (liquid rocket engines):
 - Sizing intuition: chamber pressure Pc ~ total_mdot * cstar / At, thrust ~ Cf * Pc * At,
   and MR is set by the ratio of the oxidizer-feed to fuel-feed flows. Tune the two
   feed CdAs: their magnitude sets total flow (thrust, Pc); their ratio sets MR.
+- Thrust tuning: if thrust is too high, reduce both oxidizer and fuel feed/injector
+  CdA values together first. If thrust is too low, increase both feed/injector CdA
+  values together first. Preserve the oxidizer/fuel CdA ratio when only thrust is
+  wrong; change the ratio only when MR or oxidizer/fuel balance is wrong. Use Engine
+  At/Ae as secondary tuning knobs after feed CdA changes.
 
 Rules:
 - You MUST call submit_design exactly once per turn with a full design.

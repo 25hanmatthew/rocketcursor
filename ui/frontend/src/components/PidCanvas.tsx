@@ -114,9 +114,73 @@ function colorForFluid(fluid: string): string {
   return fluidColors[fluid] ?? fluidColors.Unknown;
 }
 
+function nodeActivity(sample: SampleRow | undefined, node: DiagramNode): number {
+  const pressure = numericValue(sample, "P") ?? (typeof node.params.P === "number" ? node.params.P : 0);
+  const mass = numericValue(sample, "m") ?? numericValue(sample, "m_l") ?? numericValue(sample, "m_v") ?? 0;
+  const pressureActivity = Math.min(1, Math.max(0, (pressure - 101325) / 4_000_000));
+  const massActivity = Math.min(1, Math.max(0, mass / 10));
+  if (node.type === "Ambient") return 0.25;
+  if (node.type === "Node") return Math.max(0.2, pressureActivity, massActivity * 0.35);
+  return 0;
+}
+
+function NodeParticles({
+  node,
+  sample,
+  phase,
+  clipId,
+  width,
+  height,
+  count = 10
+}: {
+  node: DiagramNode;
+  sample: SampleRow | undefined;
+  phase: number;
+  clipId: string;
+  width: number;
+  height: number;
+  count?: number;
+}) {
+  if (node.type !== "Node" && node.type !== "Ambient") return null;
+  const fluid = fluidForNode(node, sample);
+  const color = colorForFluid(fluid);
+  const activity = nodeActivity(sample, node);
+  const maxX = width * 0.38;
+  const maxY = height * 0.34;
+  const particles = Array.from({ length: count }, (_, index) => {
+    const seed = index + 1;
+    const speed = 0.55 + activity * 0.95;
+    const angle = phase * Math.PI * 2 * speed;
+    const x = node.x + Math.sin(angle + seed * 1.73) * maxX * (0.35 + ((seed * 37) % 50) / 100);
+    const y = node.y + Math.cos(angle * 1.37 + seed * 2.11) * maxY * (0.35 + ((seed * 29) % 50) / 100);
+    const radius = 1.6 + activity * 1.4 + (seed % 3) * 0.25;
+    const opacity = 0.25 + activity * 0.5;
+    return { x, y, radius, opacity };
+  });
+
+  return (
+    <g className="node-particles" clipPath={`url(#${clipId})`} aria-hidden="true">
+      {particles.map((particle, index) => (
+        <circle
+          key={index}
+          cx={particle.x}
+          cy={particle.y}
+          r={particle.radius}
+          fill={color}
+          opacity={particle.opacity}
+        />
+      ))}
+    </g>
+  );
+}
+
 function SymbolIcon({ type }: { type: DiagramNode["type"] }) {
   if (type === "Ambient") return <Waves size={18} />;
   return <Thermometer size={17} />;
+}
+
+function isSelectableTarget(target: EventTarget | null): boolean {
+  return target instanceof Element && target.closest(".pid-hit") !== null;
 }
 
 function NodeSymbol({
@@ -148,6 +212,8 @@ function NodeSymbol({
   const temperatureLabel = temperatureF(numericValue(sample, "T"));
   const telemetryX = node.x + 64;
   const telemetryY = node.y - 17;
+  const tankClipId = `tank-clip-${node.id}`;
+  const nodeClipId = `node-clip-${node.id}`;
 
   if (node.type === "Engine") {
     const thrust = Math.max(0, numericValue(sample, "thrust") ?? 0);
@@ -206,11 +272,6 @@ function NodeSymbol({
           <line x1={x} y1={y + 5} x2={x} y2={exitY - 1} />
           <line x1={x + 5} y1={y + 5} x2={x + 16} y2={exitY - 1} />
         </g>
-        {active && (
-          <circle cx={x + 17} cy={y - 33} r={3.5} fill="#34d399">
-            <title>Firing</title>
-          </circle>
-        )}
         <text x={x} y={y - 18} textAnchor="middle" className="pid-kind">Engine</text>
         {showPartLabels && <text x={x} y={exitY + flameLength + 16} textAnchor="middle" className="pid-label">{node.name}</text>}
         <g className="node-telemetry engine-telemetry">
@@ -241,7 +302,7 @@ function NodeSymbol({
           stroke={stroke}
           strokeWidth={strokeWidth}
         />
-        <clipPath id={`tank-clip-${node.id}`}>
+        <clipPath id={tankClipId}>
           <rect x={node.x - 38} y={node.y - 56} width={76} height={112} rx={24} />
         </clipPath>
         <rect
@@ -250,7 +311,7 @@ function NodeSymbol({
           width={76}
           height={level * 112}
           fill="url(#liquid-grad)"
-          clipPath={`url(#tank-clip-${node.id})`}
+          clipPath={`url(#${tankClipId})`}
         />
         {level > 0.001 && level < 0.999 && (
           <line
@@ -261,11 +322,11 @@ function NodeSymbol({
             stroke="#aee3ff"
             strokeWidth={1.5}
             opacity={0.85}
-            clipPath={`url(#tank-clip-${node.id})`}
+            clipPath={`url(#${tankClipId})`}
           />
         )}
         {/* graduation ticks — visual scale only */}
-        <g clipPath={`url(#tank-clip-${node.id})`} stroke="#3a4759" strokeWidth={1} opacity={0.6}>
+        <g clipPath={`url(#${tankClipId})`} stroke="#3a4759" strokeWidth={1} opacity={0.6}>
           {[0.25, 0.5, 0.75].map((mark) => (
             <line key={mark} x1={node.x + 26} y1={node.y + 56 - mark * 112} x2={node.x + 38} y2={node.y + 56 - mark * 112} />
           ))}
@@ -294,6 +355,18 @@ function NodeSymbol({
         fill={fill}
         stroke={stroke}
         strokeWidth={strokeWidth}
+      />
+      <clipPath id={nodeClipId}>
+        <rect x={node.x - 48} y={node.y - 28} width={96} height={56} rx={8} />
+      </clipPath>
+      <NodeParticles
+        node={node}
+        sample={sample}
+        phase={phase}
+        clipId={nodeClipId}
+        width={96}
+        height={56}
+        count={node.type === "Ambient" ? 8 : 10}
       />
       <foreignObject x={node.x - 11} y={node.y - 22} width={22} height={22}>
         <div className="node-icon"><SymbolIcon type={node.type} /></div>
@@ -539,6 +612,7 @@ export function PidCanvas({
         viewBox={`${viewBox.minX} ${viewBox.minY} ${viewBox.width} ${viewBox.height}`}
         preserveAspectRatio="xMidYMid meet"
         onPointerDown={(event) => {
+          if (event.button !== 0 || isSelectableTarget(event.target)) return;
           dragRef.current = { x: event.clientX, y: event.clientY };
           event.currentTarget.setPointerCapture(event.pointerId);
         }}
@@ -556,7 +630,9 @@ export function PidCanvas({
         }}
         onPointerUp={(event) => {
           dragRef.current = null;
-          event.currentTarget.releasePointerCapture(event.pointerId);
+          if (event.currentTarget.hasPointerCapture(event.pointerId)) {
+            event.currentTarget.releasePointerCapture(event.pointerId);
+          }
         }}
         onPointerCancel={() => {
           dragRef.current = null;

@@ -96,6 +96,71 @@ describe("PidCanvas tank fill", () => {
     expect(html).toContain(">Temperature: 68 F</text>");
   });
 
+  it("does not render internal particles inside tanks", () => {
+    const html = renderToStaticMarkup(
+      <PidCanvas
+        diagram={diagram}
+        nodeSamples={{
+          kerosene_tank: [
+            {
+              ...tankRow(0, 0.8),
+              P: 3447378.646584,
+              T: 293.15
+            }
+          ]
+        }}
+        connectionSamples={{}}
+        selectedId={null}
+        metric="P"
+        time={0}
+        phase={0.25}
+        onSelect={() => undefined}
+      />
+    );
+
+    expect(html).not.toContain('class="node-particles"');
+  });
+
+  it("renders stable bouncing particles inside non-tank gas nodes", () => {
+    const gasDiagram: DiagramModel = {
+      nodes: [
+        {
+          id: 1,
+          name: "gn2_node",
+          type: "Node",
+          x: 0,
+          y: 0,
+          params: {
+            fluid: "Nitrogen",
+            P: 2_000_000,
+            T: 293.15,
+            V: 1
+          }
+        }
+      ],
+      connections: [],
+      bounds: { minX: -120, minY: -120, width: 240, height: 240 }
+    };
+
+    const html = renderToStaticMarkup(
+      <PidCanvas
+        diagram={gasDiagram}
+        nodeSamples={{
+          gn2_node: [{ component: "gn2_node", kind: "Node", time: 0, P: 2_000_000, T: 293.15 }]
+        }}
+        connectionSamples={{}}
+        selectedId={null}
+        metric="P"
+        time={0}
+        phase={0.25}
+        onSelect={() => undefined}
+      />
+    );
+
+    expect(html).toContain('class="node-particles"');
+    expect(html).toContain('clip-path="url(#node-clip-1)"');
+  });
+
   it("hides part labels by default and shows them when enabled", () => {
     const hiddenHtml = renderToStaticMarkup(
       <PidCanvas

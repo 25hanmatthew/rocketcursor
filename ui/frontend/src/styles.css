@@ -137,7 +137,7 @@ select {
   min-height: 0;
   display: flex;
   flex-direction: column;
-  gap: var(--sp-5);
+  gap: var(--sp-4);
   background: var(--surface-1);
   border-right: 1px solid var(--border);
   padding: var(--sp-5);
@@ -147,6 +147,10 @@ select {
 .inspector {
   border-right: 0;
   border-left: 1px solid var(--border);
+}
+
+.side-panel {
+  overflow: hidden;
 }
 
 /* ---- Brand ---- */
@@ -286,13 +290,18 @@ select {
 
 .chat-runner {
   display: grid;
+  grid-template-rows: minmax(0, 1fr) minmax(96px, 16vh) 42px;
   gap: var(--sp-3);
+  flex: 1 1 auto;
+  min-height: 0;
+  height: 100%;
 }
 
 .chat-history {
   display: grid;
+  align-content: start;
   gap: var(--sp-2);
-  max-height: 260px;
+  min-height: 0;
   overflow: auto;
   padding: var(--sp-2);
   border: 1px solid var(--border);
@@ -348,11 +357,21 @@ select {
   overflow-wrap: anywhere;
 }
 
+.chat-empty {
+  align-self: start;
+  padding: var(--sp-3);
+  color: var(--text-3);
+  font-size: 12px;
+  line-height: 1.45;
+  border: 1px dashed var(--border);
+  border-radius: var(--r-md);
+}
+
 .chat-runner textarea {
   width: 100%;
   resize: vertical;
-  min-height: 118px;
-  max-height: 240px;
+  min-height: 96px;
+  max-height: 180px;
   padding: var(--sp-3);
   color: var(--text-1);
   background: var(--surface-inset);
@@ -879,77 +898,6 @@ select {
   border-radius: var(--r-md);
 }
 
-/* ---- Component browser ---- */
-.component-group {
-  display: grid;
-  gap: var(--sp-1);
-}
-
-.component-list {
-  display: grid;
-  gap: var(--sp-1);
-  margin-top: var(--sp-2);
-}
-
-.component-list button {
-  display: flex;
-  align-items: center;
-  gap: var(--sp-2);
-  min-height: 38px;
-  padding: 0 var(--sp-3);
-  text-align: left;
-  color: var(--text-2);
-  border: 1px solid transparent;
-  background: transparent;
-  border-radius: var(--r-sm);
-  cursor: pointer;
-  transition: background 0.12s var(--ease), color 0.12s var(--ease);
-}
-
-.component-list button:hover {
-  background: var(--surface-2);
-  color: var(--text-1);
-}
-
-.component-list button .glyph {
-  display: inline-grid;
-  place-items: center;
-  width: 22px;
-  height: 22px;
-  flex: 0 0 auto;
-  border-radius: 6px;
-  color: var(--text-3);
-  background: var(--surface-3);
-  border: 1px solid var(--border);
-}
-
-.component-list button span.name {
-  flex: 1;
-  min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  font-size: 13px;
-}
-
-.component-list button .tag {
-  font-size: 10px;
-  font-family: var(--font-mono);
-  color: var(--text-3);
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-.component-list button.selected {
-  background: var(--accent-soft);
-  border-color: color-mix(in srgb, var(--accent) 40%, transparent);
-  color: var(--text-1);
-}
-.component-list button.selected .glyph {
-  color: var(--accent);
-  border-color: var(--accent-line);
-}
-
 /* ============================================================================
    Workspace
    ========================================================================== */
@@ -1207,6 +1155,12 @@ select:hover {
 
 .flow-particle {
   filter: url(#flow-glow);
+}
+
+.node-particles {
+  filter: url(#flow-glow);
+  pointer-events: none;
+  mix-blend-mode: screen;
 }
 
 /* Component glyphs */
@@ -1480,93 +1434,84 @@ select:hover {
   transition: width 0.15s linear;
 }
 
-/* Telemetry stat tiles */
-.stat-grid {
+/* Telemetry plots */
+.telemetry-plots {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: var(--sp-2);
+  gap: var(--sp-3);
 }
 
-.stat-tile {
+.telemetry-plot-card {
   display: grid;
-  gap: 4px;
+  gap: var(--sp-2);
   padding: var(--sp-3);
   border: 1px solid var(--border);
   border-radius: var(--r-sm);
   background: var(--surface-2);
 }
 
-.stat-tile dt {
-  font-size: 10px;
+.telemetry-plot-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--sp-2);
+}
+
+.telemetry-plot-head span {
+  font-size: 11px;
   text-transform: uppercase;
-  letter-spacing: 0.4px;
+  letter-spacing: 0.5px;
   color: var(--text-3);
-  overflow: hidden;
-  text-overflow: ellipsis;
+}
+
+.telemetry-plot-head strong {
+  font-family: var(--font-mono);
+  font-size: 14px;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-1);
   white-space: nowrap;
 }
 
-.stat-tile dd {
-  margin: 0;
-  font-family: var(--font-mono);
-  font-size: 14px;
-  font-weight: 600;
-  color: var(--text-1);
-  font-variant-numeric: tabular-nums;
-}
-
-.observations {
-  display: grid;
-  gap: var(--sp-2);
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-.observations li {
-  display: flex;
-  gap: var(--sp-2);
-  padding: var(--sp-2) var(--sp-3);
-  font-size: 12px;
-  line-height: 1.5;
-  color: var(--text-2);
-  border: 1px solid var(--border-soft);
-  border-radius: var(--r-sm);
-  background: var(--surface-2);
-}
-
-.observations li::before {
-  content: "";
-  flex: 0 0 auto;
-  width: 5px;
-  height: 5px;
-  margin-top: 7px;
-  border-radius: 50%;
-  background: var(--accent);
-}
-
-.observations li.empty {
+.telemetry-plot-head small {
   color: var(--text-3);
-}
-.observations li.empty::before {
-  background: var(--text-3);
+  font-size: 10px;
 }
 
-.flow-note {
-  display: flex;
-  gap: var(--sp-2);
-  padding: var(--sp-3);
-  border: 1px solid color-mix(in srgb, var(--accent) 30%, transparent);
-  background: var(--accent-soft);
-  border-radius: var(--r-md);
-  font-size: 12px;
-  line-height: 1.5;
-  color: var(--text-2);
+.telemetry-plot {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
 }
 
-.flow-note strong {
-  color: var(--text-1);
+.telemetry-grid-line {
+  stroke: var(--border-soft);
+  stroke-width: 1;
+}
+
+.telemetry-cursor {
+  stroke: var(--text-2);
+  stroke-width: 1;
+  stroke-dasharray: 3 3;
+  opacity: 0.8;
+}
+
+.telemetry-line {
+  fill: none;
+  stroke-width: 2.4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.telemetry-point {
+  stroke: var(--surface-2);
+  stroke-width: 2;
+}
+
+.telemetry-axis-label {
   font-family: var(--font-mono);
+  font-size: 8px;
+  fill: var(--text-3);
+  font-variant-numeric: tabular-nums;
 }
 
 .inspector-block {

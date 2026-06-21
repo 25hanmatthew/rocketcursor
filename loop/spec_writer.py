@@ -112,6 +112,10 @@ Rules:
 - For pressure-fed LOX/kerosene/GN2 requests, set
   design_guidance.design_seed="pressure_fed_lox_kerosene" and use the seed's
   exact component names in checks.
+- For engine designs, do not create Ambient/atm/atmosphere pressure component
+  checks. Ambient pressure is an Engine design parameter (Pa), such as
+  design_guidance.fixed_constraints.engine_Pa=101325, not sampled telemetry
+  unless the design explicitly includes a real Ambient node for another reason.
 - Use SI units. Convert the user's units to SI in the check values: bar->Pa (x1e5),
   MPa->Pa (x1e6), psi->Pa (x6894.76), liters stay liters in design guidance.
 - A target "about X" or "between A and B" becomes a WINDOW: two component checks
@@ -163,6 +167,75 @@ def _ensure_check(checks: list[dict], check: dict) -> None:
         checks.append(check)
 
 
+_BLOWDOWN_COMPONENT_ALIASES = {
+    "gn2_tank": "pressurized_tank",
+    "nitrogen_tank": "pressurized_tank",
+    "pressure_tank": "pressurized_tank",
+    "tank": "pressurized_tank",
+    "ambient": "atmosphere",
+    "orifice": "vent_orifice",
+    "vent": "vent_orifice",
+}
+
+
+def _canonical_component_name(seed_name: str, name: str) -> str:
+    if seed_name in {"tank_blowdown", "pressure_window_blowdown"}:
+        return _BLOWDOWN_COMPONENT_ALIASES.get(name, name)
+    return name
+
+
+def _canonicalize_component_list(seed_name: str, values: list) -> list:
+    out = []
+    for value in values:
+        normalized = _canonical_component_name(seed_name, value) if isinstance(value, str) else value
+        if normalized not in out:
+            out.append(normalized)
+    return out
+
+
+def _canonicalize_check_components(seed_name: str, checks: list[dict]) -> list[dict]:
+    out = []
+    for check in checks:
+        item = dict(check)
+        component = item.get("component")
+        if isinstance(component, str):
+            item["component"] = _canonical_component_name(seed_name, component)
+        out.append(item)
+    return out
+
+
+def _is_atmospheric_pressure_component_check(check: dict) -> bool:
+    component = str(check.get("component", "")).lower()
+    return (
+        check.get("type") == "component"
+        and check.get("field") == "P"
+        and any(token in component for token in ("ambient", "atmosphere", "atm"))
+    )
+
+
+def drop_atmospheric_pressure_component_checks(spec: dict) -> tuple[dict, int]:
+    """Remove ambient pressure telemetry checks that engine designs cannot satisfy.
+
+    Engine ambient pressure is carried by Engine.params.Pa, not necessarily by a
+    sampled Ambient component in simulation_result.components.
+    """
+    checks = spec.get("checks", [])
+    if not isinstance(checks, list):
+        return spec, 0
+
+    next_checks = [
+        check
+        for check in checks
+        if not (isinstance(check, dict) and _is_atmospheric_pressure_component_check(check))
+    ]
+    dropped = len(checks) - len(next_checks)
+    if not dropped:
+        return spec, 0
+    out = dict(spec)
+    out["checks"] = next_checks
+    return out, dropped
+
+
 def apply_seed_guidance(spec: dict, request: str) -> dict:
     """Attach deterministic seed hints/checks to an LLM-derived spec."""
     seed_name = infer_design_seed(request)
@@ -173,8 +246,8 @@ def apply_seed_guidance(spec: dict, request: str) -> dict:
     guidance = dict(spec.get("design_guidance") or {})
     seed = DESIGN_SEEDS[seed_name]
     guidance.setdefault("design_seed", seed_name)
-    nodes = list(guidance.get("must_include_nodes") or [])
-    connections = list(guidance.get("must_include_connections") or [])
+    nodes = _canonicalize_component_list(seed_name, list(guidance.get("must_include_nodes") or []))
+    connections = _canonicalize_component_list(seed_name, list(guidance.get("must_include_connections") or []))
     tunable = list(guidance.get("tunable") or [])
     notes = list(guidance.get("notes") or [])
     _append_unique(nodes, seed.must_include_nodes)
@@ -185,9 +258,13 @@ def apply_seed_guidance(spec: dict, request: str) -> dict:
     guidance["must_include_connections"] = connections
     guidance["tunable"] = tunable
     guidance["notes"] = notes
+    if seed_name == "pressure_fed_lox_kerosene":
+        fixed_constraints = dict(guidance.get("fixed_constraints") or {})
+        fixed_constraints.setdefault("engine_Pa", 101325.0)
+        guidance["fixed_constraints"] = fixed_constraints
     spec["design_guidance"] = guidance
 
-    checks = list(spec.get("checks") or [])
+    checks = _canonicalize_check_components(seed_name, list(spec.get("checks") or []))
     _ensure_check(checks, {
         "id": "ran",
         "description": "Simulation runs without invalid configuration or solver crash.",
@@ -204,6 +281,9 @@ def apply_seed_guidance(spec: dict, request: str) -> dict:
     })
 
     if seed_name == "pressure_fed_lox_kerosene":
+        spec["checks"] = checks
+        spec, _ = drop_atmospheric_pressure_component_checks(spec)
+        checks = list(spec.get("checks") or [])
         _ensure_check(checks, {
             "id": "lox_feed_flow",
             "description": "LOX feed line delivers non-zero mass flow to the engine.",

@@ -1,24 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import {
-  Activity,
-  AlertTriangle,
-  CheckCircle2,
-  Circle,
-  Cylinder,
-  FileJson,
-  Flame,
-  Gauge,
-  MessageSquare,
-  Mic,
-  Pause,
-  Play,
-  RotateCcw,
-  Send,
-  Spline,
-  Upload,
-  Wind,
-  XCircle
-} from "lucide-react";
+import { FileJson, Gauge, MessageSquare, Mic, Pause, Play, RotateCcw, Send, Upload } from "lucide-react";
 import { PidCanvas } from "./components/PidCanvas";
 import { VoiceAgentCopilot } from "./components/VoiceAgentCopilot";
 import type { DesignChangeExtraction } from "./components/ConversationRecorder";
@@ -28,7 +9,6 @@ import { interpolateSample, numericValue, rowsByComponent, timeRange } from "./l
 import type {
   ChatHistoryItem,
   DiagramModel,
-  DiagramNode,
   DesignRunRevisionResponse,
   DesignRunStartResponse,
   DesignRunStatusResponse,
@@ -38,53 +18,8 @@ import type {
   RunResponse,
   SampleRow,
   SessionIteration,
-  SessionState,
-  StatusItem
+  SessionState
 } from "./types";
-
-const PA_PER_PSI = 6894.757293168;
-const NEWTONS_PER_LBF = 4.4482216152605;
-
-const fieldMetadata: Record<string, { label: string; unit?: string }> = {
-  time: { label: "Time", unit: "s" },
-  P: { label: "Pressure", unit: "psi" },
-  T: { label: "Temperature", unit: "F" },
-  U: { label: "Internal energy", unit: "J" },
-  h: { label: "Specific enthalpy", unit: "J/kg" },
-  d: { label: "Density", unit: "kg/m^3" },
-  m: { label: "Mass", unit: "kg" },
-  m_l: { label: "Liquid mass", unit: "kg" },
-  m_v: { label: "Vapor mass", unit: "kg" },
-  fill_level: { label: "Fill level", unit: "fraction" },
-  s: { label: "Specific entropy", unit: "J/(kg*K)" },
-  Q: { label: "Vapor quality", unit: "fraction" },
-  CdA: { label: "Effective flow area", unit: "m^2" },
-  qdot: { label: "Heat flow", unit: "J/s" },
-  state: { label: "Valve/component state", unit: "dimensionless" },
-  mdot: { label: "Mass flow", unit: "kg/s" },
-  Hdot: { label: "Enthalpy flow", unit: "J/s" },
-  dP: { label: "Pressure drop", unit: "psi" },
-  mdot_ox: { label: "Oxidizer mass flow", unit: "kg/s" },
-  mdot_fu: { label: "Fuel mass flow", unit: "kg/s" },
-  MR: { label: "Mixture ratio", unit: "dimensionless" },
-  cstar: { label: "Characteristic velocity", unit: "m/s" },
-  thrust: { label: "Thrust", unit: "lbf" },
-  Isp: { label: "Specific impulse", unit: "s" }
-};
-
-function fieldDisplayName(key: string): string {
-  const metadata = fieldMetadata[key];
-  if (!metadata) return key;
-  return metadata.unit
-    ? `${metadata.label} (${key}, ${metadata.unit})`
-    : `${metadata.label} (${key})`;
-}
-
-function fieldShortName(key: string): string {
-  const metadata = fieldMetadata[key];
-  if (!metadata) return key;
-  return metadata.unit ? `${metadata.label} (${metadata.unit})` : metadata.label;
-}
 
 function formatValue(value: unknown): string {
   if (typeof value === "number") {
@@ -95,37 +30,10 @@ function formatValue(value: unknown): string {
   return String(value);
 }
 
-function displayValue(key: string, value: unknown): string {
-  if (typeof value !== "number") return formatValue(value);
-  if (key === "P" || key === "dP") return formatValue(value / PA_PER_PSI);
-  if (key === "T") return formatValue(((value - 273.15) * 9) / 5 + 32);
-  if (key === "thrust") return formatValue(value / NEWTONS_PER_LBF);
-  return formatValue(value);
-}
-
 function selectedName(selectedId: string | null): string | null {
   return selectedId?.split(":").slice(1).join(":") ?? null;
 }
 
-/* The simulator returns status failures/warnings (and some observations) as
-   either plain strings or objects like { check, message }. Coerce to a
-   displayable string so React never receives an object as a child. */
-function messageText(item: unknown): string {
-  if (typeof item === "string") return item;
-  if (item && typeof item === "object") {
-    const obj = item as { message?: unknown; check?: unknown };
-    if (typeof obj.message === "string") return obj.message;
-    if (typeof obj.check === "string") return obj.check;
-    try {
-      return JSON.stringify(item);
-    } catch {
-      return String(item);
-    }
-  }
-  return String(item);
-}
-
-type Tone = "ok" | "warn" | "danger" | "idle";
 type InputMode = "chat" | "json" | "voice";
 
 /* Turn structured voice extraction into a plain-text requirements block so the
@@ -149,15 +57,6 @@ export function changesToRequirements(extraction: DesignChangeExtraction): strin
 }
 type ActivityTone = "done" | "current" | "upcoming" | "danger";
 type ChatTarget = { kind: "revision"; url: string; iteration: number } | { kind: "new"; url: string };
-
-function StatusBadge({ tone, label }: { tone: Tone; label: string }) {
-  return (
-    <span className={`status-badge tone-${tone}`}>
-      <span className="dot" />
-      {label}
-    </span>
-  );
-}
 
 function stageLabel(stage: string): string {
   if (stage === "requirements") return "Understanding request";
@@ -264,13 +163,6 @@ function activitySteps(state: SessionState | null): Array<{ key: string; label: 
   return steps;
 }
 
-function NodeGlyph({ type }: { type: DiagramNode["type"] }) {
-  if (type === "Tank") return <Cylinder size={14} />;
-  if (type === "Engine") return <Flame size={14} />;
-  if (type === "Ambient") return <Wind size={14} />;
-  return <Circle size={14} />;
-}
-
 export function loadedIterationForSession(key: string | null, sessionId: string | null): number | null {
   if (!key || !sessionId || !key.startsWith(`${sessionId}:`)) return null;
   const value = Number(key.split(":")[1]);
@@ -368,19 +260,22 @@ export function updateRunStatusChatItem(history: ChatHistoryItem[], sessionId: s
 }
 
 export function ChatTranscript({ items }: { items: ChatHistoryItem[] }) {
-  if (items.length === 0) return null;
   return (
     <div className="chat-history" aria-label="Chat history">
-      {items.map((item) => (
-        <div key={item.id} className={`chat-message role-${item.role} status-${item.status ?? "idle"}`}>
-          <div className="chat-message-meta">
-            <span>{item.role === "user" ? "You" : "Design loop"}</span>
-            {item.kind === "revision" && <span>Revision</span>}
-            {item.status && <span>{item.status}</span>}
+      {items.length === 0 ? (
+        <div className="chat-empty">Messages will appear here.</div>
+      ) : (
+        items.map((item) => (
+          <div key={item.id} className={`chat-message role-${item.role} status-${item.status ?? "idle"}`}>
+            <div className="chat-message-meta">
+              <span>{item.role === "user" ? "You" : "Design loop"}</span>
+              {item.kind === "revision" && <span>Revision</span>}
+              {item.status && <span>{item.status}</span>}
+            </div>
+            <div className="chat-message-text">{item.text}</div>
           </div>
-          <div className="chat-message-text">{item.text}</div>
-        </div>
-      ))}
+        ))
+      )}
     </div>
   );
 }
@@ -694,8 +589,6 @@ export default function App() {
     : undefined;
   const selectedFillLevel = selectedNode?.type === "Tank" ? numericValue(selectedSample, "fill_level") : undefined;
 
-  const latestIteration = designState?.iterations?.[designState.iterations.length - 1];
-  const latestVerdict = latestIteration?.verdict;
   // Per-node pass/fail status for the currently-displayed iteration, so the P&ID
   // colors the components that fail (red) or warn (yellow). Match the iteration
   // whose artifacts are loaded into the diagram; fall back to the latest evaluated.
@@ -723,28 +616,6 @@ export default function App() {
           tone: "current" as ActivityTone
         }
       ];
-  const statusTone: Tone = designState?.status === "error"
-    ? "danger"
-    : designState?.status === "running"
-    ? "warn"
-    : report?.status?.passed || designState?.passed
-    ? "ok"
-    : report || designState
-    ? "warn"
-    : "idle";
-  const statusLabel = designState?.status === "error"
-    ? "Error"
-    : designState?.status === "running"
-    ? `${designState.stage} ${designState.current_iteration >= 0 ? `#${designState.current_iteration}` : ""}`.trim()
-    : report?.status?.passed || designState?.passed
-    ? "Nominal"
-    : report || designState
-    ? "Review"
-    : "Idle";
-  const observations = report?.interpretation?.important_observations ?? [];
-  const failures = report?.status?.failures ?? [];
-  const warnings = report?.status?.warnings ?? [];
-
   const timeSpan = range.max - range.min;
   const timePct = timeSpan > 0 ? ((time - range.min) / timeSpan) * 100 : 0;
   const scrubberStyle = {
@@ -845,147 +716,6 @@ export default function App() {
 
         {error && <pre className="error-box">{error}</pre>}
 
-        {designState && (
-          <div className="loop-card">
-            <div className="status-card-head">
-              <span className="label">Design loop</span>
-              <StatusBadge tone={statusTone} label={statusLabel} />
-            </div>
-            <div className="loop-body">
-              <div className="loop-request">{designState.request}</div>
-              <div className="loop-meta">
-                <span>{loopActivity || `Stage: ${designState.stage}`}</span>
-                <span>Iterations: {designState.iterations.length}</span>
-              </div>
-              <div className="activity-timeline" aria-label="Design loop progress">
-                {loopSteps.map((step) => (
-                  <div key={step.key} className={`activity-step tone-${step.tone}`}>
-                    <span className="activity-dot" />
-                    <div>
-                      <strong>{step.label}</strong>
-                      <span>{step.detail}</span>
-                    </div>
-                  </div>
-                ))}
-              </div>
-              {latestVerdict && (
-                <div className="loop-verdict">
-                  <strong>{latestVerdict.summary}</strong>
-                  <div className="checks-list compact">
-                    {latestVerdict.checks.map((check) => (
-                      <div key={check.id} className={`check-chip ${check.passed ? "tone-ok" : "tone-danger"}`}>
-                        {check.passed ? <CheckCircle2 size={14} /> : <XCircle size={14} />}
-                        <span>
-                          {check.id}: {check.passed ? "passed" : `actual ${formatValue(check.actual)}`}
-                        </span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-              {latestIteration?.decision && !latestVerdict?.passed && (
-                <div className="decision-note">{latestIteration.decision.reason}</div>
-              )}
-              {designState.error && <div className="decision-note tone-danger">{designState.error}</div>}
-            </div>
-          </div>
-        )}
-
-        <div className="status-card">
-          <div className="status-card-head">
-            <span className="label">Run summary</span>
-            <StatusBadge tone={statusTone} label={statusLabel} />
-          </div>
-          <div className="run-metrics">
-            <div className="metric">
-              <span>Duration</span>
-              <strong>{report ? `${formatValue(report.duration)} s` : "—"}</strong>
-            </div>
-            <div className="metric">
-              <span>Time step</span>
-              <strong>{report ? `${formatValue(report.dt)} s` : "—"}</strong>
-            </div>
-            <div className="metric">
-              <span>Nodes</span>
-              <strong>{config ? config.nodes.length : "—"}</strong>
-            </div>
-            <div className="metric">
-              <span>Connections</span>
-              <strong>{config ? config.connections.length : "—"}</strong>
-            </div>
-          </div>
-        </div>
-
-        {report && (failures.length > 0 || warnings.length > 0) && (
-          <div>
-            <h2 className="section-label">
-              <Activity size={13} /> System checks
-            </h2>
-            <div className="checks-list">
-              {failures.map((item, index) => (
-                <div key={`fail-${index}`} className="check-chip tone-danger">
-                  <XCircle size={14} />
-                  <span>{messageText(item)}</span>
-                </div>
-              ))}
-              {warnings.map((item, index) => (
-                <div key={`warn-${index}`} className="check-chip tone-warn">
-                  <AlertTriangle size={14} />
-                  <span>{messageText(item)}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {report && failures.length === 0 && warnings.length === 0 && (
-          <div className="check-chip tone-ok">
-            <CheckCircle2 size={14} />
-            <span>All status checks passed.</span>
-          </div>
-        )}
-
-        {diagram && (diagram.nodes.length > 0 || diagram.connections.length > 0) && (
-          <div className="component-group">
-            <h2 className="section-label">
-              Nodes <span className="count">{diagram.nodes.length}</span>
-            </h2>
-            <div className="component-list">
-              {diagram.nodes.map((node) => (
-                <button
-                  key={node.id}
-                  className={selectedId === `node:${node.name}` ? "selected" : ""}
-                  onClick={() => setSelectedId(`node:${node.name}`)}
-                >
-                  <span className="glyph">
-                    <NodeGlyph type={node.type} />
-                  </span>
-                  <span className="name">{node.name}</span>
-                  <span className="tag">{node.type}</span>
-                </button>
-              ))}
-            </div>
-
-            <h2 className="section-label" style={{ marginTop: "var(--sp-4)" }}>
-              Connections <span className="count">{diagram.connections.length}</span>
-            </h2>
-            <div className="component-list">
-              {diagram.connections.map((connection) => (
-                <button
-                  key={connection.id}
-                  className={selectedId === `connection:${connection.name}` ? "selected" : ""}
-                  onClick={() => setSelectedId(`connection:${connection.name}`)}
-                >
-                  <span className="glyph">
-                    <Spline size={14} />
-                  </span>
-                  <span className="name">{connection.name}</span>
-                  <span className="tag">{connection.type}</span>
-                </button>
-              ))}
-            </div>
-          </div>
-        )}
       </aside>
 
       <main className="workspace">
@@ -1100,39 +830,7 @@ export default function App() {
 
         <div className="inspector-block">
           <h2 className="section-label">Live telemetry</h2>
-          {selectedSample ? (
-            <dl className="stat-grid">
-              {Object.entries(selectedSample)
-                .filter(([key]) => !["component", "kind"].includes(key))
-                .map(([key, value]) => (
-                  <div key={key} className="stat-tile">
-                    <dt title={fieldDisplayName(key)}>{fieldShortName(key)}</dt>
-                    <dd>{displayValue(key, value)}</dd>
-                  </div>
-                ))}
-            </dl>
-          ) : (
-            <div className="inspector-empty">Select a component to inspect its telemetry.</div>
-          )}
-        </div>
-
-        {selectedSample && isConnection && (
-          <div className="flow-note">
-            <span>
-              Flow animation is a qualitative indicator. Current mass flow:{" "}
-              <strong>{formatValue(numericValue(selectedSample, "mdot"))} kg/s</strong>.
-            </span>
-          </div>
-        )}
-
-        <div className="inspector-block">
-          <h2 className="section-label">Observations</h2>
-          <ul className="observations">
-            {observations.length === 0 && <li className="empty">No run observations loaded.</li>}
-            {observations.map((item, index) => (
-              <li key={index}>{messageText(item)}</li>
-            ))}
-          </ul>
+          <TelemetryPlots rows={selectedRows} currentSample={selectedSample} time={time} />
         </div>
       </aside>
 

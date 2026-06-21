@@ -17,7 +17,7 @@ from loop.agent import _load_dotenv, run_loop
 from loop.monitoring import capture as sentry_capture
 from loop.monitoring import init_sentry
 from loop.session_state import FileSessionStore, new_state
-from loop.spec_writer import nl_to_spec, revise_spec
+from loop.spec_writer import drop_atmospheric_pressure_component_checks, nl_to_spec, revise_spec
 
 # Initialize Sentry BEFORE the FastAPI app is created so it auto-instruments
 # every route + middleware. Guarded: no-op without SENTRY_DSN.
@@ -40,7 +40,6 @@ ALLOWED_ARTIFACTS = {
 }
 ALLOWED_DESIGN_ARTIFACTS = ALLOWED_ARTIFACTS | {"design.json", "simulation_result.json"}
 DESIGN_MAX_ITERS = int(os.environ.get("UI_DESIGN_MAX_ITERS", "8"))
-ATMOSPHERIC_PRESSURE_TOLERANCE_PA = 100.0
 
 
 class DesignRunRequest(BaseModel):
@@ -126,67 +125,6 @@ def _resolve_design_spec(message: str) -> tuple[dict, str]:
     if not isinstance(spec, dict) or "name" not in spec or "checks" not in spec:
         raise ValueError("resolved spec must be a JSON object with 'name' and 'checks'")
     return spec, source
-
-
-def _is_atmospheric_pressure_equality_check(check: dict) -> bool:
-    component = str(check.get("component", "")).lower()
-    value = check.get("value")
-    try:
-        pressure = float(value)
-    except (TypeError, ValueError):
-        return False
-    return (
-        check.get("type") == "component"
-        and check.get("field") == "P"
-        and check.get("op") == "=="
-        and 90_000.0 <= pressure <= 120_000.0
-        and any(token in component for token in ("ambient", "atmosphere", "atm"))
-    )
-
-
-def _loosen_atmospheric_pressure_checks(spec: dict) -> tuple[dict, int]:
-    checks = spec.get("checks", [])
-    if not isinstance(checks, list):
-        return spec, 0
-
-    next_checks = []
-    changed = 0
-    for check in checks:
-        if not isinstance(check, dict) or not _is_atmospheric_pressure_equality_check(check):
-            next_checks.append(check)
-            continue
-
-        changed += 1
-        pressure = float(check["value"])
-        base_id = check.get("id", "ambient_pressure")
-        description = check.get("description", "Ambient pressure stays near atmospheric pressure")
-        common = {
-            "type": "component",
-            "component": check["component"],
-            "field": "P",
-            "stat": check.get("stat", "final"),
-        }
-        next_checks.extend([
-            {
-                **common,
-                "id": f"{base_id}_min",
-                "description": f"{description} (within +/- {ATMOSPHERIC_PRESSURE_TOLERANCE_PA:g} Pa lower bound)",
-                "op": ">=",
-                "value": pressure - ATMOSPHERIC_PRESSURE_TOLERANCE_PA,
-            },
-            {
-                **common,
-                "id": f"{base_id}_max",
-                "description": f"{description} (within +/- {ATMOSPHERIC_PRESSURE_TOLERANCE_PA:g} Pa upper bound)",
-                "op": "<=",
-                "value": pressure + ATMOSPHERIC_PRESSURE_TOLERANCE_PA,
-            },
-        ])
-
-    if changed:
-        spec = dict(spec)
-        spec["checks"] = next_checks
-    return spec, changed
 
 
 def _available_specs() -> set[str]:
@@ -307,7 +245,7 @@ def _run_design_loop_background(session_id: str, message: str) -> None:
     try:
         _design_log(session_id, "resolving request into a requirements spec")
         spec, source = _resolve_design_spec(message)
-        spec, loosened_checks = _loosen_atmospheric_pressure_checks(spec)
+        spec, dropped_checks = drop_atmospheric_pressure_component_checks(spec)
         original_name = spec.get("name", "design_request")
         spec = dict(spec)
         spec["name"] = _safe_spec_name(str(original_name), session_id)
@@ -315,8 +253,8 @@ def _run_design_loop_background(session_id: str, message: str) -> None:
         spec_path.write_text(json.dumps(spec, indent=2), encoding="utf-8")
         loop_run_root = LOOP_RUN_ROOT / spec["name"]
         _design_log(session_id, f"spec ready ({source}): {spec['name']}")
-        if loosened_checks:
-            _design_log(session_id, f"loosened {loosened_checks} exact ambient pressure check(s)")
+        if dropped_checks:
+            _design_log(session_id, f"dropped {dropped_checks} ambient pressure telemetry check(s)")
         _write_manifest(session_dir, {
             "status": "running",
             "source": source,
@@ -355,7 +293,7 @@ def _run_design_revision_background(session_id: str, parent_session_id: str, mes
             revision["base_design"],
             revision["base_report"],
         )
-        spec, loosened_checks = _loosen_atmospheric_pressure_checks(spec)
+        spec, dropped_checks = drop_atmospheric_pressure_component_checks(spec)
         original_name = spec.get("name") or f"{revision['parent_spec'].get('name', 'design_request')}_revision"
         spec = dict(spec)
         spec["name"] = _safe_spec_name(str(original_name), session_id)
@@ -375,8 +313,8 @@ def _run_design_revision_background(session_id: str, parent_session_id: str, mes
             "revision_of_spec": str(revision["parent_spec_path"]),
             "started_at": time.time(),
         })
-        if loosened_checks:
-            _design_log(session_id, f"loosened {loosened_checks} exact ambient pressure check(s)")
+        if dropped_checks:
+            _design_log(session_id, f"dropped {dropped_checks} ambient pressure telemetry check(s)")
 
         revision_context = {
             "message": message,

@@ -327,6 +327,120 @@ class TestSpecWriterSeeds(unittest.TestCase):
         self.assertEqual(checks["lox_feed_flow"]["stat"], "nonzero_count")
         self.assertEqual(checks["kerosene_feed_flow"]["component"], "kerosene_feed_line")
 
+    def test_pressure_fed_seed_drops_ambient_pressure_checks_only(self):
+        from loop.spec_writer import apply_seed_guidance
+
+        spec = {
+            "name": "s",
+            "description": "d",
+            "checks": [
+                {
+                    "id": "atm_pressure_min",
+                    "description": "ambient pressure lower bound",
+                    "type": "component",
+                    "component": "atmosphere",
+                    "field": "P",
+                    "stat": "final",
+                    "op": ">=",
+                    "value": 101225,
+                },
+                {
+                    "id": "atm_pressure_max",
+                    "description": "ambient pressure upper bound",
+                    "type": "component",
+                    "component": "atm",
+                    "field": "P",
+                    "stat": "final",
+                    "op": "<=",
+                    "value": 101425,
+                },
+                {
+                    "id": "lox_tank_pressure",
+                    "description": "LOX tank pressure remains positive",
+                    "type": "component",
+                    "component": "lox_tank",
+                    "field": "P",
+                    "stat": "min",
+                    "op": ">",
+                    "value": 101325,
+                },
+                {
+                    "id": "thrust_max",
+                    "description": "Engine thrust stays below target upper bound",
+                    "type": "component",
+                    "component": "engine",
+                    "field": "thrust",
+                    "stat": "final",
+                    "op": "<=",
+                    "value": 1223,
+                },
+            ],
+        }
+
+        out = apply_seed_guidance(
+            spec,
+            "Design a pressure fed LOX and kerosene system with GN2 pressurant and a thrust target",
+        )
+
+        checks = {check["id"]: check for check in out["checks"]}
+        self.assertNotIn("atm_pressure_min", checks)
+        self.assertNotIn("atm_pressure_max", checks)
+        self.assertEqual(checks["lox_tank_pressure"]["component"], "lox_tank")
+        self.assertEqual(checks["thrust_max"]["component"], "engine")
+        self.assertEqual(out["design_guidance"]["fixed_constraints"]["engine_Pa"], 101325.0)
+
+    def test_spec_writer_prompt_blocks_engine_ambient_pressure_checks(self):
+        from loop.spec_writer import SPEC_WRITER_SYSTEM
+
+        self.assertIn("do not create Ambient/atm/atmosphere pressure component", SPEC_WRITER_SYSTEM)
+        self.assertIn("Engine design parameter", SPEC_WRITER_SYSTEM)
+
+    def test_blowdown_seed_normalizes_duplicate_alias_names(self):
+        from loop.spec_writer import apply_seed_guidance
+
+        spec = {
+            "name": "s",
+            "description": "d",
+            "design_guidance": {
+                "must_include_nodes": ["gn2_tank", "ambient"],
+                "must_include_connections": ["orifice"],
+            },
+            "checks": [
+                {
+                    "id": "ambient_pressure",
+                    "description": "ambient pressure",
+                    "type": "component",
+                    "component": "ambient",
+                    "field": "P",
+                    "stat": "final",
+                    "op": ">=",
+                    "value": 101225,
+                },
+                {
+                    "id": "orifice_flow",
+                    "description": "orifice flow",
+                    "type": "component",
+                    "component": "orifice",
+                    "field": "mdot",
+                    "stat": "nonzero_count",
+                    "op": ">",
+                    "value": 0,
+                },
+            ],
+        }
+
+        out = apply_seed_guidance(
+            spec,
+            "design a simple gaseous nitrogen node venting to ambient through an orifice",
+        )
+
+        self.assertEqual(out["design_guidance"]["design_seed"], "tank_blowdown")
+        self.assertEqual(out["design_guidance"]["must_include_nodes"], ["pressurized_tank", "atmosphere"])
+        self.assertEqual(out["design_guidance"]["must_include_connections"], ["vent_orifice"])
+        checks = {check["id"]: check for check in out["checks"]}
+        self.assertEqual(checks["ambient_pressure"]["component"], "atmosphere")
+        self.assertEqual(checks["orifice_flow"]["component"], "vent_orifice")
+
     def test_revise_spec_prompt_preserves_existing_checks(self):
         from unittest import mock
 
@@ -390,6 +504,14 @@ class TestAgentPrompt(unittest.TestCase):
         self.assertNotIn("AGENT_JSON_BEST_PRACTICES.md", SYSTEM_PROMPT)
         self.assertIn("optional x/y coordinates", SYSTEM_PROMPT)
         self.assertIn("top-down", SYSTEM_PROMPT)
+
+    def test_design_prompt_explains_thrust_tuning(self):
+        from loop.agent import SYSTEM_PROMPT
+
+        prompt = SYSTEM_PROMPT.lower()
+        self.assertIn("if thrust is too high", prompt)
+        self.assertIn("if thrust is too low", prompt)
+        self.assertIn("Preserve the oxidizer/fuel CdA ratio", SYSTEM_PROMPT)
 
     def test_first_prompt_includes_seed_design_when_present(self):
         from loop.agent import _first_user_message

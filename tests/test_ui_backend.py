@@ -175,19 +175,29 @@ class UiBackendTests(unittest.TestCase):
         self.assertEqual(artifact.json()["nodes"][0]["params"]["name"], "tank")
 
     @mock.patch("ui.backend.app.run_loop", side_effect=_fake_loop_run)
-    def test_design_run_loosen_exact_ambient_pressure_check(self, _run_loop):
+    def test_design_run_drops_ambient_pressure_checks(self, _run_loop):
         spec = {
             "name": "ambient_exact",
             "checks": [
                 {
-                    "id": "ambient_pressure",
+                    "id": "ambient_pressure_min",
                     "description": "Ambient node must be at atmospheric pressure",
                     "type": "component",
                     "component": "ambient",
                     "field": "P",
                     "stat": "final",
-                    "op": "==",
-                    "value": 101325.0,
+                    "op": ">=",
+                    "value": 101225.0,
+                },
+                {
+                    "id": "thrust_max",
+                    "description": "Engine thrust upper bound",
+                    "type": "component",
+                    "component": "engine",
+                    "field": "thrust",
+                    "stat": "final",
+                    "op": "<=",
+                    "value": 1223.0,
                 }
             ],
         }
@@ -202,11 +212,8 @@ class UiBackendTests(unittest.TestCase):
         )
         materialized = json.loads(Path(status["manifest"]["spec_path"]).read_text(encoding="utf-8"))
         checks = {check["id"]: check for check in materialized["checks"]}
-        self.assertNotIn("ambient_pressure", checks)
-        self.assertEqual(checks["ambient_pressure_min"]["op"], ">=")
-        self.assertEqual(checks["ambient_pressure_min"]["value"], 101225.0)
-        self.assertEqual(checks["ambient_pressure_max"]["op"], "<=")
-        self.assertEqual(checks["ambient_pressure_max"]["value"], 101425.0)
+        self.assertNotIn("ambient_pressure_min", checks)
+        self.assertEqual(checks["thrust_max"]["component"], "engine")
 
     @mock.patch("ui.backend.app.run_loop", side_effect=_fake_loop_run)
     @mock.patch("ui.backend.app.nl_to_spec")

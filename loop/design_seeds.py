@@ -37,6 +37,9 @@ DESIGN_SEEDS: dict[str, DesignSeed] = {
         notes=(
             "Preserve the Engine node and the two feed Series connections into it.",
             "Tune feed CdA values before changing topology.",
+            "If thrust is high, reduce both LOX and fuel feed/injector CdA values together.",
+            "If thrust is low, increase both LOX and fuel feed/injector CdA values together.",
+            "Preserve LOX/fuel CdA ratio when only thrust is wrong; change ratio only for MR or balance errors.",
             "If physical warnings mention a component, fix that component first.",
         ),
     ),
