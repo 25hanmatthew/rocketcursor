@@ -29,3 +29,4 @@ skills-lock.json
 node_modules/
 ui/frontend/.vite/
 .DS_Store
+*.log
