@@ -108,14 +108,17 @@ def node_status_from_verdict(result: dict, verdict_dict: dict) -> dict[str, str]
 
 
 def iteration_view(iteration: int, design: dict, result: dict, verdict_dict: dict) -> dict[str, Any]:
+    # Keep this SMALL. The full design JSON and per-component stats are already on
+    # disk per iteration (design.json / *_summary.json / report.json) and the UI
+    # reads them from there via latest_playable -- duplicating them here bloated
+    # session_state.json to thousands of lines. We keep only what the UI reads
+    # straight from state: the verdict checklist, the per-node status (for diagram
+    # coloring), and the run status.
     return {
         "iteration": iteration,
         "status": result.get("status"),
-        "design": design,                                   # React Flow nodes/edges source
-        "components": result.get("components", {}),          # sidebar numbers
-        "node_status": node_status_from_verdict(result, verdict_dict),
-        "verdict": verdict_dict,                             # checklist pass/fail
-        "warnings": result.get("warnings", []),
+        "node_status": node_status_from_verdict(result, verdict_dict),  # diagram coloring
+        "verdict": verdict_dict,                                        # checklist pass/fail
     }
 
 

@@ -68,9 +68,15 @@ export interface SessionCheckResult {
   detail?: string;
 }
 
+export type NodeStatus = "green" | "red" | "yellow" | string;
+
 export interface SessionIteration {
   iteration: number;
   status?: string;
+  /* Per-component pass/fail status for diagram coloring: green = ok,
+     red = a failed check references it, yellow = a solver warning references it.
+     Keyed by component name. */
+  node_status?: Record<string, NodeStatus>;
   verdict?: {
     passed: boolean;
     summary: string;

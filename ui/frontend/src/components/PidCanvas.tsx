@@ -12,7 +12,27 @@ interface PidCanvasProps {
   time: number;
   phase: number;
   showPartLabels?: boolean;
+  /* Per-component status from the loop's verdict (name -> green/red/yellow).
+     Drawn as the node outline ring so failing components stand out. */
+  nodeStatus?: Record<string, string>;
   onSelect: (id: string) => void;
+}
+
+/* Outline-ring color for a component's verdict status. Distinct from the
+   metric-based body tint above. */
+const STATUS_RING: Record<string, string> = {
+  red: "#ef4444",
+  yellow: "#f59e0b",
+  green: "#34d399"
+};
+
+function statusStroke(status: string | undefined, selected: boolean): { stroke: string; width: number } | null {
+  if (selected || !status) return null;
+  const color = STATUS_RING[status];
+  // Only emphasize problems; "green" keeps the default neutral stroke to avoid
+  // a wall of green that drowns out the components that actually need attention.
+  if (!color || status === "green") return null;
+  return { stroke: color, width: 3 };
 }
 
 /* Visual-only body tint for a node, derived from the displayed metric value.
@@ -106,6 +126,7 @@ function NodeSymbol({
   metric,
   phase,
   showPartLabels,
+  status,
   onSelect
 }: {
   node: DiagramNode;
@@ -114,11 +135,14 @@ function NodeSymbol({
   metric: string;
   phase: number;
   showPartLabels: boolean;
+  status?: string;
   onSelect: (id: string) => void;
 }) {
   const value = numericValue(sample, metric);
   const fill = nodeColor(value, metric);
-  const stroke = selected ? COLOR_SELECTED : COLOR_STROKE;
+  const statusRing = statusStroke(status, selected);
+  const stroke = selected ? COLOR_SELECTED : statusRing ? statusRing.stroke : COLOR_STROKE;
+  const strokeWidth = selected ? 3 : statusRing ? statusRing.width : 2;
   const nodeKey = `node:${node.name}`;
   const pressureLabel = pressurePsi(numericValue(sample, "P"));
   const temperatureLabel = temperatureF(numericValue(sample, "T"));
@@ -170,7 +194,7 @@ function NodeSymbol({
           d={enginePath}
           fill="url(#engine-grad)"
           stroke={stroke}
-          strokeWidth={selected ? 3 : 2}
+          strokeWidth={strokeWidth}
         />
         {/* injector / chamber band */}
         <line x1={x - 22} y1={y - 8} x2={x + 22} y2={y - 8} stroke="#46556a" strokeWidth={1.6} />
@@ -215,7 +239,7 @@ function NodeSymbol({
           rx={28}
           fill="url(#tank-body-grad)"
           stroke={stroke}
-          strokeWidth={selected ? 3 : 2}
+          strokeWidth={strokeWidth}
         />
         <clipPath id={`tank-clip-${node.id}`}>
           <rect x={node.x - 38} y={node.y - 56} width={76} height={112} rx={24} />
@@ -269,7 +293,7 @@ function NodeSymbol({
         rx={10}
         fill={fill}
         stroke={stroke}
-        strokeWidth={selected ? 3 : 2}
+        strokeWidth={strokeWidth}
       />
       <foreignObject x={node.x - 11} y={node.y - 22} width={22} height={22}>
         <div className="node-icon"><SymbolIcon type={node.type} /></div>
@@ -411,6 +435,7 @@ export function PidCanvas({
   time,
   phase,
   showPartLabels = false,
+  nodeStatus,
   onSelect
 }: PidCanvasProps) {
   const svgRef = useRef<SVGSVGElement>(null);
@@ -685,6 +710,7 @@ export function PidCanvas({
             metric={metric}
             phase={phase}
             showPartLabels={showPartLabels}
+            status={nodeStatus?.[node.name]}
             onSelect={onSelect}
           />
         ))}

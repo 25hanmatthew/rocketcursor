@@ -464,6 +464,21 @@ export default function App() {
 
   const latestIteration = designState?.iterations?.[designState.iterations.length - 1];
   const latestVerdict = latestIteration?.verdict;
+  // Per-node pass/fail status for the currently-displayed iteration, so the P&ID
+  // colors the components that fail (red) or warn (yellow). Match the iteration
+  // whose artifacts are loaded into the diagram; fall back to the latest evaluated.
+  const diagramNodeStatus = useMemo(() => {
+    const iters = designState?.iterations ?? [];
+    if (iters.length === 0) return undefined;
+    const loadedIteration = latestLoadedDesignKey
+      ? Number(latestLoadedDesignKey.split(":")[1])
+      : undefined;
+    const match =
+      (loadedIteration !== undefined
+        ? iters.find((it) => it.iteration === loadedIteration)
+        : undefined) ?? [...iters].reverse().find((it) => it.node_status);
+    return match?.node_status;
+  }, [designState, latestLoadedDesignKey]);
   const loopActivity = currentActivity(designState);
   const loopSteps = activitySteps(designState);
   const statusTone: Tone = designState?.status === "error"
@@ -750,6 +765,7 @@ export default function App() {
             time={time}
             phase={phase}
             showPartLabels={showPartLabels}
+            nodeStatus={diagramNodeStatus}
             onSelect={setSelectedId}
           />
         </div>
