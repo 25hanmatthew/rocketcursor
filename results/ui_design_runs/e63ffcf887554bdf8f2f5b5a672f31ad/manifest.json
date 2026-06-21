@@ -1,0 +1,13 @@
+{
+  "session_id": "e63ffcf887554bdf8f2f5b5a672f31ad",
+  "request": "Design a simple pressure fed fluid system with a rocket engine that uses kerosene and lox as the propellants and nitrogen as the pressurant gas.",
+  "status": "completed",
+  "created_at": 1782002114.561567,
+  "source": "natural_language",
+  "original_spec_name": "pressure_fed_lox_kerosene_system",
+  "spec_name": "pressure_fed_lox_kerosene_system_e63ffcf8",
+  "spec_path": "C:\\Users\\25han\\OneDrive\\Documents\\GitHub\\rocketcursor\\results\\ui_design_runs\\e63ffcf887554bdf8f2f5b5a672f31ad\\spec.json",
+  "loop_run_root": "C:\\Users\\25han\\OneDrive\\Documents\\GitHub\\rocketcursor\\results\\loop_runs\\pressure_fed_lox_kerosene_system_e63ffcf8",
+  "started_at": 1782002124.4446502,
+  "completed_at": 1782002205.597624
+}

@@ -1,0 +1,1874 @@
+{
+  "session_id": "6d2b99a6304e4f3aa10dd80381635f03",
+  "request": "Design a simple pressure fed system using lox and kerosene as the propellants, gaseous nitrogen as the pressuran gas.",
+  "provider": "asi1",
+  "model": "asi1",
+  "status": "running",
+  "stage": "evaluate",
+  "requirements": {
+    "name": "lox_kerosene_pressure_fed_6d2b99a6",
+    "description": "Design a simple pressure-fed rocket feed system using liquid oxygen (LOX) and kerosene (RP-1) as propellants, with gaseous nitrogen as the pressurant gas. The system must include: (1) a nitrogen pressurant tank, (2) a LOX tank, (3) a kerosene tank, (4) nitrogen-to-LOX pressurization line, (5) nitrogen-to-kerosene pressurization line, (6) LOX feed line to injector, and (7) kerosene feed line to injector. FIXED quantities: propellants (LOX and kerosene), pressurant (gaseous nitrogen). TUNABLE quantities: tank pressures, tank volumes, line sizes, flow rates, and all component dimensions. The system must establish stable flow of both propellants without nonphysical warnings.",
+    "design_guidance": {
+      "must_include_nodes": [
+        "nitrogen_tank",
+        "lox_tank",
+        "kerosene_tank",
+        "lox_injector",
+        "kerosene_injector"
+      ],
+      "must_include_connections": [
+        "n2_to_lox_press",
+        "n2_to_kerosene_press",
+        "lox_feed",
+        "kerosene_feed"
+      ],
+      "fixed_constraints": {
+        "pressurant": "gaseous nitrogen",
+        "oxidizer": "liquid oxygen (LOX)",
+        "fuel": "kerosene (RP-1)"
+      },
+      "tunable": [
+        "nitrogen_tank_pressure",
+        "nitrogen_tank_volume",
+        "lox_tank_pressure",
+        "lox_tank_volume",
+        "kerosene_tank_pressure",
+        "kerosene_tank_volume",
+        "pressurization_line_diameters",
+        "feed_line_diameters",
+        "flow_rates"
+      ],
+      "notes": [
+        "System is pressure-fed - no turbopumps required",
+        "Nitrogen pressurizes both propellant tanks to drive flow",
+        "Ensure LOX and kerosene tanks maintain sufficient pressure for flow",
+        "LOX density ~1141 kg/m\u00b3 at cryogenic conditions",
+        "Kerosene density ~810 kg/m\u00b3 at room temperature",
+        "Nitrogen is gaseous pressurant at ambient or elevated temperature"
+      ]
+    },
+    "checks": [
+      {
+        "id": "ran",
+        "description": "Simulation must complete without crashing or invalid configuration",
+        "target": "status",
+        "op": "==",
+        "value": "ok"
+      },
+      {
+        "id": "flow_happens",
+        "description": "System must establish non-zero mass flow through propellant lines",
+        "target": "has_nonzero_flow",
+        "op": "==",
+        "value": true
+      },
+      {
+        "id": "physical",
+        "description": "No nonphysical or degenerate warnings during simulation",
+        "target": "no_warnings",
+        "op": "==",
+        "value": true
+      },
+      {
+        "id": "nitrogen_tank_pressure_positive",
+        "description": "Nitrogen tank must start with positive pressure (>1 bar absolute)",
+        "target": "nitrogen_tank.first",
+        "op": ">",
+        "value": 100000.0
+      },
+      {
+        "id": "lox_tank_pressure_positive",
+        "description": "LOX tank must start with positive pressure (>1 bar absolute)",
+        "target": "lox_tank.first",
+        "op": ">",
+        "value": 100000.0
+      },
+      {
+        "id": "kerosene_tank_pressure_positive",
+        "description": "Kerosene tank must start with positive pressure (>1 bar absolute)",
+        "target": "kerosene_tank.first",
+        "op": ">",
+        "value": 100000.0
+      },
+      {
+        "id": "lox_feed_flow",
+        "description": "LOX feed line must have non-zero mass flow",
+        "target": "lox_feed.max",
+        "op": ">",
+        "value": 0.0
+      },
+      {
+        "id": "kerosene_feed_flow",
+        "description": "Kerosene feed line must have non-zero mass flow",
+        "target": "kerosene_feed.max",
+        "op": ">",
+        "value": 0.0
+      },
+      {
+        "id": "lox_mass_depletes",
+        "description": "LOX tank mass must decrease (propellant consumed)",
+        "target": "lox_tank.delta",
+        "op": "<",
+        "value": 0.0
+      },
+      {
+        "id": "kerosene_mass_depletes",
+        "description": "Kerosene tank mass must decrease (propellant consumed)",
+        "target": "kerosene_tank.delta",
+        "op": "<",
+        "value": 0.0
+      },
+      {
+        "id": "nitrogen_mass_depletes",
+        "description": "Nitrogen tank mass must decrease (pressurant consumed)",
+        "target": "nitrogen_tank.delta",
+        "op": "<",
+        "value": 0.0
+      },
+      {
+        "id": "simulation_duration",
+        "description": "Simulation must run for at least 1 second to establish flow",
+        "target": "duration",
+        "op": ">=",
+        "value": 1.0
+      }
+    ]
+  },
+  "current_iteration": 2,
+  "iterations": [
+    {
+      "iteration": 0,
+      "status": "invalid_config",
+      "design": {
+        "settings": {
+          "duration": 5.0,
+          "dt": 0.001
+        },
+        "nodes": [
+          {
+            "id": 1,
+            "type": "Tank",
+            "params": {
+              "fluid": "Nitrogen",
+              "P": 5000000,
+              "V": 100,
+              "T": 300,
+              "name": "nitrogen_tank"
+            }
+          },
+          {
+            "id": 2,
+            "type": "Tank",
+            "params": {
+              "fluid": "Oxygen",
+              "P": 3500000,
+              "V": 200,
+              "T": 90,
+              "name": "lox_tank"
+            }
+          },
+          {
+            "id": 3,
+            "type": "Tank",
+            "params": {
+              "fluid": "Kerosene",
+              "P": 3500000,
+              "V": 120,
+              "T": 300,
+              "name": "kerosene_tank"
+            }
+          },
+          {
+            "id": 4,
+            "type": "Node",
+            "params": {
+              "fluid": "Oxygen",
+              "P": 100000,
+              "V": 0.5,
+              "T": 90,
+              "name": "lox_injector"
+            }
+          },
+          {
+            "id": 5,
+            "type": "Node",
+            "params": {
+              "fluid": "Kerosene",
+              "P": 100000,
+              "V": 0.5,
+              "T": 300,
+              "name": "kerosene_injector"
+            }
+          }
+        ],
+        "connections": [
+          {
+            "type": "Connection",
+            "start_id": 1,
+            "end_id": 2,
+            "params": {
+              "CdA": 5e-06,
+              "name": "n2_to_lox_press",
+              "normal_state": 1,
+              "checking": 1,
+              "location": 0.0
+            }
+          },
+          {
+            "type": "Connection",
+            "start_id": 1,
+            "end_id": 3,
+            "params": {
+              "CdA": 5e-06,
+              "name": "n2_to_kerosene_press",
+              "normal_state": 1,
+              "checking": 1,
+              "location": 0.0
+            }
+          },
+          {
+            "type": "Connection",
+            "start_id": 2,
+            "end_id": 4,
+            "params": {
+              "CdA": 2e-05,
+              "name": "lox_feed",
+              "normal_state": 1,
+              "checking": 1,
+              "location": 0.0
+            }
+          },
+          {
+            "type": "Connection",
+            "start_id": 3,
+            "end_id": 5,
+            "params": {
+              "CdA": 1.5e-05,
+              "name": "kerosene_feed",
+              "normal_state": 1,
+              "checking": 1,
+              "location": 0.0
+            }
+          }
+        ]
+      },
+      "components": {},
+      "node_status": {},
+      "verdict": {
+        "passed": false,
+        "summary": "0/12 checks passed (simulation invalid_config)",
+        "checks": [
+          {
+            "id": "ran",
+            "description": "Simulation must complete without crashing or invalid configuration",
+            "passed": false,
+            "op": "==",
+            "expected": "ok",
+            "actual": null,
+            "detail": "not evaluated; simulation status='invalid_config'"
+          },
+          {
+            "id": "flow_happens",
+            "description": "System must establish non-zero mass flow through propellant lines",
+            "passed": false,
+            "op": "==",
+            "expected": true,
+            "actual": null,
+            "detail": "not evaluated; simulation status='invalid_config'"
+          },
+          {
+            "id": "physical",
+            "description": "No nonphysical or degenerate warnings during simulation",
+            "passed": false,
+            "op": "==",
+            "expected": true,
+            "actual": null,
+            "detail": "not evaluated; simulation status='invalid_config'"
+          },
+          {
+            "id": "nitrogen_tank_pressure_positive",
+            "description": "Nitrogen tank must start with positive pressure (>1 bar absolute)",
+            "passed": false,
+            "op": ">",
+            "expected": 100000.0,
+            "actual": null,
+            "detail": "not evaluated; simulation status='invalid_config'"
+          },
+          {
+            "id": "lox_tank_pressure_positive",
+            "description": "LOX tank must start with positive pressure (>1 bar absolute)",
+            "passed": false,
+            "op": ">",
+            "expected": 100000.0,
+            "actual": null,
+            "detail": "not evaluated; simulation status='invalid_config'"
+          },
+          {
+            "id": "kerosene_tank_pressure_positive",
+            "description": "Kerosene tank must start with positive pressure (>1 bar absolute)",
+            "passed": false,
+            "op": ">",
+            "expected": 100000.0,
+            "actual": null,
+            "detail": "not evaluated; simulation status='invalid_config'"
+          },
+          {
+            "id": "lox_feed_flow",
+            "description": "LOX feed line must have non-zero mass flow",
+            "passed": false,
+            "op": ">",
+            "expected": 0.0,
+            "actual": null,
+            "detail": "not evaluated; simulation status='invalid_config'"
+          },
+          {
+            "id": "kerosene_feed_flow",
+            "description": "Kerosene feed line must have non-zero mass flow",
+            "passed": false,
+            "op": ">",
+            "expected": 0.0,
+            "actual": null,
+            "detail": "not evaluated; simulation status='invalid_config'"
+          },
+          {
+            "id": "lox_mass_depletes",
+            "description": "LOX tank mass must decrease (propellant consumed)",
+            "passed": false,
+            "op": "<",
+            "expected": 0.0,
+            "actual": null,
+            "detail": "not evaluated; simulation status='invalid_config'"
+          },
+          {
+            "id": "kerosene_mass_depletes",
+            "description": "Kerosene tank mass must decrease (propellant consumed)",
+            "passed": false,
+            "op": "<",
+            "expected": 0.0,
+            "actual": null,
+            "detail": "not evaluated; simulation status='invalid_config'"
+          },
+          {
+            "id": "nitrogen_mass_depletes",
+            "description": "Nitrogen tank mass must decrease (pressurant consumed)",
+            "passed": false,
+            "op": "<",
+            "expected": 0.0,
+            "actual": null,
+            "detail": "not evaluated; simulation status='invalid_config'"
+          },
+          {
+            "id": "simulation_duration",
+            "description": "Simulation must run for at least 1 second to establish flow",
+            "passed": false,
+            "op": ">=",
+            "expected": 1.0,
+            "actual": null,
+            "detail": "not evaluated; simulation status='invalid_config'"
+          }
+        ],
+        "notes": [
+          "Simulation did not run cleanly (status='invalid_config').",
+          "error: TypeError: Tank.__init__() missing 7 required positional arguments: 'V_total_L', 'fluid_liq', 'm_liq', 'T_liq', 'fluid_ullage', 'P_ullage', and 'T_ullage'"
+        ]
+      },
+      "warnings": [],
+      "decision": {
+        "action": "revise",
+        "reason": "invalid configuration; fixing structural errors"
+      }
+    },
+    {
+      "iteration": 1,
+      "status": "crashed",
+      "design": {
+        "settings": {
+          "duration": 5.0,
+          "dt": 0.001
+        },
+        "nodes": [
+          {
+            "id": 1,
+            "type": "Tank",
+            "params": {
+              "V_total_L": 100,
+              "fluid_liq": "Nitrogen",
+              "m_liq": 0.1,
+              "T_liq": 300,
+              "fluid_ullage": "Nitrogen",
+              "P_ullage": 5000000,
+              "T_ullage": 300,
+              "name": "nitrogen_tank"
+            }
+          },
+          {
+            "id": 2,
+            "type": "Tank",
+            "params": {
+              "V_total_L": 200,
+              "fluid_liq": "Oxygen",
+              "m_liq": 200,
+              "T_liq": 90,
+              "fluid_ullage": "Nitrogen",
+              "P_ullage": 3500000,
+              "T_ullage": 300,
+              "name": "lox_tank"
+            }
+          },
+          {
+            "id": 3,
+            "type": "Tank",
+            "params": {
+              "V_total_L": 120,
+              "fluid_liq": "Kerosene",
+              "m_liq": 100,
+              "T_liq": 300,
+              "fluid_ullage": "Nitrogen",
+              "P_ullage": 3500000,
+              "T_ullage": 300,
+              "name": "kerosene_tank"
+            }
+          },
+          {
+            "id": 4,
+            "type": "Node",
+            "params": {
+              "fluid": "Oxygen",
+              "P": 100000,
+              "V": 0.5,
+              "T": 90,
+              "name": "lox_injector"
+            }
+          },
+          {
+            "id": 5,
+            "type": "Node",
+            "params": {
+              "fluid": "Kerosene",
+              "P": 100000,
+              "V": 0.5,
+              "T": 300,
+              "name": "kerosene_injector"
+            }
+          }
+        ],
+        "connections": [
+          {
+            "type": "Connection",
+            "start_id": 1,
+            "end_id": 2,
+            "params": {
+              "CdA": 5e-06,
+              "name": "n2_to_lox_press",
+              "normal_state": 1,
+              "checking": 1,
+              "location": 0.0
+            }
+          },
+          {
+            "type": "Connection",
+            "start_id": 1,
+            "end_id": 3,
+            "params": {
+              "CdA": 5e-06,
+              "name": "n2_to_kerosene_press",
+              "normal_state": 1,
+              "checking": 1,
+              "location": 0.0
+            }
+          },
+          {
+            "type": "Connection",
+            "start_id": 2,
+            "end_id": 4,
+            "params": {
+              "CdA": 2e-05,
+              "name": "lox_feed",
+              "normal_state": 1,
+              "checking": 1,
+              "location": 0.0
+            }
+          },
+          {
+            "type": "Connection",
+            "start_id": 3,
+            "end_id": 5,
+            "params": {
+              "CdA": 1.5e-05,
+              "name": "kerosene_feed",
+              "normal_state": 1,
+              "checking": 1,
+              "location": 0.0
+            }
+          }
+        ]
+      },
+      "components": {},
+      "node_status": {},
+      "verdict": {
+        "passed": false,
+        "summary": "0/12 checks passed (simulation crashed)",
+        "checks": [
+          {
+            "id": "ran",
+            "description": "Simulation must complete without crashing or invalid configuration",
+            "passed": false,
+            "op": "==",
+            "expected": "ok",
+            "actual": null,
+            "detail": "not evaluated; simulation status='crashed'"
+          },
+          {
+            "id": "flow_happens",
+            "description": "System must establish non-zero mass flow through propellant lines",
+            "passed": false,
+            "op": "==",
+            "expected": true,
+            "actual": null,
+            "detail": "not evaluated; simulation status='crashed'"
+          },
+          {
+            "id": "physical",
+            "description": "No nonphysical or degenerate warnings during simulation",
+            "passed": false,
+            "op": "==",
+            "expected": true,
+            "actual": null,
+            "detail": "not evaluated; simulation status='crashed'"
+          },
+          {
+            "id": "nitrogen_tank_pressure_positive",
+            "description": "Nitrogen tank must start with positive pressure (>1 bar absolute)",
+            "passed": false,
+            "op": ">",
+            "expected": 100000.0,
+            "actual": null,
+            "detail": "not evaluated; simulation status='crashed'"
+          },
+          {
+            "id": "lox_tank_pressure_positive",
+            "description": "LOX tank must start with positive pressure (>1 bar absolute)",
+            "passed": false,
+            "op": ">",
+            "expected": 100000.0,
+            "actual": null,
+            "detail": "not evaluated; simulation status='crashed'"
+          },
+          {
+            "id": "kerosene_tank_pressure_positive",
+            "description": "Kerosene tank must start with positive pressure (>1 bar absolute)",
+            "passed": false,
+            "op": ">",
+            "expected": 100000.0,
+            "actual": null,
+            "detail": "not evaluated; simulation status='crashed'"
+          },
+          {
+            "id": "lox_feed_flow",
+            "description": "LOX feed line must have non-zero mass flow",
+            "passed": false,
+            "op": ">",
+            "expected": 0.0,
+            "actual": null,
+            "detail": "not evaluated; simulation status='crashed'"
+          },
+          {
+            "id": "kerosene_feed_flow",
+            "description": "Kerosene feed line must have non-zero mass flow",
+            "passed": false,
+            "op": ">",
+            "expected": 0.0,
+            "actual": null,
+            "detail": "not evaluated; simulation status='crashed'"
+          },
+          {
+            "id": "lox_mass_depletes",
+            "description": "LOX tank mass must decrease (propellant consumed)",
+            "passed": false,
+            "op": "<",
+            "expected": 0.0,
+            "actual": null,
+            "detail": "not evaluated; simulation status='crashed'"
+          },
+          {
+            "id": "kerosene_mass_depletes",
+            "description": "Kerosene tank mass must decrease (propellant consumed)",
+            "passed": false,
+            "op": "<",
+            "expected": 0.0,
+            "actual": null,
+            "detail": "not evaluated; simulation status='crashed'"
+          },
+          {
+            "id": "nitrogen_mass_depletes",
+            "description": "Nitrogen tank mass must decrease (pressurant consumed)",
+            "passed": false,
+            "op": "<",
+            "expected": 0.0,
+            "actual": null,
+            "detail": "not evaluated; simulation status='crashed'"
+          },
+          {
+            "id": "simulation_duration",
+            "description": "Simulation must run for at least 1 second to establish flow",
+            "passed": false,
+            "op": ">=",
+            "expected": 1.0,
+            "actual": null,
+            "detail": "not evaluated; simulation status='crashed'"
+          }
+        ],
+        "notes": [
+          "Simulation did not run cleanly (status='crashed').",
+          "error: RuntimeError: CoolProp lookup failed in flash: d=-9999990.0, h=-9999990.0, err=exception: access violation writing 0x0000000000000024"
+        ]
+      },
+      "warnings": [],
+      "decision": {
+        "action": "revise",
+        "reason": "solver crashed; attempting a corrective revision"
+      }
+    },
+    {
+      "iteration": 2,
+      "status": "ok",
+      "design": {
+        "settings": {
+          "duration": 5.0,
+          "dt": 0.001
+        },
+        "nodes": [
+          {
+            "id": 1,
+            "type": "Node",
+            "params": {
+              "fluid": "Nitrogen",
+              "P": 5000000,
+              "V": 100,
+              "T": 300,
+              "name": "nitrogen_tank"
+            }
+          },
+          {
+            "id": 2,
+            "type": "Node",
+            "params": {
+              "fluid": "Oxygen",
+              "P": 3500000,
+              "V": 200,
+              "T": 90,
+              "name": "lox_tank"
+            }
+          },
+          {
+            "id": 3,
+            "type": "Node",
+            "params": {
+              "fluid": "Kerosene",
+              "P": 3500000,
+              "V": 120,
+              "T": 300,
+              "name": "kerosene_tank"
+            }
+          },
+          {
+            "id": 4,
+            "type": "Node",
+            "params": {
+              "fluid": "Oxygen",
+              "P": 100000,
+              "V": 0.5,
+              "T": 90,
+              "name": "lox_injector"
+            }
+          },
+          {
+            "id": 5,
+            "type": "Node",
+            "params": {
+              "fluid": "Kerosene",
+              "P": 100000,
+              "V": 0.5,
+              "T": 300,
+              "name": "kerosene_injector"
+            }
+          }
+        ],
+        "connections": [
+          {
+            "type": "Connection",
+            "start_id": 1,
+            "end_id": 2,
+            "params": {
+              "CdA": 5e-06,
+              "name": "n2_to_lox_press",
+              "normal_state": 1,
+              "checking": 1,
+              "location": 0.0
+            }
+          },
+          {
+            "type": "Connection",
+            "start_id": 1,
+            "end_id": 3,
+            "params": {
+              "CdA": 5e-06,
+              "name": "n2_to_kerosene_press",
+              "normal_state": 1,
+              "checking": 1,
+              "location": 0.0
+            }
+          },
+          {
+            "type": "Connection",
+            "start_id": 2,
+            "end_id": 4,
+            "params": {
+              "CdA": 2e-05,
+              "name": "lox_feed",
+              "normal_state": 1,
+              "checking": 1,
+              "location": 0.0
+            }
+          },
+          {
+            "type": "Connection",
+            "start_id": 3,
+            "end_id": 5,
+            "params": {
+              "CdA": 1.5e-05,
+              "name": "kerosene_feed",
+              "normal_state": 1,
+              "checking": 1,
+              "location": 0.0
+            }
+          }
+        ]
+      },
+      "components": {
+        "nitrogen_tank": {
+          "component": "nitrogen_tank",
+          "kind": "Node",
+          "time": {
+            "first": 0.0,
+            "final": 5.0,
+            "sample_count": 5000
+          },
+          "fields": {
+            "P": {
+              "first": -9999990.0,
+              "final": -9999990.0,
+              "min": -9999990.0,
+              "max": -9999990.0,
+              "delta": 0.0,
+              "range": 0.0,
+              "nonzero_count": 5000,
+              "sample_count": 5000
+            },
+            "T": {
+              "first": -9999990.0,
+              "final": -9999990.0,
+              "min": -9999990.0,
+              "max": -9999990.0,
+              "delta": 0.0,
+              "range": 0.0,
+              "nonzero_count": 5000,
+              "sample_count": 5000
+            },
+            "U": {
+              "first": 9999980000010.0,
+              "final": 9999980000010.0,
+              "min": 9999980000010.0,
+              "max": 9999980000010.0,
+              "delta": 0.0,
+              "range": 0.0,
+              "nonzero_count": 5000,
+              "sample_count": 5000
+            },
+            "h": {
+              "first": -9999990.0,
+              "final": -9999990.0,
+              "min": -9999990.0,
+              "max": -9999990.0,
+              "delta": 0.0,
+              "range": 0.0,
+              "nonzero_count": 5000,
+              "sample_count": 5000
+            },
+            "d": {
+              "first": -9999990.0,
+              "final": -9999990.0,
+              "min": -9999990.0,
+              "max": -9999990.0,
+              "delta": 0.0,
+              "range": 0.0,
+              "nonzero_count": 5000,
+              "sample_count": 5000
+            },
+            "m": {
+              "first": 1e-12,
+              "final": 1e-12,
+              "min": 1e-12,
+              "max": 1e-12,
+              "delta": 0.0,
+              "range": 0.0,
+              "nonzero_count": 0,
+              "sample_count": 5000
+            },
+            "m_l": {
+              "first": 1e-12,
+              "final": 1e-12,
+              "min": 1e-12,
+              "max": 1e-12,
+              "delta": 0.0,
+              "range": 0.0,
+              "nonzero_count": 0,
+              "sample_count": 5000
+            },
+            "m_v": {
+              "first": 0.0,
+              "final": 0.0,
+              "min": 0.0,
+              "max": 0.0,
+              "delta": 0.0,
+              "range": 0.0,
+              "nonzero_count": 0,
+              "sample_count": 5000
+            },
+            "fill_level": {
+              "first": 0.0,
+              "final": 0.0,
+              "min": 0.0,
+              "max": 0.0,
+              "delta": 0.0,
+              "range": 0.0,
+              "nonzero_count": 0,
+              "sample_count": 5000
+            },
+            "s": {
+              "first": -9999990.0,
+              "final": -9999990.0,
+              "min": -9999990.0,
+              "max": -9999990.0,
+              "delta": 0.0,
+              "range": 0.0,
+              "nonzero_count": 5000,
+              "sample_count": 5000
+            }
+          }
+        },
+        "lox_tank": {
+          "component": "lox_tank",
+          "kind": "Node",
+          "time": {
+            "first": 0.0,
+            "final": 5.0,
+            "sample_count": 5000
+          },
+          "fields": {
+            "P": {
+              "first": -9999990.0,
+              "final": -9999990.0,
+              "min": -9999990.0,
+              "max": -9999990.0,
+              "delta": 0.0,
+              "range": 0.0,
+              "nonzero_count": 5000,
+              "sample_count": 5000
+            },
+            "T": {
+              "first": -9999990.0,
+              "final": -9999990.0,
+              "min": -9999990.0,
+              "max": -9999990.0,
+              "delta": 0.0,
+              "range": 0.0,
+              "nonzero_count": 5000,
+              "sample_count": 5000
+            },
+            "U": {
+              "first": 19999960000020.0,
+              "final": 19999960000020.0,
+              "min": 19999960000020.0,
+              "max": 19999960000020.0,
+              "delta": 0.0,
+              "range": 0.0,
+              "nonzero_count": 5000,
+              "sample_count": 5000
+            },
+            "h": {
+              "first": -9999990.0,
+              "final": -9999990.0,
+              "min": -9999990.0,
+              "max": -9999990.0,
+              "delta": 0.0,
+              "range": 0.0,
+              "nonzero_count": 5000,
+              "sample_count": 5000
+            },
+            "d": {
+              "first": -9999990.0,
+              "final": -9999990.0,
+              "min": -9999990.0,
+              "max": -9999990.0,
+              "delta": 0.0,
+              "range": 0.0,
+              "nonzero_count": 5000,
+              "sample_count": 5000
+            },
+            "m": {
+              "first": 1e-12,
+              "final": 1e-12,
+              "min": 1e-12,
+              "max": 1e-12,
+              "delta": 0.0,
+              "range": 0.0,
+              "nonzero_count": 0,
+              "sample_count": 5000
+            },
+            "m_l": {
+              "first": 1e-12,
+              "final": 1e-12,
+              "min": 1e-12,
+              "max": 1e-12,
+              "delta": 0.0,
+              "range": 0.0,
+              "nonzero_count": 0,
+              "sample_count": 5000
+            },
+            "m_v": {
+              "first": 0.0,
+              "final": 0.0,
+              "min": 0.0,
+              "max": 0.0,
+              "delta": 0.0,
+              "range": 0.0,
+              "nonzero_count": 0,
+              "sample_count": 5000
+            },
+            "fill_level": {
+              "first": 0.0,
+              "final": 0.0,
+              "min": 0.0,
+              "max": 0.0,
+              "delta": 0.0,
+              "range": 0.0,
+              "nonzero_count": 0,
+              "sample_count": 5000
+            },
+            "s": {
+              "first": -9999990.0,
+              "final": -9999990.0,
+              "min": -9999990.0,
+              "max": -9999990.0,
+              "delta": 0.0,
+              "range": 0.0,
+              "nonzero_count": 5000,
+              "sample_count": 5000
+            }
+          }
+        },
+        "kerosene_tank": {
+          "component": "kerosene_tank",
+          "kind": "Node",
+          "time": {
+            "first": 0.0,
+            "final": 5.0,
+            "sample_count": 5000
+          },
+          "fields": {
+            "P": {
+              "first": -9999990.0,
+              "final": -9999990.0,
+              "min": -9999990.0,
+              "max": -9999990.0,
+              "delta": 0.0,
+              "range": 0.0,
+              "nonzero_count": 5000,
+              "sample_count": 5000
+            },
+            "T": {
+              "first": -9999990.0,
+              "final": -9999990.0,
+              "min": -9999990.0,
+              "max": -9999990.0,
+              "delta": 0.0,
+              "range": 0.0,
+              "nonzero_count": 5000,
+              "sample_count": 5000
+            },
+            "U": {
+              "first": 11999976000012.0,
+              "final": 11999976000012.0,
+              "min": 11999976000012.0,
+              "max": 11999976000012.0,
+              "delta": 0.0,
+              "range": 0.0,
+              "nonzero_count": 5000,
+              "sample_count": 5000
+            },
+            "h": {
+              "first": -9999990.0,
+              "final": -9999990.0,
+              "min": -9999990.0,
+              "max": -9999990.0,
+              "delta": 0.0,
+              "range": 0.0,
+              "nonzero_count": 5000,
+              "sample_count": 5000
+            },
+            "d": {
+              "first": -9999990.0,
+              "final": -9999990.0,
+              "min": -9999990.0,
+              "max": -9999990.0,
+              "delta": 0.0,
+              "range": 0.0,
+              "nonzero_count": 5000,
+              "sample_count": 5000
+            },
+            "m": {
+              "first": 1e-12,
+              "final": 1e-12,
+              "min": 1e-12,
+              "max": 1e-12,
+              "delta": 0.0,
+              "range": 0.0,
+              "nonzero_count": 0,
+              "sample_count": 5000
+            },
+            "m_l": {
+              "first": 1e-12,
+              "final": 1e-12,
+              "min": 1e-12,
+              "max": 1e-12,
+              "delta": 0.0,
+              "range": 0.0,
+              "nonzero_count": 0,
+              "sample_count": 5000
+            },
+            "m_v": {
+              "first": 0.0,
+              "final": 0.0,
+              "min": 0.0,
+              "max": 0.0,
+              "delta": 0.0,
+              "range": 0.0,
+              "nonzero_count": 0,
+              "sample_count": 5000
+            },
+            "fill_level": {
+              "first": 0.0,
+              "final": 0.0,
+              "min": 0.0,
+              "max": 0.0,
+              "delta": 0.0,
+              "range": 0.0,
+              "nonzero_count": 0,
+              "sample_count": 5000
+            },
+            "s": {
+              "first": -9999990.0,
+              "final": -9999990.0,
+              "min": -9999990.0,
+              "max": -9999990.0,
+              "delta": 0.0,
+              "range": 0.0,
+              "nonzero_count": 5000,
+              "sample_count": 5000
+            }
+          }
+        },
+        "lox_injector": {
+          "component": "lox_injector",
+          "kind": "Node",
+          "time": {
+            "first": 0.0,
+            "final": 5.0,
+            "sample_count": 5000
+          },
+          "fields": {
+            "P": {
+              "first": -9999990.0,
+              "final": -9999990.0,
+              "min": -9999990.0,
+              "max": -9999990.0,
+              "delta": 0.0,
+              "range": 0.0,
+              "nonzero_count": 5000,
+              "sample_count": 5000
+            },
+            "T": {
+              "first": -9999990.0,
+              "final": -9999990.0,
+              "min": -9999990.0,
+              "max": -9999990.0,
+              "delta": 0.0,
+              "range": 0.0,
+              "nonzero_count": 5000,
+              "sample_count": 5000
+            },
+            "U": {
+              "first": 49999900000.049995,
+              "final": 49999900000.049995,
+              "min": 49999900000.049995,
+              "max": 49999900000.049995,
+              "delta": 0.0,
+              "range": 0.0,
+              "nonzero_count": 5000,
+              "sample_count": 5000
+            },
+            "h": {
+              "first": -9999990.0,
+              "final": -9999990.0,
+              "min": -9999990.0,
+              "max": -9999990.0,
+              "delta": 0.0,
+              "range": 0.0,
+              "nonzero_count": 5000,
+              "sample_count": 5000
+            },
+            "d": {
+              "first": -9999990.0,
+              "final": -9999990.0,
+              "min": -9999990.0,
+              "max": -9999990.0,
+              "delta": 0.0,
+              "range": 0.0,
+              "nonzero_count": 5000,
+              "sample_count": 5000
+            },
+            "m": {
+              "first": 1e-12,
+              "final": 1e-12,
+              "min": 1e-12,
+              "max": 1e-12,
+              "delta": 0.0,
+              "range": 0.0,
+              "nonzero_count": 0,
+              "sample_count": 5000
+            },
+            "m_l": {
+              "first": 1e-12,
+              "final": 1e-12,
+              "min": 1e-12,
+              "max": 1e-12,
+              "delta": 0.0,
+              "range": 0.0,
+              "nonzero_count": 0,
+              "sample_count": 5000
+            },
+            "m_v": {
+              "first": 0.0,
+              "final": 0.0,
+              "min": 0.0,
+              "max": 0.0,
+              "delta": 0.0,
+              "range": 0.0,
+              "nonzero_count": 0,
+              "sample_count": 5000
+            },
+            "fill_level": {
+              "first": 0.0,
+              "final": 0.0,
+              "min": 0.0,
+              "max": 0.0,
+              "delta": 0.0,
+              "range": 0.0,
+              "nonzero_count": 0,
+              "sample_count": 5000
+            },
+            "s": {
+              "first": -9999990.0,
+              "final": -9999990.0,
+              "min": -9999990.0,
+              "max": -9999990.0,
+              "delta": 0.0,
+              "range": 0.0,
+              "nonzero_count": 5000,
+              "sample_count": 5000
+            }
+          }
+        },
+        "kerosene_injector": {
+          "component": "kerosene_injector",
+          "kind": "Node",
+          "time": {
+            "first": 0.0,
+            "final": 5.0,
+            "sample_count": 5000
+          },
+          "fields": {
+            "P": {
+              "first": -9999990.0,
+              "final": -9999990.0,
+              "min": -9999990.0,
+              "max": -9999990.0,
+              "delta": 0.0,
+              "range": 0.0,
+              "nonzero_count": 5000,
+              "sample_count": 5000
+            },
+            "T": {
+              "first": -9999990.0,
+              "final": -9999990.0,
+              "min": -9999990.0,
+              "max": -9999990.0,
+              "delta": 0.0,
+              "range": 0.0,
+              "nonzero_count": 5000,
+              "sample_count": 5000
+            },
+            "U": {
+              "first": 49999900000.049995,
+              "final": 49999900000.049995,
+              "min": 49999900000.049995,
+              "max": 49999900000.049995,
+              "delta": 0.0,
+              "range": 0.0,
+              "nonzero_count": 5000,
+              "sample_count": 5000
+            },
+            "h": {
+              "first": -9999990.0,
+              "final": -9999990.0,
+              "min": -9999990.0,
+              "max": -9999990.0,
+              "delta": 0.0,
+              "range": 0.0,
+              "nonzero_count": 5000,
+              "sample_count": 5000
+            },
+            "d": {
+              "first": -9999990.0,
+              "final": -9999990.0,
+              "min": -9999990.0,
+              "max": -9999990.0,
+              "delta": 0.0,
+              "range": 0.0,
+              "nonzero_count": 5000,
+              "sample_count": 5000
+            },
+            "m": {
+              "first": 1e-12,
+              "final": 1e-12,
+              "min": 1e-12,
+              "max": 1e-12,
+              "delta": 0.0,
+              "range": 0.0,
+              "nonzero_count": 0,
+              "sample_count": 5000
+            },
+            "m_l": {
+              "first": 1e-12,
+              "final": 1e-12,
+              "min": 1e-12,
+              "max": 1e-12,
+              "delta": 0.0,
+              "range": 0.0,
+              "nonzero_count": 0,
+              "sample_count": 5000
+            },
+            "m_v": {
+              "first": 0.0,
+              "final": 0.0,
+              "min": 0.0,
+              "max": 0.0,
+              "delta": 0.0,
+              "range": 0.0,
+              "nonzero_count": 0,
+              "sample_count": 5000
+            },
+            "fill_level": {
+              "first": 0.0,
+              "final": 0.0,
+              "min": 0.0,
+              "max": 0.0,
+              "delta": 0.0,
+              "range": 0.0,
+              "nonzero_count": 0,
+              "sample_count": 5000
+            },
+            "s": {
+              "first": -9999990.0,
+              "final": -9999990.0,
+              "min": -9999990.0,
+              "max": -9999990.0,
+              "delta": 0.0,
+              "range": 0.0,
+              "nonzero_count": 5000,
+              "sample_count": 5000
+            }
+          }
+        },
+        "n2_to_lox_press": {
+          "component": "n2_to_lox_press",
+          "kind": "Connection",
+          "time": {
+            "first": 0.0,
+            "final": 5.0,
+            "sample_count": 5000
+          },
+          "fields": {
+            "CdA": {
+              "first": 5e-06,
+              "final": 5e-06,
+              "min": 5e-06,
+              "max": 5e-06,
+              "delta": 0.0,
+              "range": 0.0,
+              "nonzero_count": 5000,
+              "sample_count": 5000
+            },
+            "qdot": {
+              "first": 0.0,
+              "final": 0.0,
+              "min": 0.0,
+              "max": 0.0,
+              "delta": 0.0,
+              "range": 0.0,
+              "nonzero_count": 0,
+              "sample_count": 5000
+            },
+            "state": {
+              "first": 1.0,
+              "final": 1.0,
+              "min": 1.0,
+              "max": 1.0,
+              "delta": 0.0,
+              "range": 0.0,
+              "nonzero_count": 5000,
+              "sample_count": 5000
+            },
+            "mdot": {
+              "first": 0.0,
+              "final": 0.0,
+              "min": 0.0,
+              "max": 0.0,
+              "delta": 0.0,
+              "range": 0.0,
+              "nonzero_count": 0,
+              "sample_count": 5000
+            },
+            "Hdot": {
+              "first": 0.0,
+              "final": 0.0,
+              "min": 0.0,
+              "max": 0.0,
+              "delta": 0.0,
+              "range": 0.0,
+              "nonzero_count": 0,
+              "sample_count": 5000
+            },
+            "dP": {
+              "first": 0.0,
+              "final": 0.0,
+              "min": 0.0,
+              "max": 0.0,
+              "delta": 0.0,
+              "range": 0.0,
+              "nonzero_count": 0,
+              "sample_count": 5000
+            }
+          }
+        },
+        "n2_to_kerosene_press": {
+          "component": "n2_to_kerosene_press",
+          "kind": "Connection",
+          "time": {
+            "first": 0.0,
+            "final": 5.0,
+            "sample_count": 5000
+          },
+          "fields": {
+            "CdA": {
+              "first": 5e-06,
+              "final": 5e-06,
+              "min": 5e-06,
+              "max": 5e-06,
+              "delta": 0.0,
+              "range": 0.0,
+              "nonzero_count": 5000,
+              "sample_count": 5000
+            },
+            "qdot": {
+              "first": 0.0,
+              "final": 0.0,
+              "min": 0.0,
+              "max": 0.0,
+              "delta": 0.0,
+              "range": 0.0,
+              "nonzero_count": 0,
+              "sample_count": 5000
+            },
+            "state": {
+              "first": 1.0,
+              "final": 1.0,
+              "min": 1.0,
+              "max": 1.0,
+              "delta": 0.0,
+              "range": 0.0,
+              "nonzero_count": 5000,
+              "sample_count": 5000
+            },
+            "mdot": {
+              "first": 0.0,
+              "final": 0.0,
+              "min": 0.0,
+              "max": 0.0,
+              "delta": 0.0,
+              "range": 0.0,
+              "nonzero_count": 0,
+              "sample_count": 5000
+            },
+            "Hdot": {
+              "first": 0.0,
+              "final": 0.0,
+              "min": 0.0,
+              "max": 0.0,
+              "delta": 0.0,
+              "range": 0.0,
+              "nonzero_count": 0,
+              "sample_count": 5000
+            },
+            "dP": {
+              "first": 0.0,
+              "final": 0.0,
+              "min": 0.0,
+              "max": 0.0,
+              "delta": 0.0,
+              "range": 0.0,
+              "nonzero_count": 0,
+              "sample_count": 5000
+            }
+          }
+        },
+        "lox_feed": {
+          "component": "lox_feed",
+          "kind": "Connection",
+          "time": {
+            "first": 0.0,
+            "final": 5.0,
+            "sample_count": 5000
+          },
+          "fields": {
+            "CdA": {
+              "first": 2e-05,
+              "final": 2e-05,
+              "min": 2e-05,
+              "max": 2e-05,
+              "delta": 0.0,
+              "range": 0.0,
+              "nonzero_count": 5000,
+              "sample_count": 5000
+            },
+            "qdot": {
+              "first": 0.0,
+              "final": 0.0,
+              "min": 0.0,
+              "max": 0.0,
+              "delta": 0.0,
+              "range": 0.0,
+              "nonzero_count": 0,
+              "sample_count": 5000
+            },
+            "state": {
+              "first": 1.0,
+              "final": 1.0,
+              "min": 1.0,
+              "max": 1.0,
+              "delta": 0.0,
+              "range": 0.0,
+              "nonzero_count": 5000,
+              "sample_count": 5000
+            },
+            "mdot": {
+              "first": 0.0,
+              "final": 0.0,
+              "min": 0.0,
+              "max": 0.0,
+              "delta": 0.0,
+              "range": 0.0,
+              "nonzero_count": 0,
+              "sample_count": 5000
+            },
+            "Hdot": {
+              "first": 0.0,
+              "final": 0.0,
+              "min": 0.0,
+              "max": 0.0,
+              "delta": 0.0,
+              "range": 0.0,
+              "nonzero_count": 0,
+              "sample_count": 5000
+            },
+            "dP": {
+              "first": 0.0,
+              "final": 0.0,
+              "min": 0.0,
+              "max": 0.0,
+              "delta": 0.0,
+              "range": 0.0,
+              "nonzero_count": 0,
+              "sample_count": 5000
+            }
+          }
+        },
+        "kerosene_feed": {
+          "component": "kerosene_feed",
+          "kind": "Connection",
+          "time": {
+            "first": 0.0,
+            "final": 5.0,
+            "sample_count": 5000
+          },
+          "fields": {
+            "CdA": {
+              "first": 1.5e-05,
+              "final": 1.5e-05,
+              "min": 1.5e-05,
+              "max": 1.5e-05,
+              "delta": 0.0,
+              "range": 0.0,
+              "nonzero_count": 5000,
+              "sample_count": 5000
+            },
+            "qdot": {
+              "first": 0.0,
+              "final": 0.0,
+              "min": 0.0,
+              "max": 0.0,
+              "delta": 0.0,
+              "range": 0.0,
+              "nonzero_count": 0,
+              "sample_count": 5000
+            },
+            "state": {
+              "first": 1.0,
+              "final": 1.0,
+              "min": 1.0,
+              "max": 1.0,
+              "delta": 0.0,
+              "range": 0.0,
+              "nonzero_count": 5000,
+              "sample_count": 5000
+            },
+            "mdot": {
+              "first": 0.0,
+              "final": 0.0,
+              "min": 0.0,
+              "max": 0.0,
+              "delta": 0.0,
+              "range": 0.0,
+              "nonzero_count": 0,
+              "sample_count": 5000
+            },
+            "Hdot": {
+              "first": 0.0,
+              "final": 0.0,
+              "min": 0.0,
+              "max": 0.0,
+              "delta": 0.0,
+              "range": 0.0,
+              "nonzero_count": 0,
+              "sample_count": 5000
+            },
+            "dP": {
+              "first": 0.0,
+              "final": 0.0,
+              "min": 0.0,
+              "max": 0.0,
+              "delta": 0.0,
+              "range": 0.0,
+              "nonzero_count": 0,
+              "sample_count": 5000
+            }
+          }
+        }
+      },
+      "node_status": {
+        "nitrogen_tank": "red",
+        "lox_tank": "red",
+        "kerosene_tank": "red",
+        "lox_injector": "yellow",
+        "kerosene_injector": "yellow",
+        "n2_to_lox_press": "yellow",
+        "n2_to_kerosene_press": "yellow",
+        "lox_feed": "red",
+        "kerosene_feed": "red"
+      },
+      "verdict": {
+        "passed": false,
+        "summary": "2/12 checks passed",
+        "checks": [
+          {
+            "id": "ran",
+            "description": "Simulation must complete without crashing or invalid configuration",
+            "passed": true,
+            "op": "==",
+            "expected": "ok",
+            "actual": "ok",
+            "detail": ""
+          },
+          {
+            "id": "flow_happens",
+            "description": "System must establish non-zero mass flow through propellant lines",
+            "passed": false,
+            "op": "==",
+            "expected": true,
+            "actual": false,
+            "detail": ""
+          },
+          {
+            "id": "physical",
+            "description": "No nonphysical or degenerate warnings during simulation",
+            "passed": false,
+            "op": "==",
+            "expected": true,
+            "actual": false,
+            "detail": "Node 'nitrogen_tank' has nonphysical P values.; Node 'nitrogen_tank' has nonphysical T values.; Node 'nitrogen_tank' has nonphysical d values.; Non-ambient node 'nitrogen_tank' has unchanged P history.; Non-ambient node 'nitrogen_tank' has unchanged m history.; Node 'lox_tank' has nonphysical P values.; Node 'lox_tank' has nonphysical T values.; Node 'lox_tank' has nonphysical d values.; Non-ambient node 'lox_tank' has unchanged P history.; Non-ambient node 'lox_tank' has unchanged m history.; Node 'kerosene_tank' has nonphysical P values.; Node 'kerosene_tank' has nonphysical T values.; Node 'kerosene_tank' has nonphysical d values.; Non-ambient node 'kerosene_tank' has unchanged P history.; Non-ambient node 'kerosene_tank' has unchanged m history.; Node 'lox_injector' has nonphysical P values.; Node 'lox_injector' has nonphysical T values.; Node 'lox_injector' has nonphysical d values.; Non-ambient node 'lox_injector' has unchanged P history.; Non-ambient node 'lox_injector' has unchanged m history.; Node 'kerosene_injector' has nonphysical P values.; Node 'kerosene_injector' has nonphysical T values.; Node 'kerosene_injector' has nonphysical d values.; Non-ambient node 'kerosene_injector' has unchanged P history.; Non-ambient node 'kerosene_injector' has unchanged m history.; Connection 'n2_to_lox_press' has all-zero mdot history.; Connection 'n2_to_kerosene_press' has all-zero mdot history.; Connection 'lox_feed' has all-zero mdot history.; Connection 'kerosene_feed' has all-zero mdot history."
+          },
+          {
+            "id": "nitrogen_tank_pressure_positive",
+            "description": "Nitrogen tank must start with positive pressure (>1 bar absolute)",
+            "passed": false,
+            "op": ">",
+            "expected": 100000.0,
+            "actual": -9999990.0,
+            "detail": "nitrogen_tank.P.first=-9.99999e+06"
+          },
+          {
+            "id": "lox_tank_pressure_positive",
+            "description": "LOX tank must start with positive pressure (>1 bar absolute)",
+            "passed": false,
+            "op": ">",
+            "expected": 100000.0,
+            "actual": -9999990.0,
+            "detail": "lox_tank.P.first=-9.99999e+06"
+          },
+          {
+            "id": "kerosene_tank_pressure_positive",
+            "description": "Kerosene tank must start with positive pressure (>1 bar absolute)",
+            "passed": false,
+            "op": ">",
+            "expected": 100000.0,
+            "actual": -9999990.0,
+            "detail": "kerosene_tank.P.first=-9.99999e+06"
+          },
+          {
+            "id": "lox_feed_flow",
+            "description": "LOX feed line must have non-zero mass flow",
+            "passed": false,
+            "op": ">",
+            "expected": 0.0,
+            "actual": 0.0,
+            "detail": "lox_feed.mdot.max=0"
+          },
+          {
+            "id": "kerosene_feed_flow",
+            "description": "Kerosene feed line must have non-zero mass flow",
+            "passed": false,
+            "op": ">",
+            "expected": 0.0,
+            "actual": 0.0,
+            "detail": "kerosene_feed.mdot.max=0"
+          },
+          {
+            "id": "lox_mass_depletes",
+            "description": "LOX tank mass must decrease (propellant consumed)",
+            "passed": false,
+            "op": "<",
+            "expected": 0.0,
+            "actual": 0.0,
+            "detail": "lox_tank.m.delta=0"
+          },
+          {
+            "id": "kerosene_mass_depletes",
+            "description": "Kerosene tank mass must decrease (propellant consumed)",
+            "passed": false,
+            "op": "<",
+            "expected": 0.0,
+            "actual": 0.0,
+            "detail": "kerosene_tank.m.delta=0"
+          },
+          {
+            "id": "nitrogen_mass_depletes",
+            "description": "Nitrogen tank mass must decrease (pressurant consumed)",
+            "passed": false,
+            "op": "<",
+            "expected": 0.0,
+            "actual": 0.0,
+            "detail": "nitrogen_tank.m.delta=0"
+          },
+          {
+            "id": "simulation_duration",
+            "description": "Simulation must run for at least 1 second to establish flow",
+            "passed": true,
+            "op": ">=",
+            "expected": 1.0,
+            "actual": 5.0,
+            "detail": "diagnostics.duration=5.0"
+          }
+        ],
+        "notes": []
+      },
+      "warnings": [
+        {
+          "message": "Node 'nitrogen_tank' has nonphysical P values.",
+          "component": "nitrogen_tank",
+          "field": "P"
+        },
+        {
+          "message": "Node 'nitrogen_tank' has nonphysical T values.",
+          "component": "nitrogen_tank",
+          "field": "T"
+        },
+        {
+          "message": "Node 'nitrogen_tank' has nonphysical d values.",
+          "component": "nitrogen_tank",
+          "field": "d"
+        },
+        {
+          "message": "Non-ambient node 'nitrogen_tank' has unchanged P history.",
+          "component": "nitrogen_tank",
+          "field": "P"
+        },
+        {
+          "message": "Non-ambient node 'nitrogen_tank' has unchanged m history.",
+          "component": "nitrogen_tank",
+          "field": "m"
+        },
+        {
+          "message": "Node 'lox_tank' has nonphysical P values.",
+          "component": "lox_tank",
+          "field": "P"
+        },
+        {
+          "message": "Node 'lox_tank' has nonphysical T values.",
+          "component": "lox_tank",
+          "field": "T"
+        },
+        {
+          "message": "Node 'lox_tank' has nonphysical d values.",
+          "component": "lox_tank",
+          "field": "d"
+        },
+        {
+          "message": "Non-ambient node 'lox_tank' has unchanged P history.",
+          "component": "lox_tank",
+          "field": "P"
+        },
+        {
+          "message": "Non-ambient node 'lox_tank' has unchanged m history.",
+          "component": "lox_tank",
+          "field": "m"
+        },
+        {
+          "message": "Node 'kerosene_tank' has nonphysical P values.",
+          "component": "kerosene_tank",
+          "field": "P"
+        },
+        {
+          "message": "Node 'kerosene_tank' has nonphysical T values.",
+          "component": "kerosene_tank",
+          "field": "T"
+        },
+        {
+          "message": "Node 'kerosene_tank' has nonphysical d values.",
+          "component": "kerosene_tank",
+          "field": "d"
+        },
+        {
+          "message": "Non-ambient node 'kerosene_tank' has unchanged P history.",
+          "component": "kerosene_tank",
+          "field": "P"
+        },
+        {
+          "message": "Non-ambient node 'kerosene_tank' has unchanged m history.",
+          "component": "kerosene_tank",
+          "field": "m"
+        },
+        {
+          "message": "Node 'lox_injector' has nonphysical P values.",
+          "component": "lox_injector",
+          "field": "P"
+        },
+        {
+          "message": "Node 'lox_injector' has nonphysical T values.",
+          "component": "lox_injector",
+          "field": "T"
+        },
+        {
+          "message": "Node 'lox_injector' has nonphysical d values.",
+          "component": "lox_injector",
+          "field": "d"
+        },
+        {
+          "message": "Non-ambient node 'lox_injector' has unchanged P history.",
+          "component": "lox_injector",
+          "field": "P"
+        },
+        {
+          "message": "Non-ambient node 'lox_injector' has unchanged m history.",
+          "component": "lox_injector",
+          "field": "m"
+        },
+        {
+          "message": "Node 'kerosene_injector' has nonphysical P values.",
+          "component": "kerosene_injector",
+          "field": "P"
+        },
+        {
+          "message": "Node 'kerosene_injector' has nonphysical T values.",
+          "component": "kerosene_injector",
+          "field": "T"
+        },
+        {
+          "message": "Node 'kerosene_injector' has nonphysical d values.",
+          "component": "kerosene_injector",
+          "field": "d"
+        },
+        {
+          "message": "Non-ambient node 'kerosene_injector' has unchanged P history.",
+          "component": "kerosene_injector",
+          "field": "P"
+        },
+        {
+          "message": "Non-ambient node 'kerosene_injector' has unchanged m history.",
+          "component": "kerosene_injector",
+          "field": "m"
+        },
+        {
+          "message": "Connection 'n2_to_lox_press' has all-zero mdot history.",
+          "component": "n2_to_lox_press",
+          "field": "mdot"
+        },
+        {
+          "message": "Connection 'n2_to_kerosene_press' has all-zero mdot history.",
+          "component": "n2_to_kerosene_press",
+          "field": "mdot"
+        },
+        {
+          "message": "Connection 'lox_feed' has all-zero mdot history.",
+          "component": "lox_feed",
+          "field": "mdot"
+        },
+        {
+          "message": "Connection 'kerosene_feed' has all-zero mdot history.",
+          "component": "kerosene_feed",
+          "field": "mdot"
+        }
+      ],
+      "decision": {
+        "action": "revise",
+        "reason": "making progress (2/12 checks passing); refining"
+      }
+    }
+  ],
+  "passed": false,
+  "iterations_used": 0,
+  "report": null,
+  "error": null,
+  "created_at": 1782000457.8811176,
+  "updated_at": 1782000905.5374904
+}

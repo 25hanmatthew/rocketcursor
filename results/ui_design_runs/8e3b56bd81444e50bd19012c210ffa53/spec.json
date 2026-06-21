@@ -1,0 +1,120 @@
+{
+  "name": "pressure_fed_lox_kerosene_system_8e3b56bd",
+  "description": "Design a pressure-fed rocket feed system using LOX (liquid oxygen) and kerosene as propellants, with nitrogen (GN2) as the pressurant gas. The system must deliver both propellants to a rocket engine block under pressure-fed conditions. FIXED quantities: component architecture (GN2 tank, LOX tank, kerosene tank, engine, pressurization lines, feed lines), propellant types (LOX, kerosene, GN2). TUNABLE quantities: tank pressures, tank volumes, line sizes, pressurization rates, flow rates. The design must ensure both propellants flow to the engine and the system operates without nonphysical warnings.",
+  "design_guidance": {
+    "design_seed": "pressure_fed_lox_kerosene",
+    "must_include_nodes": [
+      "gn2_tank",
+      "lox_tank",
+      "kerosene_tank",
+      "engine"
+    ],
+    "must_include_connections": [
+      "gn2_to_lox_pressurization",
+      "gn2_to_kerosene_pressurization",
+      "lox_feed_line",
+      "kerosene_feed_line"
+    ],
+    "fixed_constraints": {
+      "propellants": [
+        "LOX",
+        "kerosene"
+      ],
+      "pressurant": "GN2"
+    },
+    "tunable": [
+      "tank_pressures",
+      "tank_volumes",
+      "line_diameters",
+      "pressurization_rates",
+      "tank pressures",
+      "tank volumes",
+      "feed CdA values",
+      "engine throat/exit area"
+    ],
+    "notes": [
+      "Use pressure_fed_lox_kerosene seed for baseline architecture",
+      "Ensure GN2 pressurizes both LOX and kerosene tanks",
+      "Both propellants must flow to engine",
+      "The downstream node named engine is an Ambient demand boundary for feed-flow checks.",
+      "Tune feed CdA values before changing topology.",
+      "If physical warnings mention a component, fix that component first."
+    ]
+  },
+  "checks": [
+    {
+      "id": "ran",
+      "description": "Simulation must complete without crashing or invalid configuration",
+      "type": "status",
+      "op": "==",
+      "value": "ok"
+    },
+    {
+      "id": "physical",
+      "description": "No nonphysical or degenerate warnings during simulation",
+      "type": "no_warnings",
+      "op": "==",
+      "value": true
+    },
+    {
+      "id": "lox_flow",
+      "description": "LOX must flow through lox_feed_line to engine",
+      "type": "component",
+      "component": "lox_feed_line",
+      "field": "mdot",
+      "stat": "nonzero_count",
+      "op": ">",
+      "value": 0
+    },
+    {
+      "id": "kerosene_flow",
+      "description": "Kerosene must flow through kerosene_feed_line to engine",
+      "type": "component",
+      "component": "kerosene_feed_line",
+      "field": "mdot",
+      "stat": "nonzero_count",
+      "op": ">",
+      "value": 0
+    },
+    {
+      "id": "gn2_pressurizes_lox",
+      "description": "GN2 must flow to pressurize LOX tank",
+      "type": "component",
+      "component": "gn2_to_lox_pressurization",
+      "field": "mdot",
+      "stat": "nonzero_count",
+      "op": ">",
+      "value": 0
+    },
+    {
+      "id": "gn2_pressurizes_kerosene",
+      "description": "GN2 must flow to pressurize kerosene tank",
+      "type": "component",
+      "component": "gn2_to_kerosene_pressurization",
+      "field": "mdot",
+      "stat": "nonzero_count",
+      "op": ">",
+      "value": 0
+    },
+    {
+      "id": "lox_feed_flow",
+      "description": "LOX feed line delivers non-zero mass flow to the engine.",
+      "type": "component",
+      "component": "lox_feed_line",
+      "field": "mdot",
+      "stat": "nonzero_count",
+      "op": ">",
+      "value": 0
+    },
+    {
+      "id": "kerosene_feed_flow",
+      "description": "Kerosene feed line delivers non-zero mass flow to the engine.",
+      "type": "component",
+      "component": "kerosene_feed_line",
+      "field": "mdot",
+      "stat": "nonzero_count",
+      "op": ">",
+      "value": 0
+    }
+  ]
+}

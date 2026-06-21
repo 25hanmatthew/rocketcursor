@@ -3,8 +3,8 @@
   "request": "Design a full pressure fed vehicle fluids system for a kerosene lox rocket with nitrogen as the pressurant",
   "provider": "asi1",
   "model": "asi1",
-  "status": "running",
-  "stage": "simulate",
+  "status": "failed",
+  "stage": "report",
   "requirements": {
     "name": "pressure_fed_kerosene_lox_system_f790d311",
     "description": "Design a full pressure-fed vehicle fluids system for a kerosene/LOX rocket using nitrogen as the pressurant. The system must include: (1) Nitrogen pressurant tank at high pressure, (2) Kerosene fuel tank, (3) LOX oxidizer tank, (4) Pressurant feed lines to both propellant tanks, (5) Fuel feed line from kerosene tank to engine, (6) Oxidizer feed line from LOX tank to engine. FIXED quantities: nitrogen tank initial pressure (typically 20-30 MPa), propellant tank ullage pressures (typically 2-5 MPa), propellant tank temperatures (kerosene ~288K, LOX ~90K). TUNABLE quantities: component sizing, line diameters, exact pressure setpoints, flow rates, tank volumes. The system must maintain positive pressure differential from pressurant to propellant tanks throughout operation, deliver propellants to the engine at required pressures, and maintain cryogenic LOX temperature.",
@@ -3146,12 +3146,1242 @@
         "action": "revise",
         "reason": "invalid configuration; fixing structural errors"
       }
+    },
+    {
+      "iteration": 7,
+      "status": "ok",
+      "design": {
+        "settings": {
+          "duration": 10.0,
+          "dt": 0.01
+        },
+        "nodes": [
+          {
+            "id": 1,
+            "type": "Tank",
+            "params": {
+              "V_total_L": 500,
+              "fluid_liq": "Nitrogen",
+              "m_liq": 100,
+              "T_liq": 300,
+              "fluid_ullage": "Nitrogen",
+              "P_ullage": 25000000,
+              "T_ullage": 300,
+              "name": "nitrogen_tank"
+            }
+          },
+          {
+            "id": 2,
+            "type": "Node",
+            "params": {
+              "fluid": "Methane",
+              "P": 3500000,
+              "V": 1000,
+              "T": 288,
+              "name": "kerosene_tank"
+            }
+          },
+          {
+            "id": 3,
+            "type": "Tank",
+            "params": {
+              "V_total_L": 1200,
+              "fluid_liq": "Oxygen",
+              "m_liq": 1000,
+              "T_liq": 90,
+              "fluid_ullage": "Nitrogen",
+              "P_ullage": 3500000,
+              "T_ullage": 90,
+              "name": "lox_tank"
+            }
+          },
+          {
+            "id": 4,
+            "type": "Engine",
+            "params": {
+              "fuel": "Kerosene",
+              "oxidizer": "LOX",
+              "At": 0.001,
+              "Ae": 0.003,
+              "Pa": 101325,
+              "eta_cstar": 0.9,
+              "eta_cf": 0.95,
+              "name": "engine_injector"
+            }
+          }
+        ],
+        "connections": [
+          {
+            "type": "Regulator",
+            "start_id": 1,
+            "end_id": 2,
+            "params": {
+              "CdA": 0.0001,
+              "name": "n2_to_kerosene_pressurant",
+              "normal_state": 1,
+              "checking": 1,
+              "location": 0.0,
+              "set_pressure": 3500000
+            }
+          },
+          {
+            "type": "Regulator",
+            "start_id": 1,
+            "end_id": 3,
+            "params": {
+              "CdA": 0.0001,
+              "name": "n2_to_lox_pressurant",
+              "normal_state": 1,
+              "checking": 1,
+              "location": 0.0,
+              "set_pressure": 3500000
+            }
+          },
+          {
+            "type": "Connection",
+            "start_id": 2,
+            "end_id": 4,
+            "params": {
+              "CdA": 0.0008,
+              "name": "kerosene_feed",
+              "normal_state": 1,
+              "checking": 1,
+              "location": 0.0
+            }
+          },
+          {
+            "type": "Connection",
+            "start_id": 3,
+            "end_id": 4,
+            "params": {
+              "CdA": 0.0018,
+              "name": "lox_feed",
+              "normal_state": 1,
+              "checking": 1,
+              "location": 0.0
+            }
+          }
+        ],
+        "actions": []
+      },
+      "components": {
+        "nitrogen_tank": {
+          "component": "nitrogen_tank",
+          "kind": "Tank",
+          "time": {
+            "first": 0.0,
+            "final": 10.0,
+            "sample_count": 1000
+          },
+          "fields": {
+            "P": {
+              "first": 24981404.012257878,
+              "final": 24981405.53900328,
+              "min": 24981404.012257878,
+              "max": 24981405.53900328,
+              "delta": 1.5267454013228416,
+              "range": 1.5267454013228416,
+              "nonzero_count": 1000,
+              "sample_count": 1000
+            },
+            "T": {
+              "first": 299.97285863292603,
+              "final": 299.97286086192076,
+              "min": 299.97285863292603,
+              "max": 299.97286086192076,
+              "delta": 2.22899473101279e-06,
+              "range": 2.22899473101279e-06,
+              "nonzero_count": 1000,
+              "sample_count": 1000
+            },
+            "U": {
+              "first": 17751975.5039195,
+              "final": 17751975.5039195,
+              "min": 17751975.5039195,
+              "max": 17751975.5039195,
+              "delta": 0.0,
+              "range": 0.0,
+              "nonzero_count": 1000,
+              "sample_count": 1000
+            },
+            "h": {
+              "first": 275218.08041162277,
+              "final": 275218.08243182866,
+              "min": 275218.08041162277,
+              "max": 275218.08243182866,
+              "delta": 0.0020202058949507773,
+              "range": 0.0020202058949507773,
+              "nonzero_count": 1000,
+              "sample_count": 1000
+            },
+            "d": {
+              "first": 255.9092779417528,
+              "final": 255.90928828568383,
+              "min": 255.9092779417528,
+              "max": 255.90928828568383,
+              "delta": 1.0343931023726327e-05,
+              "range": 1.0343931023726327e-05,
+              "nonzero_count": 1000,
+              "sample_count": 1000
+            },
+            "m": {
+              "first": 99.95488639111916,
+              "final": 99.95488639111916,
+              "min": 99.95488639111916,
+              "max": 99.95488639111916,
+              "delta": 0.0,
+              "range": 0.0,
+              "nonzero_count": 1000,
+              "sample_count": 1000
+            },
+            "m_l": {
+              "first": 0.0,
+              "final": 0.0,
+              "min": 0.0,
+              "max": 0.0,
+              "delta": 0.0,
+              "range": 0.0,
+              "nonzero_count": 0,
+              "sample_count": 1000
+            },
+            "m_v": {
+              "first": 99.95488639111916,
+              "final": 99.95488639111916,
+              "min": 99.95488639111916,
+              "max": 99.95488639111916,
+              "delta": 0.0,
+              "range": 0.0,
+              "nonzero_count": 1000,
+              "sample_count": 1000
+            },
+            "fill_level": {
+              "first": 0.7811743848839257,
+              "final": 0.7811743533086202,
+              "min": 0.7811743533086202,
+              "max": 0.7811743848839257,
+              "delta": -3.157530548136833e-08,
+              "range": 3.157530548136833e-08,
+              "nonzero_count": 1000,
+              "sample_count": 1000
+            },
+            "s": {
+              "first": 5079.059620983064,
+              "final": 5079.059607829347,
+              "min": 5079.059607829347,
+              "max": 5079.059620983064,
+              "delta": -1.3153716281522065e-05,
+              "range": 1.3153716281522065e-05,
+              "nonzero_count": 1000,
+              "sample_count": 1000
+            }
+          }
+        },
+        "kerosene_tank": {
+          "component": "kerosene_tank",
+          "kind": "Node",
+          "time": {
+            "first": 0.0,
+            "final": 10.0,
+            "sample_count": 1000
+          },
+          "fields": {
+            "P": {
+              "first": 3492219.7782813986,
+              "final": 3492219.7782813986,
+              "min": 3492219.7782813986,
+              "max": 3492219.7782813986,
+              "delta": 0.0,
+              "range": 0.0,
+              "nonzero_count": 1000,
+              "sample_count": 1000
+            },
+            "T": {
+              "first": 287.8392677165616,
+              "final": 287.8392677165616,
+              "min": 287.8392677165616,
+              "max": 287.8392677165616,
+              "delta": 0.0,
+              "range": 0.0,
+              "nonzero_count": 1000,
+              "sample_count": 1000
+            },
+            "U": {
+              "first": 17860324.73777976,
+              "final": 17860324.73777976,
+              "min": 17860324.73777976,
+              "max": 17860324.73777976,
+              "delta": 0.0,
+              "range": 0.0,
+              "nonzero_count": 1000,
+              "sample_count": 1000
+            },
+            "h": {
+              "first": 850769.4880255123,
+              "final": 850769.4880255123,
+              "min": 850769.4880255123,
+              "max": 850769.4880255123,
+              "delta": 0.0,
+              "range": 0.0,
+              "nonzero_count": 1000,
+              "sample_count": 1000
+            },
+            "d": {
+              "first": 25.097919961394826,
+              "final": 25.097919961394826,
+              "min": 25.097919961394826,
+              "max": 25.097919961394826,
+              "delta": 0.0,
+              "range": 0.0,
+              "nonzero_count": 1000,
+              "sample_count": 1000
+            },
+            "m": {
+              "first": 25.097919961394826,
+              "final": 25.097919961394826,
+              "min": 25.097919961394826,
+              "max": 25.097919961394826,
+              "delta": 0.0,
+              "range": 0.0,
+              "nonzero_count": 1000,
+              "sample_count": 1000
+            },
+            "m_l": {
+              "first": 0.0,
+              "final": 0.0,
+              "min": 0.0,
+              "max": 0.0,
+              "delta": 0.0,
+              "range": 0.0,
+              "nonzero_count": 0,
+              "sample_count": 1000
+            },
+            "m_v": {
+              "first": 25.097919961394826,
+              "final": 25.097919961394826,
+              "min": 25.097919961394826,
+              "max": 25.097919961394826,
+              "delta": 0.0,
+              "range": 0.0,
+              "nonzero_count": 1000,
+              "sample_count": 1000
+            },
+            "fill_level": {
+              "first": 0.0,
+              "final": 0.0,
+              "min": 0.0,
+              "max": 0.0,
+              "delta": 0.0,
+              "range": 0.0,
+              "nonzero_count": 0,
+              "sample_count": 1000
+            },
+            "s": {
+              "first": 4669.809537979653,
+              "final": 4669.809537979653,
+              "min": 4669.809537979653,
+              "max": 4669.809537979653,
+              "delta": 0.0,
+              "range": 0.0,
+              "nonzero_count": 1000,
+              "sample_count": 1000
+            }
+          }
+        },
+        "lox_tank": {
+          "component": "lox_tank",
+          "kind": "Tank",
+          "time": {
+            "first": 0.0,
+            "final": 10.0,
+            "sample_count": 1000
+          },
+          "fields": {
+            "P": {
+              "first": 2710807.30882727,
+              "final": 2710827.5759692453,
+              "min": 2710807.30882727,
+              "max": 2710827.5759692453,
+              "delta": 20.267141975462437,
+              "range": 20.267141975462437,
+              "nonzero_count": 1000,
+              "sample_count": 1000
+            },
+            "T": {
+              "first": 89.8581531541437,
+              "final": 89.85815709389549,
+              "min": 89.8581531541437,
+              "max": 89.85815709389549,
+              "delta": 3.9397517923589476e-06,
+              "range": 3.9397517923589476e-06,
+              "nonzero_count": 1000,
+              "sample_count": 1000
+            },
+            "U": {
+              "first": -134679304.39571983,
+              "final": -134679304.39571983,
+              "min": -134679304.39571983,
+              "max": -134679304.39571983,
+              "delta": 0.0,
+              "range": 0.0,
+              "nonzero_count": 1000,
+              "sample_count": 1000
+            },
+            "h": {
+              "first": -132527.51512468708,
+              "final": -132527.49752748822,
+              "min": -132527.51512468708,
+              "max": -132527.49752748822,
+              "delta": 0.01759719886467792,
+              "range": 0.01759719886467792,
+              "nonzero_count": 1000,
+              "sample_count": 1000
+            },
+            "d": {
+              "first": 1148.4904996150917,
+              "final": 1148.4905237330684,
+              "min": 1148.4904996150917,
+              "max": 1148.4905237330684,
+              "delta": 2.411797663626203e-05,
+              "range": 2.411797663626203e-05,
+              "nonzero_count": 1000,
+              "sample_count": 1000
+            },
+            "m": {
+              "first": 998.454029212657,
+              "final": 998.454029212657,
+              "min": 998.454029212657,
+              "max": 998.454029212657,
+              "delta": 0.0,
+              "range": 0.0,
+              "nonzero_count": 1000,
+              "sample_count": 1000
+            },
+            "m_l": {
+              "first": 998.454029212657,
+              "final": 998.454029212657,
+              "min": 998.454029212657,
+              "max": 998.454029212657,
+              "delta": 0.0,
+              "range": 0.0,
+              "nonzero_count": 1000,
+              "sample_count": 1000
+            },
+            "m_v": {
+              "first": 0.0,
+              "final": 0.0,
+              "min": 0.0,
+              "max": 0.0,
+              "delta": 0.0,
+              "range": 0.0,
+              "nonzero_count": 0,
+              "sample_count": 1000
+            },
+            "fill_level": {
+              "first": 0.7244683561794675,
+              "final": 0.7244683409658367,
+              "min": 0.7244683409658367,
+              "max": 0.7244683561794675,
+              "delta": -1.5213630799593147e-08,
+              "range": 1.5213630799593147e-08,
+              "nonzero_count": 1000,
+              "sample_count": 1000
+            },
+            "s": {
+              "first": 2925.871458553445,
+              "final": 2925.871458001841,
+              "min": 2925.871458001841,
+              "max": 2925.871458553445,
+              "delta": -5.516039891517721e-07,
+              "range": 5.516039891517721e-07,
+              "nonzero_count": 1000,
+              "sample_count": 1000
+            }
+          }
+        },
+        "engine_injector": {
+          "component": "engine_injector",
+          "kind": "Engine",
+          "time": {
+            "first": 0.0,
+            "final": 10.0,
+            "sample_count": 1000
+          },
+          "fields": {
+            "P": {
+              "first": 58260523.58253436,
+              "final": 58260523.58253436,
+              "min": 58260523.58253436,
+              "max": 58260523.58253436,
+              "delta": 0.0,
+              "range": 0.0,
+              "nonzero_count": 1000,
+              "sample_count": 1000
+            },
+            "T": {
+              "first": 2606.114974789369,
+              "final": 2606.114974789369,
+              "min": 2606.114974789369,
+              "max": 2606.114974789369,
+              "delta": 0.0,
+              "range": 0.0,
+              "nonzero_count": 1000,
+              "sample_count": 1000
+            },
+            "m": {
+              "first": 0.0,
+              "final": 0.0,
+              "min": 0.0,
+              "max": 0.0,
+              "delta": 0.0,
+              "range": 0.0,
+              "nonzero_count": 0,
+              "sample_count": 1000
+            },
+            "d": {
+              "first": 1.2,
+              "final": 1.2,
+              "min": 1.2,
+              "max": 1.2,
+              "delta": 0.0,
+              "range": 0.0,
+              "nonzero_count": 1000,
+              "sample_count": 1000
+            },
+            "fill_level": {
+              "first": 0.0,
+              "final": 0.0,
+              "min": 0.0,
+              "max": 0.0,
+              "delta": 0.0,
+              "range": 0.0,
+              "nonzero_count": 0,
+              "sample_count": 1000
+            },
+            "mdot_ox": {
+              "first": 159.10843962237684,
+              "final": 159.10843962237684,
+              "min": 159.10843962237684,
+              "max": 159.10843962237684,
+              "delta": 0.0,
+              "range": 0.0,
+              "nonzero_count": 1000,
+              "sample_count": 1000
+            },
+            "mdot_fu": {
+              "first": 4.192376615730774,
+              "final": 4.192376615730774,
+              "min": 4.192376615730774,
+              "max": 4.192376615730774,
+              "delta": 0.0,
+              "range": 0.0,
+              "nonzero_count": 1000,
+              "sample_count": 1000
+            },
+            "MR": {
+              "first": 37.951847891089955,
+              "final": 37.951847891089955,
+              "min": 37.951847891089955,
+              "max": 37.951847891089955,
+              "delta": 0.0,
+              "range": 0.0,
+              "nonzero_count": 1000,
+              "sample_count": 1000
+            },
+            "cstar": {
+              "first": 1187.779245342505,
+              "final": 1187.779245342505,
+              "min": 1187.779245342505,
+              "max": 1187.779245342505,
+              "delta": 0.0,
+              "range": 0.0,
+              "nonzero_count": 1000,
+              "sample_count": 1000
+            },
+            "thrust": {
+              "first": 290771.726040384,
+              "final": 290771.726040384,
+              "min": 290771.726040384,
+              "max": 290771.726040384,
+              "delta": 0.0,
+              "range": 0.0,
+              "nonzero_count": 1000,
+              "sample_count": 1000
+            },
+            "Isp": {
+              "first": 181.50759885175563,
+              "final": 181.50759885175563,
+              "min": 181.50759885175563,
+              "max": 181.50759885175563,
+              "delta": 0.0,
+              "range": 0.0,
+              "nonzero_count": 1000,
+              "sample_count": 1000
+            }
+          }
+        },
+        "n2_to_kerosene_pressurant": {
+          "component": "n2_to_kerosene_pressurant",
+          "kind": "Regulator",
+          "time": {
+            "first": 0.0,
+            "final": 10.0,
+            "sample_count": 1000
+          },
+          "fields": {
+            "CdA": {
+              "first": 0.0001,
+              "final": 0.0001,
+              "min": 0.0001,
+              "max": 0.0001,
+              "delta": 0.0,
+              "range": 0.0,
+              "nonzero_count": 1000,
+              "sample_count": 1000
+            },
+            "qdot": {
+              "first": 0.0,
+              "final": 0.0,
+              "min": 0.0,
+              "max": 0.0,
+              "delta": 0.0,
+              "range": 0.0,
+              "nonzero_count": 0,
+              "sample_count": 1000
+            },
+            "state": {
+              "first": 1.0,
+              "final": 1.0,
+              "min": 1.0,
+              "max": 1.0,
+              "delta": 0.0,
+              "range": 0.0,
+              "nonzero_count": 1000,
+              "sample_count": 1000
+            },
+            "mdot": {
+              "first": 0.0,
+              "final": 0.0,
+              "min": 0.0,
+              "max": 0.0,
+              "delta": 0.0,
+              "range": 0.0,
+              "nonzero_count": 0,
+              "sample_count": 1000
+            },
+            "Hdot": {
+              "first": 0.0,
+              "final": 0.0,
+              "min": 0.0,
+              "max": 0.0,
+              "delta": 0.0,
+              "range": 0.0,
+              "nonzero_count": 0,
+              "sample_count": 1000
+            },
+            "dP": {
+              "first": 0.0,
+              "final": 0.0,
+              "min": 0.0,
+              "max": 0.0,
+              "delta": 0.0,
+              "range": 0.0,
+              "nonzero_count": 0,
+              "sample_count": 1000
+            }
+          }
+        },
+        "n2_to_lox_pressurant": {
+          "component": "n2_to_lox_pressurant",
+          "kind": "Regulator",
+          "time": {
+            "first": 0.0,
+            "final": 10.0,
+            "sample_count": 1000
+          },
+          "fields": {
+            "CdA": {
+              "first": 0.0001,
+              "final": 0.0001,
+              "min": 0.0001,
+              "max": 0.0001,
+              "delta": 0.0,
+              "range": 0.0,
+              "nonzero_count": 1000,
+              "sample_count": 1000
+            },
+            "qdot": {
+              "first": 0.0,
+              "final": 0.0,
+              "min": 0.0,
+              "max": 0.0,
+              "delta": 0.0,
+              "range": 0.0,
+              "nonzero_count": 0,
+              "sample_count": 1000
+            },
+            "state": {
+              "first": 1.0,
+              "final": 1.0,
+              "min": 1.0,
+              "max": 1.0,
+              "delta": 0.0,
+              "range": 0.0,
+              "nonzero_count": 1000,
+              "sample_count": 1000
+            },
+            "mdot": {
+              "first": 0.0,
+              "final": 0.0,
+              "min": 0.0,
+              "max": 0.0,
+              "delta": 0.0,
+              "range": 0.0,
+              "nonzero_count": 0,
+              "sample_count": 1000
+            },
+            "Hdot": {
+              "first": 0.0,
+              "final": 0.0,
+              "min": 0.0,
+              "max": 0.0,
+              "delta": 0.0,
+              "range": 0.0,
+              "nonzero_count": 0,
+              "sample_count": 1000
+            },
+            "dP": {
+              "first": 0.0,
+              "final": 0.0,
+              "min": 0.0,
+              "max": 0.0,
+              "delta": 0.0,
+              "range": 0.0,
+              "nonzero_count": 0,
+              "sample_count": 1000
+            }
+          }
+        },
+        "kerosene_feed": {
+          "component": "kerosene_feed",
+          "kind": "Connection",
+          "time": {
+            "first": 0.0,
+            "final": 10.0,
+            "sample_count": 1000
+          },
+          "fields": {
+            "CdA": {
+              "first": 0.0008,
+              "final": 0.0008,
+              "min": 0.0008,
+              "max": 0.0008,
+              "delta": 0.0,
+              "range": 0.0,
+              "nonzero_count": 1000,
+              "sample_count": 1000
+            },
+            "qdot": {
+              "first": 0.0,
+              "final": 0.0,
+              "min": 0.0,
+              "max": 0.0,
+              "delta": 0.0,
+              "range": 0.0,
+              "nonzero_count": 0,
+              "sample_count": 1000
+            },
+            "state": {
+              "first": 1.0,
+              "final": 1.0,
+              "min": 1.0,
+              "max": 1.0,
+              "delta": 0.0,
+              "range": 0.0,
+              "nonzero_count": 1000,
+              "sample_count": 1000
+            },
+            "mdot": {
+              "first": 4.192376615730774,
+              "final": 4.192376615730774,
+              "min": 4.192376615730774,
+              "max": 4.192376615730774,
+              "delta": 0.0,
+              "range": 0.0,
+              "nonzero_count": 1000,
+              "sample_count": 1000
+            },
+            "Hdot": {
+              "first": 3568045.7214314337,
+              "final": 3568045.7214314337,
+              "min": 3568045.7214314337,
+              "max": 3568045.7214314337,
+              "delta": 0.0,
+              "range": 0.0,
+              "nonzero_count": 1000,
+              "sample_count": 1000
+            },
+            "dP": {
+              "first": 3398674.9999999995,
+              "final": 3398674.9999999995,
+              "min": 3398674.9999999995,
+              "max": 3398674.9999999995,
+              "delta": 0.0,
+              "range": 0.0,
+              "nonzero_count": 1000,
+              "sample_count": 1000
+            }
+          }
+        },
+        "lox_feed": {
+          "component": "lox_feed",
+          "kind": "Connection",
+          "time": {
+            "first": 0.0,
+            "final": 10.0,
+            "sample_count": 1000
+          },
+          "fields": {
+            "CdA": {
+              "first": 0.0018,
+              "final": 0.0018,
+              "min": 0.0018,
+              "max": 0.0018,
+              "delta": 0.0,
+              "range": 0.0,
+              "nonzero_count": 1000,
+              "sample_count": 1000
+            },
+            "qdot": {
+              "first": 0.0,
+              "final": 0.0,
+              "min": 0.0,
+              "max": 0.0,
+              "delta": 0.0,
+              "range": 0.0,
+              "nonzero_count": 0,
+              "sample_count": 1000
+            },
+            "state": {
+              "first": 1.0,
+              "final": 1.0,
+              "min": 1.0,
+              "max": 1.0,
+              "delta": 0.0,
+              "range": 0.0,
+              "nonzero_count": 1000,
+              "sample_count": 1000
+            },
+            "mdot": {
+              "first": 159.10843962237684,
+              "final": 159.10843962237684,
+              "min": 159.10843962237684,
+              "max": 159.10843962237684,
+              "delta": 0.0,
+              "range": 0.0,
+              "nonzero_count": 1000,
+              "sample_count": 1000
+            },
+            "Hdot": {
+              "first": -20980258.252678867,
+              "final": -20980258.252678867,
+              "min": -20980258.252678867,
+              "max": -20980258.252678867,
+              "delta": 0.0,
+              "range": 0.0,
+              "nonzero_count": 1000,
+              "sample_count": 1000
+            },
+            "dP": {
+              "first": 3398675.000000266,
+              "final": 3398675.000000266,
+              "min": 3398675.000000266,
+              "max": 3398675.000000266,
+              "delta": 0.0,
+              "range": 0.0,
+              "nonzero_count": 1000,
+              "sample_count": 1000
+            }
+          }
+        }
+      },
+      "node_status": {
+        "nitrogen_tank": "yellow",
+        "kerosene_tank": "yellow",
+        "lox_tank": "yellow",
+        "engine_injector": "yellow",
+        "n2_to_kerosene_pressurant": "red",
+        "n2_to_lox_pressurant": "red",
+        "kerosene_feed": "green",
+        "lox_feed": "green"
+      },
+      "verdict": {
+        "passed": false,
+        "summary": "16/19 checks passed",
+        "checks": [
+          {
+            "id": "ran",
+            "description": "Simulation completed successfully without crash or invalid configuration",
+            "passed": true,
+            "op": "==",
+            "expected": "ok",
+            "actual": "ok",
+            "detail": ""
+          },
+          {
+            "id": "flow_happens",
+            "description": "System has non-zero mass flow through connections",
+            "passed": true,
+            "op": "==",
+            "expected": true,
+            "actual": true,
+            "detail": ""
+          },
+          {
+            "id": "physical",
+            "description": "No nonphysical or degenerate warnings during simulation",
+            "passed": false,
+            "op": "==",
+            "expected": true,
+            "actual": false,
+            "detail": "Non-ambient node 'nitrogen_tank' has unchanged m history.; Non-ambient node 'kerosene_tank' has unchanged P history.; Non-ambient node 'kerosene_tank' has unchanged m history.; Non-ambient node 'lox_tank' has unchanged m history.; Non-ambient node 'engine_injector' has unchanged P history.; Non-ambient node 'engine_injector' has unchanged m history.; Connection 'n2_to_kerosene_pressurant' has all-zero mdot history.; Connection 'n2_to_lox_pressurant' has all-zero mdot history."
+          },
+          {
+            "id": "n2_tank_initial_pressure",
+            "description": "Nitrogen tank starts at high pressure (20-30 MPa range)",
+            "passed": true,
+            "op": ">=",
+            "expected": 20000000.0,
+            "actual": 24981404.012257878,
+            "detail": "nitrogen_tank.P.first=2.49814e+07"
+          },
+          {
+            "id": "n2_tank_initial_pressure_max",
+            "description": "Nitrogen tank initial pressure not exceeding 30 MPa",
+            "passed": true,
+            "op": "<=",
+            "expected": 30000000.0,
+            "actual": 24981404.012257878,
+            "detail": "nitrogen_tank.P.first=2.49814e+07"
+          },
+          {
+            "id": "kerosene_temp_initial",
+            "description": "Kerosene tank starts at ambient temperature (~288K)",
+            "passed": true,
+            "op": ">=",
+            "expected": 278.0,
+            "actual": 287.8392677165616,
+            "detail": "kerosene_tank.T.first=287.839"
+          },
+          {
+            "id": "kerosene_temp_initial_max",
+            "description": "Kerosene tank initial temperature not exceeding 298K",
+            "passed": true,
+            "op": "<=",
+            "expected": 298.0,
+            "actual": 287.8392677165616,
+            "detail": "kerosene_tank.T.first=287.839"
+          },
+          {
+            "id": "lox_temp_initial",
+            "description": "LOX tank starts at cryogenic temperature (~90K)",
+            "passed": true,
+            "op": ">=",
+            "expected": 85.0,
+            "actual": 89.8581531541437,
+            "detail": "lox_tank.T.first=89.8582"
+          },
+          {
+            "id": "lox_temp_initial_max",
+            "description": "LOX tank initial temperature not exceeding 95K",
+            "passed": true,
+            "op": "<=",
+            "expected": 95.0,
+            "actual": 89.8581531541437,
+            "detail": "lox_tank.T.first=89.8582"
+          },
+          {
+            "id": "kerosene_ullage_pressure_min",
+            "description": "Kerosene tank ullage pressure maintained at minimum 2 MPa",
+            "passed": true,
+            "op": ">=",
+            "expected": 2000000.0,
+            "actual": 3492219.7782813986,
+            "detail": "kerosene_tank.P.min=3.49222e+06"
+          },
+          {
+            "id": "kerosene_ullage_pressure_max",
+            "description": "Kerosene tank ullage pressure not exceeding 5 MPa",
+            "passed": true,
+            "op": "<=",
+            "expected": 5000000.0,
+            "actual": 3492219.7782813986,
+            "detail": "kerosene_tank.P.max=3.49222e+06"
+          },
+          {
+            "id": "lox_ullage_pressure_min",
+            "description": "LOX tank ullage pressure maintained at minimum 2 MPa",
+            "passed": true,
+            "op": ">=",
+            "expected": 2000000.0,
+            "actual": 2710807.30882727,
+            "detail": "lox_tank.P.min=2.71081e+06"
+          },
+          {
+            "id": "lox_ullage_pressure_max",
+            "description": "LOX tank ullage pressure not exceeding 5 MPa",
+            "passed": true,
+            "op": "<=",
+            "expected": 5000000.0,
+            "actual": 2710827.5759692453,
+            "detail": "lox_tank.P.max=2.71083e+06"
+          },
+          {
+            "id": "n2_to_kerosene_flow",
+            "description": "Pressurant flow from nitrogen to kerosene tank occurs",
+            "passed": false,
+            "op": ">",
+            "expected": 0,
+            "actual": 0,
+            "detail": "n2_to_kerosene_pressurant.mdot.nonzero_count=0"
+          },
+          {
+            "id": "n2_to_lox_flow",
+            "description": "Pressurant flow from nitrogen to LOX tank occurs",
+            "passed": false,
+            "op": ">",
+            "expected": 0,
+            "actual": 0,
+            "detail": "n2_to_lox_pressurant.mdot.nonzero_count=0"
+          },
+          {
+            "id": "kerosene_feed_flow",
+            "description": "Kerosene feed to engine has non-zero flow",
+            "passed": true,
+            "op": ">",
+            "expected": 0,
+            "actual": 1000,
+            "detail": "kerosene_feed.mdot.nonzero_count=1000"
+          },
+          {
+            "id": "lox_feed_flow",
+            "description": "LOX feed to engine has non-zero flow",
+            "passed": true,
+            "op": ">",
+            "expected": 0,
+            "actual": 1000,
+            "detail": "lox_feed.mdot.nonzero_count=1000"
+          },
+          {
+            "id": "n2_pressure_above_kerosene",
+            "description": "Nitrogen tank pressure always above kerosene ullage pressure",
+            "passed": true,
+            "op": ">=",
+            "expected": 2100000.0,
+            "actual": 24981404.012257878,
+            "detail": "nitrogen_tank.P.min=2.49814e+07"
+          },
+          {
+            "id": "lox_temp_maintained",
+            "description": "LOX tank temperature maintained near cryogenic throughout",
+            "passed": true,
+            "op": "<=",
+            "expected": 100.0,
+            "actual": 89.85815709389549,
+            "detail": "lox_tank.T.max=89.8582"
+          }
+        ],
+        "notes": []
+      },
+      "warnings": [
+        {
+          "message": "Non-ambient node 'nitrogen_tank' has unchanged m history.",
+          "component": "nitrogen_tank",
+          "field": "m"
+        },
+        {
+          "message": "Non-ambient node 'kerosene_tank' has unchanged P history.",
+          "component": "kerosene_tank",
+          "field": "P"
+        },
+        {
+          "message": "Non-ambient node 'kerosene_tank' has unchanged m history.",
+          "component": "kerosene_tank",
+          "field": "m"
+        },
+        {
+          "message": "Non-ambient node 'lox_tank' has unchanged m history.",
+          "component": "lox_tank",
+          "field": "m"
+        },
+        {
+          "message": "Non-ambient node 'engine_injector' has unchanged P history.",
+          "component": "engine_injector",
+          "field": "P"
+        },
+        {
+          "message": "Non-ambient node 'engine_injector' has unchanged m history.",
+          "component": "engine_injector",
+          "field": "m"
+        },
+        {
+          "message": "Connection 'n2_to_kerosene_pressurant' has all-zero mdot history.",
+          "component": "n2_to_kerosene_pressurant",
+          "field": "mdot"
+        },
+        {
+          "message": "Connection 'n2_to_lox_pressurant' has all-zero mdot history.",
+          "component": "n2_to_lox_pressurant",
+          "field": "mdot"
+        }
+      ],
+      "decision": {
+        "action": "revise",
+        "reason": "making progress (16/19 checks passing); refining"
+      }
     }
   ],
   "passed": false,
-  "iterations_used": 0,
-  "report": null,
+  "iterations_used": 8,
+  "report": {
+    "passed": false,
+    "headline": "Did not pass after 8 iteration(s); 3 unmet requirement(s).",
+    "iterations_used": 8,
+    "unmet_requirements": [
+      {
+        "id": "physical",
+        "description": "No nonphysical or degenerate warnings during simulation",
+        "expected": "== True",
+        "actual": false
+      },
+      {
+        "id": "n2_to_kerosene_flow",
+        "description": "Pressurant flow from nitrogen to kerosene tank occurs",
+        "expected": "> 0",
+        "actual": 0
+      },
+      {
+        "id": "n2_to_lox_flow",
+        "description": "Pressurant flow from nitrogen to LOX tank occurs",
+        "expected": "> 0",
+        "actual": 0
+      }
+    ],
+    "final_design": {
+      "settings": {
+        "duration": 10.0,
+        "dt": 0.01
+      },
+      "nodes": [
+        {
+          "id": 1,
+          "type": "Tank",
+          "params": {
+            "V_total_L": 500,
+            "fluid_liq": "Nitrogen",
+            "m_liq": 100,
+            "T_liq": 300,
+            "fluid_ullage": "Nitrogen",
+            "P_ullage": 25000000,
+            "T_ullage": 300,
+            "name": "nitrogen_tank"
+          }
+        },
+        {
+          "id": 2,
+          "type": "Node",
+          "params": {
+            "fluid": "Methane",
+            "P": 3500000,
+            "V": 1000,
+            "T": 288,
+            "name": "kerosene_tank"
+          }
+        },
+        {
+          "id": 3,
+          "type": "Tank",
+          "params": {
+            "V_total_L": 1200,
+            "fluid_liq": "Oxygen",
+            "m_liq": 1000,
+            "T_liq": 90,
+            "fluid_ullage": "Nitrogen",
+            "P_ullage": 3500000,
+            "T_ullage": 90,
+            "name": "lox_tank"
+          }
+        },
+        {
+          "id": 4,
+          "type": "Engine",
+          "params": {
+            "fuel": "Kerosene",
+            "oxidizer": "LOX",
+            "At": 0.001,
+            "Ae": 0.003,
+            "Pa": 101325,
+            "eta_cstar": 0.9,
+            "eta_cf": 0.95,
+            "name": "engine_injector"
+          }
+        }
+      ],
+      "connections": [
+        {
+          "type": "Regulator",
+          "start_id": 1,
+          "end_id": 2,
+          "params": {
+            "CdA": 0.0001,
+            "name": "n2_to_kerosene_pressurant",
+            "normal_state": 1,
+            "checking": 1,
+            "location": 0.0,
+            "set_pressure": 3500000
+          }
+        },
+        {
+          "type": "Regulator",
+          "start_id": 1,
+          "end_id": 3,
+          "params": {
+            "CdA": 0.0001,
+            "name": "n2_to_lox_pressurant",
+            "normal_state": 1,
+            "checking": 1,
+            "location": 0.0,
+            "set_pressure": 3500000
+          }
+        },
+        {
+          "type": "Connection",
+          "start_id": 2,
+          "end_id": 4,
+          "params": {
+            "CdA": 0.0008,
+            "name": "kerosene_feed",
+            "normal_state": 1,
+            "checking": 1,
+            "location": 0.0
+          }
+        },
+        {
+          "type": "Connection",
+          "start_id": 3,
+          "end_id": 4,
+          "params": {
+            "CdA": 0.0018,
+            "name": "lox_feed",
+            "normal_state": 1,
+            "checking": 1,
+            "location": 0.0
+          }
+        }
+      ],
+      "actions": []
+    }
+  },
   "error": null,
   "created_at": 1782000099.7292514,
-  "updated_at": 1782000219.7762647
+  "updated_at": 1782000258.0271268
 }

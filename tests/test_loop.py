@@ -84,6 +84,29 @@ class TestEvaluator(unittest.TestCase):
         v = self._verdict([{"id": "clean", "type": "no_warnings", "op": "==", "value": True}], res)
         self.assertFalse(v.passed)
 
+    def test_no_warnings_ignores_benign_engine_mass_warning_only(self):
+        res = _ok_result()
+        res["components"]["engine"] = {"kind": "Engine", "fields": {}}
+        res["diagnostics"]["warnings"] = [
+            {
+                "message": "Non-ambient node 'engine' has unchanged m history.",
+                "component": "engine",
+                "field": "m",
+            }
+        ]
+        v = self._verdict([{"id": "clean", "type": "no_warnings", "op": "==", "value": True}], res)
+        self.assertTrue(v.passed)
+
+        res["diagnostics"]["warnings"].append(
+            {
+                "message": "Node 'engine' has nonphysical P values.",
+                "component": "engine",
+                "field": "P",
+            }
+        )
+        v = self._verdict([{"id": "clean", "type": "no_warnings", "op": "==", "value": True}], res)
+        self.assertFalse(v.passed)
+
     def test_status_gate_fails_all_when_not_ok(self):
         res = {"status": "crashed", "errors": ["RuntimeError: boom"]}
         v = self._verdict([
@@ -263,6 +286,48 @@ class TestSessionState(unittest.TestCase):
         _GuardedStore(_Boom()).write(new_state("s", "r", "asi1", "asi1"))
 
 
+class TestDesignSeeds(unittest.TestCase):
+    def test_seed_lookup_returns_pressure_fed_design(self):
+        from loop.design_seeds import get_design_seed, infer_design_seed
+
+        self.assertEqual(
+            infer_design_seed("simple pressure fed LOX kerosene system with GN2 pressurant"),
+            "pressure_fed_lox_kerosene",
+        )
+        seed = get_design_seed("pressure_fed_lox_kerosene")
+        self.assertIsNotNone(seed)
+        nodes = {node["params"]["name"]: node for node in seed["design"]["nodes"]}
+        self.assertEqual(nodes["engine"]["type"], "Engine")
+        self.assertIn("lox_tank", nodes)
+        conn_names = {conn["params"]["name"] for conn in seed["design"]["connections"]}
+        self.assertIn("lox_feed_line", conn_names)
+        self.assertIn("kerosene_feed_line", conn_names)
+
+    def test_unknown_seed_returns_none(self):
+        from loop.design_seeds import get_design_seed
+
+        self.assertIsNone(get_design_seed("missing_seed"))
+
+
+class TestSpecWriterSeeds(unittest.TestCase):
+    def test_pressure_fed_request_gets_seed_and_feed_checks(self):
+        from loop.spec_writer import apply_seed_guidance
+
+        spec = {"name": "s", "description": "d", "checks": []}
+        out = apply_seed_guidance(
+            spec,
+            "Design a pressure fed LOX and kerosene system with GN2 pressurant",
+        )
+        self.assertEqual(out["design_guidance"]["design_seed"], "pressure_fed_lox_kerosene")
+        checks = {check["id"]: check for check in out["checks"]}
+        self.assertEqual(checks["ran"]["type"], "status")
+        self.assertEqual(checks["physical"]["type"], "no_warnings")
+        self.assertEqual(checks["lox_feed_flow"]["component"], "lox_feed_line")
+        self.assertEqual(checks["lox_feed_flow"]["field"], "mdot")
+        self.assertEqual(checks["lox_feed_flow"]["stat"], "nonzero_count")
+        self.assertEqual(checks["kerosene_feed_flow"]["component"], "kerosene_feed_line")
+
+
 class TestClassifier(unittest.TestCase):
     def _o(self, status="ok", passed=False, n=2, total=6):
         from loop.classifier import IterationOutcome
@@ -307,6 +372,20 @@ class TestAgentPrompt(unittest.TestCase):
         self.assertNotIn("AGENT_JSON_BEST_PRACTICES.md", SYSTEM_PROMPT)
         self.assertIn("optional x/y coordinates", SYSTEM_PROMPT)
         self.assertIn("top-down", SYSTEM_PROMPT)
+
+    def test_first_prompt_includes_seed_design_when_present(self):
+        from loop.agent import _first_user_message
+        from loop.design_seeds import get_design_seed
+
+        seed = get_design_seed("pressure_fed_lox_kerosene")
+        prompt = _first_user_message(
+            {"name": "s", "checks": [], "design_guidance": {"design_seed": "pressure_fed_lox_kerosene"}},
+            seed=seed,
+        )
+        self.assertIn("SEED DESIGN", prompt)
+        self.assertIn('"lox_feed_line"', prompt)
+        self.assertIn('"kerosene_feed_line"', prompt)
+        self.assertIn("Preserve component names", prompt)
 
 
 if __name__ == "__main__":

@@ -147,7 +147,7 @@ def _resolve_actual(check: dict[str, Any], result: dict[str, Any]) -> tuple[Any,
         return checks[fieldname], ""
 
     if ctype == "no_warnings":
-        warns = result.get("diagnostics", {}).get("warnings", [])
+        warns = _significant_warnings(result)
         detail = "; ".join(w.get("message", str(w)) for w in warns)
         return (len(warns) == 0), detail
 
@@ -176,3 +176,22 @@ def _resolve_actual(check: dict[str, Any], result: dict[str, Any]) -> tuple[Any,
         return value, f"{comp}.{fieldname}.{stat}={value:.6g}"
 
     raise _Missing(f"unknown check type {ctype!r}")
+
+
+def _significant_warnings(result: dict[str, Any]) -> list[Any]:
+    warnings = result.get("diagnostics", {}).get("warnings", [])
+    components = result.get("components", {})
+    significant = []
+    for warning in warnings:
+        if isinstance(warning, dict) and _is_benign_engine_mass_warning(warning, components):
+            continue
+        significant.append(warning)
+    return significant
+
+
+def _is_benign_engine_mass_warning(warning: dict[str, Any], components: dict[str, Any]) -> bool:
+    component = warning.get("component")
+    if not component or components.get(component, {}).get("kind") != "Engine":
+        return False
+    message = str(warning.get("message", "")).lower()
+    return warning.get("field") == "m" and "unchanged" in message and "history" in message

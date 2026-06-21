@@ -17,6 +17,17 @@ Use these rules when creating or revising simulator JSON.
 - Set each connection direction from upstream source to downstream sink:
   `start_id` -> `end_id`.
 
+## Node vs Tank
+
+- Use `Node` by default for simple pressurized reservoirs, bottles, feed sources,
+  and sinks.
+- Use `Tank` only when modeling liquid plus ullage behavior.
+- `Tank` does not accept simple `fluid`, `P`, `V`, `T` params.
+- `Tank` requires `V_total_L`, `fluid_liq`, `m_liq`, `T_liq`, `fluid_ullage`,
+  `P_ullage`, `T_ullage`, and `name`.
+- For kerosene-like liquid fuel in simulator `Tank` nodes, use `n-Dodecane`.
+  Use engine `fuel: "Kerosene"` only inside `Engine` params.
+
 ## Layout
 
 - Always include explicit `x` and `y` coordinates for every node.

@@ -23,6 +23,7 @@ import sys
 from pathlib import Path
 
 from loop.classifier import IterationOutcome, classify
+from loop.design_seeds import get_design_seed
 from loop.evaluator import evaluate
 from loop.llm import ToolLoopSession
 from loop.session_state import (
@@ -104,8 +105,12 @@ SUBMIT_DESIGN_TOOL = {
                 "type": "array",
                 "description": (
                     "Nodes. Each: {\"id\": int, \"type\": \"Node\"|\"Ambient\"|\"Tank\"|\"Engine\", "
-                    "\"params\": {...}}. Node/Ambient params: fluid (CoolProp name e.g. "
-                    "\"Nitrogen\"), P (Pa), V (liters, Node only), T (K), name."
+                    "\"params\": {...}}. Use Node for simple pressurized reservoirs: "
+                    "fluid, P (Pa), V (liters), T (K), name. Ambient params: fluid, "
+                    "P (Pa), T (K), name. Tank is only for liquid plus ullage and "
+                    "does NOT accept simple fluid/P/V/T params; Tank requires "
+                    "V_total_L, fluid_liq, m_liq, T_liq, fluid_ullage, P_ullage, "
+                    "T_ullage, name."
                 ),
             },
             "connections": {
@@ -135,6 +140,13 @@ Network format (SI units unless noted; Node/Tank volumes are in LITERS):
 - Node types: "Node" (a finite control volume; params: fluid, P[Pa], V[liters],
   T[K], name), "Ambient" (an infinite boundary; params: fluid, P[Pa], T[K],
   name), "Tank", "Engine".
+- Use "Node" by default for simple pressurized reservoirs, bottles, feed sources,
+  and sinks. Do not use "Tank" just because the component is called a tank.
+- Use "Tank" only when you need liquid plus ullage behavior. Tank params are
+  exactly: V_total_L, fluid_liq, m_liq, T_liq, fluid_ullage, P_ullage,
+  T_ullage, name. Tank does NOT accept the simple Node params fluid/P/V/T.
+- For kerosene-like liquid fuel inside simulator Tank nodes, use fluid_liq
+  "n-Dodecane". Use Engine fuel "Kerosene" only in Engine params where needed.
 - Connection types: "Connection" (an orifice; params: CdA[m^2], name,
   normal_state=1, checking=1, location=0.0), "Line", "Regulator", "BangBang",
   "ThrottleValve", "Series".
@@ -160,6 +172,10 @@ Engine designs (liquid rocket engines):
 Rules:
 - You MUST call submit_design exactly once per turn with a full design.
 - Use the EXACT component names the requirements ask for (they are checked by name).
+- If the prompt includes a SEED DESIGN, preserve its working topology and
+  component names. Tune numeric values first before changing component types.
+- If a `physical` check fails, fix the warning component before tuning target
+  checks. If a feed `mdot` check is zero, create pressure drop across that feed.
 - When adding optional x/y coordinates for the UI, lay the network out top-down.
 - After each simulation you receive a deterministic verdict listing which
   checks passed/failed with the actual measured values. Revise the design to
@@ -198,12 +214,21 @@ def effective_system_prompt(soundness_guidance: bool = True) -> str:
     return SYSTEM_PROMPT + (SOUNDNESS_GUIDANCE if soundness_guidance else "")
 
 
-def _first_user_message(spec: dict, protect=lambda s: s) -> str:
-    return (
+def _first_user_message(spec: dict, protect=lambda s: s, seed: dict | None = None) -> str:
+    message = (
         "Design a fluid network that satisfies this requirements spec.\n\n"
         "SPEC:\n" + protect(json.dumps(spec, indent=2)) + "\n\n"
-        "Call submit_design with your design now."
     )
+    if seed:
+        message += (
+            "SEED DESIGN:\n"
+            "Use this known-good simulator topology as the starting point. Preserve "
+            "component names and topology unless the spec makes that impossible; tune "
+            "numeric values first.\n\n"
+            "SEED METADATA:\n" + protect(json.dumps(seed["metadata"], indent=2)) + "\n\n"
+            "SEED JSON:\n" + protect(json.dumps(seed["design"], indent=2)) + "\n\n"
+        )
+    return message + "Call submit_design with your design now."
 
 
 def _verdict_feedback(verdict, result) -> str:
@@ -250,7 +275,11 @@ def run_loop(spec_path: str | Path, max_iters: int = 4, use_compression: bool = 
     state["stage"] = "design"
     store.write(state)
 
-    first_msg = _first_user_message(spec, protect)
+    seed_name = (spec.get("design_guidance") or {}).get("design_seed")
+    seed = get_design_seed(seed_name)
+    if seed_name and seed is None:
+        print(f"[loop] unknown design_seed {seed_name!r}; continuing without seed")
+    first_msg = _first_user_message(spec, protect, seed=seed)
     final_verdict = None
     final_design = None
     line: list[IterationOutcome] = []   # outcomes since the last restart

@@ -1,0 +1,155 @@
+{
+  "name": "lox_kerosene_pressure_fed_6d2b99a6",
+  "description": "Design a simple pressure-fed rocket feed system using liquid oxygen (LOX) and kerosene (RP-1) as propellants, with gaseous nitrogen as the pressurant gas. The system must include: (1) a nitrogen pressurant tank, (2) a LOX tank, (3) a kerosene tank, (4) nitrogen-to-LOX pressurization line, (5) nitrogen-to-kerosene pressurization line, (6) LOX feed line to injector, and (7) kerosene feed line to injector. FIXED quantities: propellants (LOX and kerosene), pressurant (gaseous nitrogen). TUNABLE quantities: tank pressures, tank volumes, line sizes, flow rates, and all component dimensions. The system must establish stable flow of both propellants without nonphysical warnings.",
+  "design_guidance": {
+    "must_include_nodes": [
+      "nitrogen_tank",
+      "lox_tank",
+      "kerosene_tank",
+      "lox_injector",
+      "kerosene_injector"
+    ],
+    "must_include_connections": [
+      "n2_to_lox_press",
+      "n2_to_kerosene_press",
+      "lox_feed",
+      "kerosene_feed"
+    ],
+    "fixed_constraints": {
+      "pressurant": "gaseous nitrogen",
+      "oxidizer": "liquid oxygen (LOX)",
+      "fuel": "kerosene (RP-1)"
+    },
+    "tunable": [
+      "nitrogen_tank_pressure",
+      "nitrogen_tank_volume",
+      "lox_tank_pressure",
+      "lox_tank_volume",
+      "kerosene_tank_pressure",
+      "kerosene_tank_volume",
+      "pressurization_line_diameters",
+      "feed_line_diameters",
+      "flow_rates"
+    ],
+    "notes": [
+      "System is pressure-fed - no turbopumps required",
+      "Nitrogen pressurizes both propellant tanks to drive flow",
+      "Ensure LOX and kerosene tanks maintain sufficient pressure for flow",
+      "LOX density ~1141 kg/m\u00b3 at cryogenic conditions",
+      "Kerosene density ~810 kg/m\u00b3 at room temperature",
+      "Nitrogen is gaseous pressurant at ambient or elevated temperature"
+    ]
+  },
+  "checks": [
+    {
+      "id": "ran",
+      "description": "Simulation must complete without crashing or invalid configuration",
+      "type": "status",
+      "op": "==",
+      "value": "ok"
+    },
+    {
+      "id": "flow_happens",
+      "description": "System must establish non-zero mass flow through propellant lines",
+      "type": "sim",
+      "field": "has_nonzero_flow",
+      "op": "==",
+      "value": true
+    },
+    {
+      "id": "physical",
+      "description": "No nonphysical or degenerate warnings during simulation",
+      "type": "no_warnings",
+      "op": "==",
+      "value": true
+    },
+    {
+      "id": "nitrogen_tank_pressure_positive",
+      "description": "Nitrogen tank must start with positive pressure (>1 bar absolute)",
+      "type": "component",
+      "component": "nitrogen_tank",
+      "field": "P",
+      "stat": "first",
+      "op": ">",
+      "value": 100000.0
+    },
+    {
+      "id": "lox_tank_pressure_positive",
+      "description": "LOX tank must start with positive pressure (>1 bar absolute)",
+      "type": "component",
+      "component": "lox_tank",
+      "field": "P",
+      "stat": "first",
+      "op": ">",
+      "value": 100000.0
+    },
+    {
+      "id": "kerosene_tank_pressure_positive",
+      "description": "Kerosene tank must start with positive pressure (>1 bar absolute)",
+      "type": "component",
+      "component": "kerosene_tank",
+      "field": "P",
+      "stat": "first",
+      "op": ">",
+      "value": 100000.0
+    },
+    {
+      "id": "lox_feed_flow",
+      "description": "LOX feed line must have non-zero mass flow",
+      "type": "component",
+      "component": "lox_feed",
+      "field": "mdot",
+      "stat": "max",
+      "op": ">",
+      "value": 0.0
+    },
+    {
+      "id": "kerosene_feed_flow",
+      "description": "Kerosene feed line must have non-zero mass flow",
+      "type": "component",
+      "component": "kerosene_feed",
+      "field": "mdot",
+      "stat": "max",
+      "op": ">",
+      "value": 0.0
+    },
+    {
+      "id": "lox_mass_depletes",
+      "description": "LOX tank mass must decrease (propellant consumed)",
+      "type": "component",
+      "component": "lox_tank",
+      "field": "m",
+      "stat": "delta",
+      "op": "<",
+      "value": 0.0
+    },
+    {
+      "id": "kerosene_mass_depletes",
+      "description": "Kerosene tank mass must decrease (propellant consumed)",
+      "type": "component",
+      "component": "kerosene_tank",
+      "field": "m",
+      "stat": "delta",
+      "op": "<",
+      "value": 0.0
+    },
+    {
+      "id": "nitrogen_mass_depletes",
+      "description": "Nitrogen tank mass must decrease (pressurant consumed)",
+      "type": "component",
+      "component": "nitrogen_tank",
+      "field": "m",
+      "stat": "delta",
+      "op": "<",
+      "value": 0.0
+    },
+    {
+      "id": "simulation_duration",
+      "description": "Simulation must run for at least 1 second to establish flow",
+      "type": "diagnostics",
+      "field": "duration",
+      "op": ">=",
+      "value": 1.0
+    }
+  ]
+}

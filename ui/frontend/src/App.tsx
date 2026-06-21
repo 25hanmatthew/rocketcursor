@@ -32,6 +32,7 @@ import type {
   RunReport,
   RunResponse,
   SampleRow,
+  SessionIteration,
   SessionState,
   StatusItem
 } from "./types";
@@ -153,6 +154,27 @@ function currentActivity(state: SessionState | null): string {
   if (state.stage === "simulate") return `Running simulator for ${iteration}`;
   if (state.stage === "evaluate") return `Checking simulator output for ${iteration}`;
   return stageLabel(state.stage);
+}
+
+function consoleCheckRows(iteration?: SessionIteration) {
+  return (iteration?.verdict?.checks ?? []).map((check) => ({
+    result: check.passed ? "PASS" : "FAIL",
+    id: check.id,
+    description: check.description,
+    actual: check.actual,
+    expected: `${check.op} ${String(check.expected)}`,
+    detail: check.detail || ""
+  }));
+}
+
+function consoleCheckSummary(iteration?: SessionIteration) {
+  const checks = iteration?.verdict?.checks ?? [];
+  const passed = checks.filter((check) => check.passed).length;
+  return {
+    passed,
+    failed: checks.length - passed,
+    total: checks.length
+  };
 }
 
 function activitySteps(state: SessionState | null): Array<{ key: string; label: string; detail: string; tone: ActivityTone }> {
@@ -320,15 +342,22 @@ export default function App() {
     ].join("|");
     if (lastConsoleState.current !== consoleKey) {
       lastConsoleState.current = consoleKey;
+      const checkRows = consoleCheckRows(latest);
+      const checkSummary = consoleCheckSummary(latest);
       console.info(`[design-loop ${sessionId.slice(0, 8)}] ${currentActivity(payload.state)}`, {
         status: payload.state.status,
         stage: payload.state.stage,
         current_iteration: payload.state.current_iteration,
         latest_verdict: latest?.verdict?.summary,
+        checks: checkSummary,
+        check_rows: checkRows,
         decision: latest?.decision,
         latest_playable: payload.latest_playable,
         error: payload.state.error
       });
+      if (checkRows.length) {
+        console.table(checkRows);
+      }
     }
     if (payload.latest_playable) {
       await loadDesignIteration(sessionId, payload.latest_playable);

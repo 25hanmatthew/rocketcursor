@@ -20,6 +20,7 @@ import json
 import sys
 
 from loop.agent import _load_dotenv
+from loop.design_seeds import DESIGN_SEEDS, infer_design_seed
 from loop.llm import one_tool_call
 
 SUBMIT_SPEC_TOOL = {
@@ -39,7 +40,8 @@ SUBMIT_SPEC_TOOL = {
             "design_guidance": {
                 "type": "object",
                 "description": (
-                    "Hints for the designer: must_include_nodes (list of names), "
+                    "Hints for the designer: design_seed (optional known-good seed name), "
+                    "must_include_nodes (list of names), "
                     "must_include_connections (list of names), fixed_constraints (object), "
                     "tunable (list), notes (list of strings)."
                 ),
@@ -92,9 +94,24 @@ Check vocabulary (each check needs id, description, type, op, value):
 - {"type":"diagnostics","field":"duration","op":">=","value":11.9}  (also dt, step_count, node_count, connection_count)
 Operators: > >= < <= == !=.
 
+Available design_seed values:
+- pressure_fed_lox_kerosene: pressure-fed LOX/kerosene feed system using GN2
+  pressurization and a real Engine node; exact component names are gn2_tank, lox_tank,
+  kerosene_tank, engine, gn2_to_lox_pressurization,
+  gn2_to_kerosene_pressurization, lox_feed_line, kerosene_feed_line.
+- tank_blowdown: simple pressurized gas tank venting to atmosphere.
+- pressure_window_blowdown: tank blowdown with a final pressure target/window.
+
 Rules:
-- Always include three baseline checks: id "ran" (status==ok), "flow_happens"
-  (sim has_nonzero_flow==true), and "physical" (no_warnings==true).
+- Always include baseline checks: id "ran" (status==ok) and "physical"
+  (no_warnings==true). Add "flow_happens" only as a secondary broad check; do
+  not rely on it as the only proof of mission-critical flow.
+- For feed/engine requests, include separate per-path flow checks on the actual
+  feed connections, e.g. lox_feed_line.mdot.nonzero_count > 0 and
+  kerosene_feed_line.mdot.nonzero_count > 0.
+- For pressure-fed LOX/kerosene/GN2 requests, set
+  design_guidance.design_seed="pressure_fed_lox_kerosene" and use the seed's
+  exact component names in checks.
 - Use SI units. Convert the user's units to SI in the check values: bar->Pa (x1e5),
   MPa->Pa (x1e6), psi->Pa (x6894.76), liters stay liters in design guidance.
 - A target "about X" or "between A and B" becomes a WINDOW: two component checks
@@ -114,12 +131,95 @@ Rules:
 """
 
 
+def _append_unique(items: list, values) -> None:
+    for value in values:
+        if value not in items:
+            items.append(value)
+
+
+def _has_check(checks: list[dict], check_id: str) -> bool:
+    return any(check.get("id") == check_id for check in checks)
+
+
+def _ensure_check(checks: list[dict], check: dict) -> None:
+    if not _has_check(checks, check["id"]):
+        checks.append(check)
+
+
+def apply_seed_guidance(spec: dict, request: str) -> dict:
+    """Attach deterministic seed hints/checks to an LLM-derived spec."""
+    seed_name = infer_design_seed(request)
+    if not seed_name:
+        return spec
+
+    spec = dict(spec)
+    guidance = dict(spec.get("design_guidance") or {})
+    seed = DESIGN_SEEDS[seed_name]
+    guidance.setdefault("design_seed", seed_name)
+    nodes = list(guidance.get("must_include_nodes") or [])
+    connections = list(guidance.get("must_include_connections") or [])
+    tunable = list(guidance.get("tunable") or [])
+    notes = list(guidance.get("notes") or [])
+    _append_unique(nodes, seed.must_include_nodes)
+    _append_unique(connections, seed.must_include_connections)
+    _append_unique(tunable, seed.tunable)
+    _append_unique(notes, seed.notes)
+    guidance["must_include_nodes"] = nodes
+    guidance["must_include_connections"] = connections
+    guidance["tunable"] = tunable
+    guidance["notes"] = notes
+    spec["design_guidance"] = guidance
+
+    checks = list(spec.get("checks") or [])
+    _ensure_check(checks, {
+        "id": "ran",
+        "description": "Simulation runs without invalid configuration or solver crash.",
+        "type": "status",
+        "op": "==",
+        "value": "ok",
+    })
+    _ensure_check(checks, {
+        "id": "physical",
+        "description": "No nonphysical or degenerate warnings during simulation.",
+        "type": "no_warnings",
+        "op": "==",
+        "value": True,
+    })
+
+    if seed_name == "pressure_fed_lox_kerosene":
+        _ensure_check(checks, {
+            "id": "lox_feed_flow",
+            "description": "LOX feed line delivers non-zero mass flow to the engine.",
+            "type": "component",
+            "component": "lox_feed_line",
+            "field": "mdot",
+            "stat": "nonzero_count",
+            "op": ">",
+            "value": 0,
+        })
+        _ensure_check(checks, {
+            "id": "kerosene_feed_flow",
+            "description": "Kerosene feed line delivers non-zero mass flow to the engine.",
+            "type": "component",
+            "component": "kerosene_feed_line",
+            "field": "mdot",
+            "stat": "nonzero_count",
+            "op": ">",
+            "value": 0,
+        })
+    spec["checks"] = checks
+    return spec
+
+
 def nl_to_spec(request: str) -> dict:
     """Translate a natural-language request into a requirements spec dict."""
     _load_dotenv()
-    user = (f"Translate this design request into a requirements spec:\n\n{request}\n\n"
-            "Call submit_spec now.")
-    return one_tool_call(SPEC_WRITER_SYSTEM, user, SUBMIT_SPEC_TOOL, tool_name="submit_spec")
+    seed_name = infer_design_seed(request)
+    seed_hint = f"\nLikely design_seed: {seed_name}\n" if seed_name else ""
+    user = (f"Translate this design request into a requirements spec:\n\n{request}\n"
+            f"{seed_hint}\nCall submit_spec now.")
+    spec = one_tool_call(SPEC_WRITER_SYSTEM, user, SUBMIT_SPEC_TOOL, tool_name="submit_spec")
+    return apply_seed_guidance(spec, request)
 
 
 def main(argv=None) -> int:
