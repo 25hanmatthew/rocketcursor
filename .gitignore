@@ -16,3 +16,8 @@ results/experiments/
 .agents/
 .claude/
 skills-lock.json
+
+# Node / frontend build deps & caches (platform-specific — never commit; run `npm install`)
+node_modules/
+ui/frontend/.vite/
+.DS_Store
