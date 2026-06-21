@@ -23,6 +23,7 @@ import { buildDiagram } from "./lib/diagram";
 import { parseSamplesCsv } from "./lib/csv";
 import { interpolateSample, numericValue, rowsByComponent, timeRange } from "./lib/telemetry";
 import type {
+  ChatHistoryItem,
   DiagramModel,
   DiagramNode,
   DesignRunRevisionResponse,
@@ -124,6 +125,7 @@ function messageText(item: unknown): string {
 type Tone = "ok" | "warn" | "danger" | "idle";
 type InputMode = "chat" | "json";
 type ActivityTone = "done" | "current" | "upcoming" | "danger";
+type ChatTarget = { kind: "revision"; url: string; iteration: number } | { kind: "new"; url: string };
 
 function StatusBadge({ tone, label }: { tone: Tone; label: string }) {
   return (
@@ -256,7 +258,7 @@ export function chatSubmissionTarget(
   sessionId: string | null,
   latestLoadedKey: string | null,
   hasLoadedDesign: boolean
-): { kind: "revision"; url: string; iteration: number } | { kind: "new"; url: string } {
+): ChatTarget {
   const iteration = loadedIterationForSession(latestLoadedKey, sessionId);
   if (sessionId && hasLoadedDesign && iteration !== null) {
     return { kind: "revision", url: `/api/design-runs/${sessionId}/revisions`, iteration };
@@ -264,9 +266,106 @@ export function chatSubmissionTarget(
   return { kind: "new", url: "/api/design-runs" };
 }
 
+export function chatRequestBody(message: string, target: ChatTarget): { message: string; iteration?: number } {
+  return target.kind === "revision" ? { message, iteration: target.iteration } : { message };
+}
+
+function chatId(prefix: string, now = Date.now()): string {
+  return `${prefix}-${now.toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
+}
+
+export function createUserChatItem(
+  text: string,
+  target: ChatTarget,
+  parentSessionId: string | null,
+  now = Date.now()
+): ChatHistoryItem {
+  return {
+    id: chatId("user", now),
+    role: "user",
+    text,
+    kind: target.kind === "revision" ? "revision" : "initial",
+    parentSessionId: target.kind === "revision" ? parentSessionId ?? undefined : undefined,
+    iteration: target.kind === "revision" ? target.iteration : undefined,
+    createdAt: now
+  };
+}
+
+export function createRunStatusChatItem(
+  sessionId: string,
+  target: ChatTarget,
+  parentSessionId: string | null,
+  now = Date.now()
+): ChatHistoryItem {
+  return {
+    id: `status-${sessionId}`,
+    role: "assistant",
+    text: target.kind === "revision" ? "Revision started. Running simulator loop." : "Design run started. Running simulator loop.",
+    kind: "status",
+    sessionId,
+    parentSessionId: target.kind === "revision" ? parentSessionId ?? undefined : undefined,
+    iteration: target.kind === "revision" ? target.iteration : undefined,
+    status: "running",
+    createdAt: now
+  };
+}
+
+export function summarizeRunState(state: SessionState): Pick<ChatHistoryItem, "text" | "status"> {
+  if (state.status === "passed" || state.passed) {
+    return {
+      status: "passed",
+      text: `Design passed in ${state.iterations_used || state.iterations.length} iteration(s).`
+    };
+  }
+  if (state.status === "error") {
+    return {
+      status: "error",
+      text: state.error || "Run failed."
+    };
+  }
+  if (state.status === "failed") {
+    return {
+      status: "failed",
+      text: `Stopped after ${state.iterations_used || state.iterations.length} iteration(s).`
+    };
+  }
+  return {
+    status: "running",
+    text: currentActivity(state) || "Loop running."
+  };
+}
+
+export function updateRunStatusChatItem(history: ChatHistoryItem[], sessionId: string, state: SessionState): ChatHistoryItem[] {
+  const summary = summarizeRunState(state);
+  return history.map((item) =>
+    item.kind === "status" && item.sessionId === sessionId
+      ? { ...item, text: summary.text, status: summary.status }
+      : item
+  );
+}
+
+export function ChatTranscript({ items }: { items: ChatHistoryItem[] }) {
+  if (items.length === 0) return null;
+  return (
+    <div className="chat-history" aria-label="Chat history">
+      {items.map((item) => (
+        <div key={item.id} className={`chat-message role-${item.role} status-${item.status ?? "idle"}`}>
+          <div className="chat-message-meta">
+            <span>{item.role === "user" ? "You" : "Design loop"}</span>
+            {item.kind === "revision" && <span>Revision</span>}
+            {item.status && <span>{item.status}</span>}
+          </div>
+          <div className="chat-message-text">{item.text}</div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
 export default function App() {
   const [inputMode, setInputMode] = useState<InputMode>("chat");
   const [chatText, setChatText] = useState("");
+  const [chatHistory, setChatHistory] = useState<ChatHistoryItem[]>([]);
   const [designSessionId, setDesignSessionId] = useState<string | null>(null);
   const [designState, setDesignState] = useState<SessionState | null>(null);
   const [latestLoadedDesignKey, setLatestLoadedDesignKey] = useState<string | null>(null);
@@ -397,12 +496,21 @@ export default function App() {
         if (state.status === "running") {
           timer = window.setTimeout(poll, 2000);
         } else {
+          setChatHistory((history) => updateRunStatusChatItem(history, designSessionId, state));
           setBusy(false);
         }
       } catch (exc) {
         if (!cancelled) {
           setBusy(false);
-          setError(exc instanceof Error ? exc.message : String(exc));
+          const message = exc instanceof Error ? exc.message : String(exc);
+          setError(message);
+          setChatHistory((history) =>
+            history.map((item) =>
+              item.kind === "status" && item.sessionId === designSessionId
+                ? { ...item, text: message, status: "error" }
+                : item
+            )
+          );
         }
       }
     };
@@ -421,6 +529,7 @@ export default function App() {
     setDesignSessionId(null);
     setDesignState(null);
     setLatestLoadedDesignKey(null);
+    setChatHistory([]);
     lastConsoleState.current = "";
     try {
       const text = await file.text();
@@ -451,16 +560,20 @@ export default function App() {
     const message = chatText.trim();
     if (!message) return;
     const target = chatSubmissionTarget(designSessionId, latestLoadedDesignKey, Boolean(config));
+    const parentSessionId = designSessionId;
+    const userItem = createUserChatItem(message, target, parentSessionId);
+    setChatHistory((history) => (target.kind === "new" ? [userItem] : [...history, userItem]));
     setBusy(true);
     setError(null);
     setPlaying(false);
     setDesignState(null);
     setLatestLoadedDesignKey(null);
+    setChatText("");
     try {
       const response = await fetch(target.url, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(target.kind === "revision" ? { message, iteration: target.iteration } : { message })
+        body: JSON.stringify(chatRequestBody(message, target))
       });
       const payload = (await response.json()) as DesignRunStartResponse | DesignRunRevisionResponse;
       if (!response.ok || !payload.ok) {
@@ -475,10 +588,23 @@ export default function App() {
       } else {
         console.info(`[design-loop ${payload.session_id.slice(0, 8)}] started from chat`, { message });
       }
+      setChatHistory((history) => [...history, createRunStatusChatItem(payload.session_id, target, parentSessionId)]);
       setDesignSessionId(payload.session_id);
     } catch (exc) {
       setBusy(false);
-      setError(exc instanceof Error ? exc.message : String(exc));
+      const failureMessage = exc instanceof Error ? exc.message : String(exc);
+      setError(failureMessage);
+      setChatHistory((history) => [
+        ...history,
+        {
+          id: chatId("error"),
+          role: "assistant",
+          text: failureMessage,
+          kind: "status",
+          status: "error",
+          createdAt: Date.now()
+        }
+      ]);
     }
   }
 
@@ -588,6 +714,7 @@ export default function App() {
               void submitChatRequest();
             }}
           >
+            <ChatTranscript items={chatHistory} />
             <textarea
               value={chatText}
               onChange={(event) => setChatText(event.target.value)}

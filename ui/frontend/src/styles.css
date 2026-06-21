@@ -289,6 +289,65 @@ select {
   gap: var(--sp-3);
 }
 
+.chat-history {
+  display: grid;
+  gap: var(--sp-2);
+  max-height: 260px;
+  overflow: auto;
+  padding: var(--sp-2);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  background: var(--surface-inset);
+}
+
+.chat-message {
+  display: grid;
+  gap: 5px;
+  max-width: 92%;
+  padding: var(--sp-2) var(--sp-3);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--r-md);
+  background: var(--surface-2);
+}
+
+.chat-message.role-user {
+  justify-self: end;
+  border-color: var(--accent-line);
+  background: var(--accent-soft);
+}
+
+.chat-message.role-assistant {
+  justify-self: start;
+}
+
+.chat-message.status-passed {
+  border-color: color-mix(in srgb, var(--ok) 35%, transparent);
+  background: var(--ok-soft);
+}
+
+.chat-message.status-error,
+.chat-message.status-failed {
+  border-color: color-mix(in srgb, var(--danger) 35%, transparent);
+  background: var(--danger-soft);
+}
+
+.chat-message-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-2);
+  color: var(--text-3);
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.chat-message-text {
+  color: var(--text-1);
+  font-size: 12px;
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+}
+
 .chat-runner textarea {
   width: 100%;
   resize: vertical;

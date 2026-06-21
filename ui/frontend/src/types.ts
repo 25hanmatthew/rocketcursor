@@ -60,6 +60,18 @@ export interface DesignRunRevisionResponse {
   message?: string;
 }
 
+export interface ChatHistoryItem {
+  id: string;
+  role: "user" | "assistant";
+  text: string;
+  kind: "initial" | "revision" | "status";
+  sessionId?: string;
+  parentSessionId?: string;
+  iteration?: number;
+  status?: "running" | "passed" | "failed" | "error";
+  createdAt: number;
+}
+
 export interface LatestPlayableRun {
   iteration: number;
   artifacts: string[];
