@@ -68,3 +68,6 @@ ui/frontend/dist/
 .DS_Store
 *.log
 results/procurement_runs/
+
+# Keep the project preprint tracked (overrides *.pdf) so the README link resolves.
+!paper/main.pdf
