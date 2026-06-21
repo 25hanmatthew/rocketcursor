@@ -17,6 +17,50 @@ export interface DesignChange {
   value: string | number | null;
 }
 
+export interface DesignChangeExtraction {
+  summary: string;
+  key_changes: DesignChange[];
+}
+
+/* Pull a DesignChangeExtraction out of a model/function payload. Accepts either a
+   {summary, key_changes[]} object (current) or a bare DesignChange[] array (older).
+   Tolerates surrounding prose / ```json fences. Shared by the voice copilot's
+   advise mode and the legacy ConversationRecorder. */
+export function extractChangeExtraction(raw: string): DesignChangeExtraction {
+  const objectStart = raw.indexOf("{");
+  const objectEnd = raw.lastIndexOf("}");
+  if (objectStart !== -1 && objectEnd > objectStart) {
+    const parsed = JSON.parse(raw.slice(objectStart, objectEnd + 1)) as {
+      summary?: unknown;
+      key_changes?: unknown;
+    };
+    if (Array.isArray(parsed.key_changes)) {
+      return {
+        summary: typeof parsed.summary === "string" ? parsed.summary : "",
+        key_changes: parsed.key_changes as DesignChange[],
+      };
+    }
+  }
+  const start = raw.indexOf("[");
+  const end = raw.lastIndexOf("]");
+  if (start === -1 || end === -1 || end < start) {
+    throw new Error("No design changes JSON found in response");
+  }
+  const parsed = JSON.parse(raw.slice(start, end + 1));
+  if (!Array.isArray(parsed)) {
+    throw new Error("Response was not a JSON array");
+  }
+  return { summary: "", key_changes: parsed as DesignChange[] };
+}
+
+/* Plain-text rendering of an extraction, for the chat hand-off and for Nova to
+   read aloud in advise mode. */
+export function extractionToRequirements(extraction: DesignChangeExtraction): string {
+  const body = changesToRequirements(extraction.key_changes);
+  if (extraction.summary && body) return `${extraction.summary}\n\n${body}`;
+  return extraction.summary || body;
+}
+
 export function changesToRequirements(changes: DesignChange[]): string {
   if (changes.length === 0) return "";
   const lines = changes.map((change) => {

@@ -593,6 +593,56 @@ select {
   color: var(--text-2);
 }
 
+/* Advise mode: recommended-changes panel (advisory, nothing is run) */
+.copilot-advice {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px;
+  border: 1px solid var(--border, #2a2f3a);
+  border-radius: 8px;
+  background: var(--surface-2, rgba(255, 255, 255, 0.03));
+}
+.copilot-advice .copilot-review-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.copilot-advice-summary {
+  margin: 0;
+  font-size: 13px;
+  color: var(--text-1, inherit);
+}
+.copilot-advice-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 13px;
+}
+.copilot-advice-list li {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 6px;
+}
+.copilot-advice-tag {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 1px 6px;
+  border-radius: 999px;
+  background: var(--surface-3, rgba(255, 255, 255, 0.08));
+  color: var(--text-2);
+}
+.copilot-advice-tag.tag-pressure { background: rgba(96, 165, 250, 0.18); color: #93c5fd; }
+.copilot-advice-tag.tag-geometry { background: rgba(52, 211, 153, 0.18); color: #6ee7b7; }
+.copilot-advice-tag.tag-material { background: rgba(251, 191, 36, 0.18); color: #fcd34d; }
+.copilot-advice-tag.tag-constraint { background: rgba(248, 113, 113, 0.18); color: #fca5a5; }
+.copilot-advice-tag.tag-general { background: rgba(148, 163, 184, 0.18); color: #cbd5e1; }
+
 .copilot-review-text {
   width: 100%;
   resize: vertical;

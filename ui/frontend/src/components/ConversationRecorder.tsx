@@ -2,6 +2,17 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import * as Sentry from "@sentry/react";
 import { AlertTriangle, Loader2, Mic, Sparkles, Square } from "lucide-react";
 import { ROCKET_KEYTERMS } from "../lib/keyterms";
+import {
+  extractChangeExtraction,
+  type DesignChange,
+  type DesignChangeCategory,
+  type DesignChangeExtraction,
+} from "../lib/voiceSummary";
+
+// Re-exported from the shared lib so existing imports `from "./ConversationRecorder"`
+// (and this file's test) keep working after consolidation.
+export { extractChangeExtraction };
+export type { DesignChange, DesignChangeCategory, DesignChangeExtraction };
 
 /* Voice-driven requirements capture.
    - Streams mic audio to Deepgram (nova-3) over a WebSocket for live transcription.
@@ -37,19 +48,6 @@ const CHANGE_EXTRACTION_SYSTEM_PROMPT =
   "and value (specific number or spec if mentioned, otherwise null)). Respond with ONLY the raw " +
   "JSON object and nothing else - no reasoning, explanations, commentary, preamble, or markdown code fences.";
 
-export type DesignChangeCategory = "pressure" | "geometry" | "material" | "constraint" | "general";
-
-export interface DesignChange {
-  category: DesignChangeCategory;
-  description: string;
-  value: string | number | null;
-}
-
-export interface DesignChangeExtraction {
-  summary: string;
-  key_changes: DesignChange[];
-}
-
 interface ConversationRecorderProps {
   onChangesExtracted: (extraction: DesignChangeExtraction) => void;
   /* Fallback hook used when Anthropic returns malformed JSON: the caller can still
@@ -71,37 +69,6 @@ interface DeepgramMessage {
 
 function pickTranscript(message: DeepgramMessage): string {
   return message.channel?.alternatives?.[0]?.transcript?.trim() ?? "";
-}
-
-/* Anthropic may wrap JSON in prose or a ```json fence. Pull the first JSON
-   object out before parsing so well-formed answers aren't rejected. Older array
-   responses are still accepted for compatibility. */
-export function extractChangeExtraction(raw: string): DesignChangeExtraction {
-  const objectStart = raw.indexOf("{");
-  const objectEnd = raw.lastIndexOf("}");
-  if (objectStart !== -1 && objectEnd > objectStart) {
-    const parsed = JSON.parse(raw.slice(objectStart, objectEnd + 1)) as {
-      summary?: unknown;
-      key_changes?: unknown;
-    };
-    if (Array.isArray(parsed.key_changes)) {
-      return {
-        summary: typeof parsed.summary === "string" ? parsed.summary : "",
-        key_changes: parsed.key_changes as DesignChange[]
-      };
-    }
-  }
-
-  const start = raw.indexOf("[");
-  const end = raw.lastIndexOf("]");
-  if (start === -1 || end === -1 || end < start) {
-    throw new Error("No design changes JSON found in Anthropic response");
-  }
-  const parsed = JSON.parse(raw.slice(start, end + 1));
-  if (!Array.isArray(parsed)) {
-    throw new Error("Anthropic response was not a JSON array");
-  }
-  return { summary: "", key_changes: parsed as DesignChange[] };
 }
 
 export function ConversationRecorder({ onChangesExtracted, onRawTranscript }: ConversationRecorderProps) {

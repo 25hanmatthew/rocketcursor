@@ -1,25 +1,41 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import * as Sentry from "@sentry/react";
-import { AlertTriangle, Bot, Loader2, MessageSquare, Mic, Play, Sparkles, Square, User } from "lucide-react";
+import { AlertTriangle, Bot, Lightbulb, Loader2, MessageSquare, Mic, Play, Sparkles, Square, User } from "lucide-react";
 import { ROCKET_KEYTERMS } from "../lib/keyterms";
-import { buildDraftFromTurns, buildTranscriptText, summarizeTranscript } from "../lib/voiceSummary";
+import {
+  buildDraftFromTurns,
+  buildTranscriptText,
+  extractionToRequirements,
+  summarizeTranscript,
+  type DesignChange,
+  type DesignChangeExtraction,
+} from "../lib/voiceSummary";
 
 /* Conversational design copilot built on the Deepgram Voice Agent API.
-   The engineer talks; the agent (listen=nova-3, think=gpt-4o-mini, speak=aura-2)
-   talks back, gathers requirements, and calls a client-side function to launch
-   the existing design loop. A second client-side function lets the engineer ask
-   how the run is going and hear the verdict read aloud — voice in and voice out.
+   The engineer talks; the agent (listen=flux, think=gpt-4o-mini, speak=aura-2)
+   talks back. Three modes:
+     - design:  gather requirements, confirm, launch the design loop, and NARRATE
+                each iteration verdict + final design aloud (voice in AND out).
+     - advise:  discuss tradeoffs and recommend design changes WITHOUT acting.
+     - dictate: listen only, summarize the description to the Chat tab.
+
+   Key reliability rule: a function call (start_design_run / advise / submit) NEVER
+   tears down the live conversation. The session ends only on explicit End, unmount,
+   or a genuine socket error — so Nova can confirm, narrate, and answer follow-ups.
 
    Audio path:
    - Mic capture: getUserMedia -> 16 kHz AudioContext -> AudioWorklet -> linear16 PCM -> WS.
    - Agent audio: binary linear16 @ 24 kHz frames -> gapless Web Audio playback queue.
-   - Barge-in: on UserStartedSpeaking we stop all scheduled playback immediately. */
+   - Barge-in: on UserStartedSpeaking we stop all scheduled playback immediately.
+   - Narration: server-side InjectAgentMessage (behavior=queue) speaks loop verdicts. */
 
 const AGENT_URL = "wss://agent.deepgram.com/v1/agent/converse";
 const INPUT_SAMPLE_RATE = 16000;
 const OUTPUT_SAMPLE_RATE = 24000;
+const KEEPALIVE_MS = 8000;
+const NARRATION_POLL_MS = 2500;
 
-const CONVERSATIONAL_PROMPT = [
+const DESIGN_PROMPT = [
   "## CRITICAL: YOU ARE A TEXT GENERATOR FOR A VOICE SYSTEM",
   "Everything you write is read aloud by a text-to-speech engine. Generate ONLY plain conversational text.",
   "No markdown, no headers, no bold, no bullet points, no brackets, no stage directions. Keep every reply to one or two short sentences.",
@@ -27,7 +43,7 @@ const CONVERSATIONAL_PROMPT = [
   "",
   "## YOUR ROLE",
   "You are Nova, a propulsion design intake assistant for a rocket fluid-network simulator.",
-  "Your job is to gather a clear set of design requirements from the engineer, then launch a design and simulation run.",
+  "Gather a clear set of design requirements from the engineer, then launch a design and simulation run.",
   "",
   "## PERSONALITY AND TONE",
   "Sharp, efficient, and technical. You speak like a fellow propulsion engineer. Never fawning, never chatty.",
@@ -36,17 +52,36 @@ const CONVERSATIONAL_PROMPT = [
   "Find out the system type, propellants, target pressures, tank volumes, flow rates, and run duration or constraints.",
   "Ask one focused question at a time. Two or three good questions is usually enough.",
   "",
-  "## WHEN TO CALL FUNCTIONS",
-  "When you have a usable picture of the requirements, call start_design_run with a concise requirements summary.",
-  "When the engineer asks how the design is going, call check_design_status and read the result back conversationally.",
+  "## CONFIRM BEFORE YOU RUN",
+  "Do NOT call start_design_run on your first reply. First gather the key requirements, then read them back in one sentence and ask the engineer to confirm.",
+  "Only after they say yes (or 'go', 'run it', 'that's right') call start_design_run with a concise requirements summary.",
+  "After you call it, tell them you'll read the results aloud as the simulation iterates. Do not end the conversation.",
+  "",
+  "## STATUS",
+  "When the engineer asks how the run is going, call check_design_status and read the result back conversationally.",
   "Do not claim you can fix backend or API authentication errors — tell the engineer to check server API keys.",
-  "Always call the function first, then respond based on the result.",
   "",
   "## SPEAKING STYLE",
   "Read pressures in plain units, for example 'five hundred psi'. Read numbers naturally.",
 ].join("\n");
 
-const CAPTURE_PROMPT = [
+const ADVISE_PROMPT = [
+  "## CRITICAL: YOU ARE A TEXT GENERATOR FOR A VOICE SYSTEM",
+  "Generate ONLY plain conversational text. No markdown. One or two short sentences per turn.",
+  "",
+  "## YOUR ROLE",
+  "You are Nova in advisory mode — a propulsion design reviewer. Discuss the engineer's design, ask sharp questions, and propose improvements.",
+  "You DO NOT run, launch, or change anything. You only advise. Never claim you started a simulation or made a change.",
+  "",
+  "## WHEN TO CALL FUNCTIONS",
+  "When you have a clear set of recommended changes — or the engineer asks 'what should I change' or says they're done — call advise_design_changes once with a summary and the specific key changes.",
+  "After calling it, read the recommendations back to the engineer in plain speech and invite follow-up. Stay in the conversation.",
+  "",
+  "## RECOMMENDATION CONTENT",
+  "Each change has a category (pressure, geometry, material, constraint, or general), a plain-English description, and a specific value if one was discussed.",
+].join("\n");
+
+const DICTATE_PROMPT = [
   "## CRITICAL: YOU ARE A TEXT GENERATOR FOR A VOICE SYSTEM",
   "Generate ONLY plain conversational text. No markdown. One or two short sentences per turn.",
   "",
@@ -57,7 +92,6 @@ const CAPTURE_PROMPT = [
   "## WHEN TO CALL FUNCTIONS",
   "When the engineer says they are done, finished, or that is correct, call submit_requirements once with a concise summary.",
   "If they gave a complete description without saying done, still call submit_requirements after their last substantive statement.",
-  "When they ask about run status, call check_design_status. Do not claim you can fix backend authentication errors.",
   "",
   "## SUMMARY CONTENT",
   "The requirements summary must capture system type, propellants, pressures, tank volumes, durations, and constraints stated.",
@@ -70,13 +104,18 @@ interface ConversationTurn {
 
 type CopilotStatus = "idle" | "connecting" | "live" | "stopped";
 type AgentActivity = "listening" | "thinking" | "speaking";
-type InteractionMode = "conversational" | "capture";
+type Mode = "design" | "advise" | "dictate";
 
 interface VoiceAgentCopilotProps {
   onStartDesign: (summary: string) => void;
   getDesignStatus: () => string;
   /* Populate the Chat tab requirements field (review before run). */
   onSendToChat: (text: string) => void;
+  /* Advise mode: surface recommended design changes to the parent (panel). */
+  onAdvise?: (extraction: DesignChangeExtraction) => void;
+  /* Design mode narration: latest thing worth speaking, with a stable key for dedup.
+     Return null when there is nothing new to say. */
+  getDesignNarration?: () => { key: string; text: string } | null;
 }
 
 interface DeepgramFunctionCall {
@@ -111,16 +150,43 @@ function floatTo16BitPCM(input: Float32Array): Int16Array {
   return output;
 }
 
-export function VoiceAgentCopilot({ onStartDesign, getDesignStatus, onSendToChat }: VoiceAgentCopilotProps) {
+function parseExtraction(args: Record<string, unknown>): DesignChangeExtraction {
+  const summary = typeof args.summary === "string" ? args.summary : "";
+  const rawChanges = Array.isArray(args.key_changes) ? args.key_changes : [];
+  const key_changes: DesignChange[] = rawChanges.map((item) => {
+    const obj = (item ?? {}) as Record<string, unknown>;
+    const category = String(obj.category ?? "general") as DesignChange["category"];
+    return {
+      category: ["pressure", "geometry", "material", "constraint", "general"].includes(category)
+        ? category
+        : "general",
+      description: String(obj.description ?? "").trim(),
+      value:
+        obj.value === null || obj.value === undefined || `${obj.value}`.trim() === ""
+          ? null
+          : (obj.value as string | number),
+    };
+  });
+  return { summary, key_changes };
+}
+
+export function VoiceAgentCopilot({
+  onStartDesign,
+  getDesignStatus,
+  onSendToChat,
+  onAdvise,
+  getDesignNarration,
+}: VoiceAgentCopilotProps) {
   const [status, setStatus] = useState<CopilotStatus>("idle");
   const [activity, setActivity] = useState<AgentActivity>("listening");
   const [turns, setTurns] = useState<ConversationTurn[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [autoRun, setAutoRun] = useState(true);
-  const [interactionMode, setInteractionMode] = useState<InteractionMode>("conversational");
+  const [mode, setMode] = useState<Mode>("design");
   const [stagedSummary, setStagedSummary] = useState<string | null>(null);
   const [postConversationDraft, setPostConversationDraft] = useState<string | null>(null);
   const [summarizing, setSummarizing] = useState(false);
+  const [advice, setAdvice] = useState<DesignChangeExtraction | null>(null);
 
   const wsRef = useRef<WebSocket | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
@@ -132,25 +198,28 @@ export function VoiceAgentCopilot({ onStartDesign, getDesignStatus, onSendToChat
   const intentionalCloseRef = useRef(false);
   // Gate: only stream mic audio after the server confirms SettingsApplied.
   const sendingRef = useRef(false);
-  // Mirror of autoRun so the (stable) function-call handler reads the live value
-  // without rebinding the already-attached socket message listener.
   const autoRunRef = useRef(true);
-  const interactionModeRef = useRef<InteractionMode>("conversational");
+  const modeRef = useRef<Mode>("design");
+  const activityRef = useRef<AgentActivity>("listening");
   const turnsRef = useRef<ConversationTurn[]>([]);
-  const callbacksRef = useRef({ onStartDesign, getDesignStatus, onSendToChat });
+  const callbacksRef = useRef({ onStartDesign, getDesignStatus, onSendToChat, onAdvise, getDesignNarration });
+  // Narration bookkeeping (design mode): a run is active and which verdict keys we've spoken.
+  const runActiveRef = useRef(false);
+  const spokenKeysRef = useRef<Set<string>>(new Set());
+  const lastInjectKeyRef = useRef<string | null>(null);
 
   useEffect(() => {
-    callbacksRef.current = { onStartDesign, getDesignStatus, onSendToChat };
-  }, [onStartDesign, getDesignStatus, onSendToChat]);
-
+    callbacksRef.current = { onStartDesign, getDesignStatus, onSendToChat, onAdvise, getDesignNarration };
+  }, [onStartDesign, getDesignStatus, onSendToChat, onAdvise, getDesignNarration]);
   useEffect(() => {
     autoRunRef.current = autoRun;
   }, [autoRun]);
-
   useEffect(() => {
-    interactionModeRef.current = interactionMode;
-  }, [interactionMode]);
-
+    modeRef.current = mode;
+  }, [mode]);
+  useEffect(() => {
+    activityRef.current = activity;
+  }, [activity]);
   useEffect(() => {
     turnsRef.current = turns;
   }, [turns]);
@@ -193,6 +262,7 @@ export function VoiceAgentCopilot({ onStartDesign, getDesignStatus, onSendToChat
   const teardown = useCallback(
     (intentional: boolean) => {
       sendingRef.current = false;
+      runActiveRef.current = false;
       intentionalCloseRef.current = intentional;
 
       const worklet = workletRef.current;
@@ -236,54 +306,87 @@ export function VoiceAgentCopilot({ onStartDesign, getDesignStatus, onSendToChat
   );
 
   const sendSettings = useCallback((ws: WebSocket) => {
-    const capture = interactionModeRef.current === "capture";
-    const functions = capture
-      ? [
-          {
-            name: "submit_requirements",
-            description:
-              "Call this when the engineer is done describing their design. Pass a concise plain-text requirements summary to send to the chat tab.",
-            parameters: {
-              type: "object",
-              properties: {
-                requirements_summary: {
-                  type: "string",
-                  description:
-                    "Concise summary: system type, propellants, pressures, tank volumes, run duration, and constraints.",
+    const activeMode = modeRef.current;
+    const statusFn = {
+      name: "check_design_status",
+      description: "Call when the engineer asks how the design run is going.",
+      parameters: { type: "object", properties: {}, required: [] },
+    };
+    const requirementsSummaryParam = {
+      type: "object",
+      properties: {
+        requirements_summary: {
+          type: "string",
+          description:
+            "Concise summary: system type, propellants, pressures, tank volumes, run duration, and constraints.",
+        },
+      },
+      required: ["requirements_summary"],
+    };
+
+    let functions: unknown[];
+    let prompt: string;
+    let greeting: string;
+    if (activeMode === "dictate") {
+      prompt = DICTATE_PROMPT;
+      greeting =
+        "Describe the system you want to build. I won't ask questions — include propellants, pressures, volumes, and run time, then say you're done.";
+      functions = [
+        {
+          name: "submit_requirements",
+          description:
+            "Call this when the engineer is done describing their design. Pass a concise plain-text requirements summary to send to the chat tab.",
+          parameters: requirementsSummaryParam,
+        },
+        statusFn,
+      ];
+    } else if (activeMode === "advise") {
+      prompt = ADVISE_PROMPT;
+      greeting =
+        "I'm Nova in review mode. Walk me through your design and I'll tell you what I'd change — I won't run anything.";
+      functions = [
+        {
+          name: "advise_design_changes",
+          description:
+            "Call when you have a clear set of recommended design changes, or when the engineer asks what to change. Does NOT run anything.",
+          parameters: {
+            type: "object",
+            properties: {
+              summary: { type: "string", description: "One concise sentence summarizing the recommended direction." },
+              key_changes: {
+                type: "array",
+                description: "The specific recommended design changes.",
+                items: {
+                  type: "object",
+                  properties: {
+                    category: {
+                      type: "string",
+                      enum: ["pressure", "geometry", "material", "constraint", "general"],
+                    },
+                    description: { type: "string", description: "Plain-English description of the change." },
+                    value: { type: "string", description: "Specific number or spec if discussed, otherwise empty." },
+                  },
+                  required: ["category", "description"],
                 },
               },
-              required: ["requirements_summary"],
             },
+            required: ["summary", "key_changes"],
           },
-          {
-            name: "check_design_status",
-            description: "Call when the engineer asks how the design run is going.",
-            parameters: { type: "object", properties: {}, required: [] },
-          },
-        ]
-      : [
-          {
-            name: "start_design_run",
-            description:
-              "Call to launch the design loop once requirements are gathered. Pass a concise plain-text requirements summary.",
-            parameters: {
-              type: "object",
-              properties: {
-                requirements_summary: {
-                  type: "string",
-                  description:
-                    "Concise summary: system type, propellants, pressures, tank volumes, run duration, and constraints.",
-                },
-              },
-              required: ["requirements_summary"],
-            },
-          },
-          {
-            name: "check_design_status",
-            description: "Call when the engineer asks how the design run is going.",
-            parameters: { type: "object", properties: {}, required: [] },
-          },
-        ];
+        },
+      ];
+    } else {
+      prompt = DESIGN_PROMPT;
+      greeting = "Hi, I'm Nova, your propulsion design assistant. Tell me what system you want to build and I'll run the simulation.";
+      functions = [
+        {
+          name: "start_design_run",
+          description:
+            "Call to launch the design loop once requirements are gathered AND confirmed by the engineer. Pass a concise plain-text requirements summary.",
+          parameters: requirementsSummaryParam,
+        },
+        statusFn,
+      ];
+    }
 
     const settings = {
       type: "Settings",
@@ -305,15 +408,13 @@ export function VoiceAgentCopilot({ onStartDesign, getDesignStatus, onSendToChat
         },
         think: {
           provider: { type: "open_ai", model: "gpt-4o-mini", temperature: 0.5 },
-          prompt: capture ? CAPTURE_PROMPT : CONVERSATIONAL_PROMPT,
+          prompt,
           functions,
         },
         speak: {
           provider: { type: "deepgram", model: "aura-2-thalia-en" },
         },
-        greeting: capture
-          ? "Describe the system you want to build. I won't ask questions — include propellants, pressures, volumes, and run time, then say you're done."
-          : "Hi, I'm Nova, your propulsion design assistant. Tell me what system you want to build and I'll run the simulation.",
+        greeting,
       },
     };
     ws.send(JSON.stringify(settings));
@@ -330,60 +431,55 @@ export function VoiceAgentCopilot({ onStartDesign, getDesignStatus, onSendToChat
     teardown(true);
   }, [teardown]);
 
-  const launchDesignRun = useCallback(
-    (summary: string) => {
-      const trimmed = summary.trim();
-      if (!trimmed) return;
-      callbacksRef.current.onStartDesign(trimmed);
-      endLiveConversation();
-    },
-    [endLiveConversation]
-  );
-
-  const stageRequirements = useCallback(
-    (summary: string, sendToChat: boolean) => {
-      const trimmed = summary.trim();
-      if (!trimmed) return;
-      setPostConversationDraft(trimmed);
-      if (sendToChat) {
-        callbacksRef.current.onSendToChat(trimmed);
-      }
-      // Capture mode always stops at Chat — never auto-launch the design loop.
-      if (interactionModeRef.current === "capture") {
-        return;
-      }
-      if (autoRunRef.current) {
-        launchDesignRun(trimmed);
-      } else {
-        setStagedSummary(trimmed);
-      }
-    },
-    [launchDesignRun]
-  );
+  // Kick off a design run WITHOUT ending the live conversation, so Nova can narrate.
+  const launchDesignRun = useCallback((summary: string) => {
+    const trimmed = summary.trim();
+    if (!trimmed) return;
+    spokenKeysRef.current = new Set();
+    lastInjectKeyRef.current = null;
+    runActiveRef.current = true;
+    callbacksRef.current.onStartDesign(trimmed);
+  }, []);
 
   const respondToFunctionCall = useCallback(
     (call: DeepgramFunctionCall) => {
       let content = "";
-      let designSummary: string | null = null;
+      let launch: string | null = null;
       try {
         const args = call.arguments ? (JSON.parse(call.arguments) as Record<string, unknown>) : {};
-        if (call.name === "start_design_run" || call.name === "submit_requirements") {
+        if (call.name === "start_design_run") {
           const summary = String(args.requirements_summary ?? "").trim();
           if (!summary) {
             content = "I couldn't capture any requirements yet.";
-          } else if (call.name === "submit_requirements") {
-            stageRequirements(summary, true);
-            content = "I've sent the requirements to the chat tab for you to review.";
           } else if (autoRunRef.current) {
             setPostConversationDraft(summary);
-            designSummary = summary;
+            launch = summary;
             content =
-              "The design loop has started. The simulator is running now, and results will appear on the P and I D shortly.";
+              "Starting the run now. The simulator is iterating, and I'll read you each verdict as it comes in.";
           } else {
             setStagedSummary(summary);
             setPostConversationDraft(summary);
             content =
               "I've put the requirements on screen for you to review. Edit them if you like, then press run design loop.";
+          }
+        } else if (call.name === "submit_requirements") {
+          const summary = String(args.requirements_summary ?? "").trim();
+          if (!summary) {
+            content = "I couldn't capture any requirements yet.";
+          } else {
+            setPostConversationDraft(summary);
+            callbacksRef.current.onSendToChat(summary);
+            content = "I've sent the requirements to the chat tab for you to review.";
+          }
+        } else if (call.name === "advise_design_changes") {
+          const extraction = parseExtraction(args);
+          if (extraction.key_changes.length === 0 && !extraction.summary) {
+            content = "I don't have concrete changes to recommend yet.";
+          } else {
+            setAdvice(extraction);
+            callbacksRef.current.onAdvise?.(extraction);
+            const spoken = extractionToRequirements(extraction);
+            content = `Here are the changes I'd recommend. ${spoken}`;
           }
         } else if (call.name === "check_design_status") {
           content = callbacksRef.current.getDesignStatus();
@@ -397,20 +493,13 @@ export function VoiceAgentCopilot({ onStartDesign, getDesignStatus, onSendToChat
 
       const ws = wsRef.current;
       if (ws && ws.readyState === WebSocket.OPEN) {
-        ws.send(
-          JSON.stringify({
-            type: "FunctionCallResponse",
-            id: call.id,
-            name: call.name,
-            content,
-          })
-        );
+        ws.send(JSON.stringify({ type: "FunctionCallResponse", id: call.id, name: call.name, content }));
       }
-      if (designSummary) {
-        launchDesignRun(designSummary);
-      }
+      // Launch AFTER responding to the function, and crucially WITHOUT tearing down
+      // the socket — Nova keeps talking and narrates the run.
+      if (launch) launchDesignRun(launch);
     },
-    [launchDesignRun, stageRequirements]
+    [launchDesignRun]
   );
 
   const handleAgentMessage = useCallback(
@@ -422,7 +511,6 @@ export function VoiceAgentCopilot({ onStartDesign, getDesignStatus, onSendToChat
           break;
         }
         case "SettingsApplied": {
-          // Server is configured; begin streaming mic audio.
           sendingRef.current = true;
           setStatus("live");
           setActivity("listening");
@@ -436,7 +524,6 @@ export function VoiceAgentCopilot({ onStartDesign, getDesignStatus, onSendToChat
           break;
         }
         case "UserStartedSpeaking": {
-          // Barge-in: cut off any agent speech immediately.
           stopPlayback();
           setActivity("listening");
           break;
@@ -451,6 +538,14 @@ export function VoiceAgentCopilot({ onStartDesign, getDesignStatus, onSendToChat
         }
         case "AgentAudioDone": {
           setActivity("listening");
+          break;
+        }
+        case "InjectionRefused": {
+          // Narration was rejected (user mid-turn). Un-mark so we retry next tick.
+          if (lastInjectKeyRef.current) {
+            spokenKeysRef.current.delete(lastInjectKeyRef.current);
+            lastInjectKeyRef.current = null;
+          }
           break;
         }
         case "FunctionCallRequest": {
@@ -472,10 +567,40 @@ export function VoiceAgentCopilot({ onStartDesign, getDesignStatus, onSendToChat
     [respondToFunctionCall, sendSettings, stopPlayback]
   );
 
+  // KeepAlive + design-mode narration loops. Active only while the session is live;
+  // both read refs so they never rebind the socket listeners.
+  useEffect(() => {
+    if (status !== "live") return;
+    const keepAlive = window.setInterval(() => {
+      const ws = wsRef.current;
+      if (ws && ws.readyState === WebSocket.OPEN) {
+        ws.send(JSON.stringify({ type: "KeepAlive" }));
+      }
+    }, KEEPALIVE_MS);
+
+    const narrate = window.setInterval(() => {
+      if (modeRef.current !== "design" || !runActiveRef.current) return;
+      // Only inject in a silent moment, else the server replies InjectionRefused.
+      if (activityRef.current !== "listening") return;
+      const next = callbacksRef.current.getDesignNarration?.();
+      if (!next || spokenKeysRef.current.has(next.key)) return;
+      const ws = wsRef.current;
+      if (!ws || ws.readyState !== WebSocket.OPEN) return;
+      ws.send(JSON.stringify({ type: "InjectAgentMessage", message: next.text, behavior: "queue" }));
+      spokenKeysRef.current.add(next.key);
+      lastInjectKeyRef.current = next.key;
+    }, NARRATION_POLL_MS);
+
+    return () => {
+      window.clearInterval(keepAlive);
+      window.clearInterval(narrate);
+    };
+  }, [status]);
+
   const start = useCallback(async () => {
     const apiKey = import.meta.env.VITE_DEEPGRAM_API_KEY;
     if (!apiKey) {
-      const message = "Missing VITE_DEEPGRAM_API_KEY. Add it to your .env file to enable the voice copilot.";
+      const message = "Missing VITE_DEEPGRAM_API_KEY. Add it to ui/frontend/.env to enable the voice copilot.";
       setError(message);
       Sentry.captureException(new Error(message));
       return;
@@ -485,9 +610,13 @@ export function VoiceAgentCopilot({ onStartDesign, getDesignStatus, onSendToChat
     setTurns([]);
     setPostConversationDraft(null);
     setStagedSummary(null);
+    setAdvice(null);
     setStatus("connecting");
     intentionalCloseRef.current = false;
     sendingRef.current = false;
+    runActiveRef.current = false;
+    spokenKeysRef.current = new Set();
+    lastInjectKeyRef.current = null;
     playbackCursorRef.current = 0;
 
     let stream: MediaStream;
@@ -511,8 +640,6 @@ export function VoiceAgentCopilot({ onStartDesign, getDesignStatus, onSendToChat
       const source = micCtx.createMediaStreamSource(stream);
       const worklet = new AudioWorkletNode(micCtx, "deepgram-recorder");
       workletRef.current = worklet;
-      // Route through a muted gain to destination so the worklet is pulled by the
-      // render graph without echoing the mic to the speakers.
       const silentGain = micCtx.createGain();
       silentGain.gain.value = 0;
       source.connect(worklet);
@@ -593,7 +720,8 @@ export function VoiceAgentCopilot({ onStartDesign, getDesignStatus, onSendToChat
   const runStaged = () => {
     const summary = (stagedSummary ?? postConversationDraft ?? "").trim();
     if (!summary) return;
-    launchDesignRun(summary);
+    callbacksRef.current.onStartDesign(summary);
+    endLiveConversation();
     setStagedSummary(null);
   };
 
@@ -665,26 +793,20 @@ export function VoiceAgentCopilot({ onStartDesign, getDesignStatus, onSendToChat
       <fieldset className="copilot-mode" disabled={isActive}>
         <legend className="copilot-mode-label">Nova mode</legend>
         <label className="copilot-mode-option">
-          <input
-            type="radio"
-            name="copilot-mode"
-            checked={interactionMode === "conversational"}
-            onChange={() => setInteractionMode("conversational")}
-          />
-          Ask questions, then run
+          <input type="radio" name="copilot-mode" checked={mode === "design"} onChange={() => setMode("design")} />
+          Design — ask, confirm, run &amp; narrate
         </label>
         <label className="copilot-mode-option">
-          <input
-            type="radio"
-            name="copilot-mode"
-            checked={interactionMode === "capture"}
-            onChange={() => setInteractionMode("capture")}
-          />
-          Listen only — summarize to Chat
+          <input type="radio" name="copilot-mode" checked={mode === "advise"} onChange={() => setMode("advise")} />
+          Advise — discuss &amp; recommend (no run)
+        </label>
+        <label className="copilot-mode-option">
+          <input type="radio" name="copilot-mode" checked={mode === "dictate"} onChange={() => setMode("dictate")} />
+          Dictate — listen only, summarize to Chat
         </label>
       </fieldset>
 
-      {interactionMode === "conversational" && (
+      {mode === "design" && (
         <label className="checkbox-control copilot-autorun">
           <input
             type="checkbox"
@@ -694,6 +816,28 @@ export function VoiceAgentCopilot({ onStartDesign, getDesignStatus, onSendToChat
           />
           Run the design loop automatically (uncheck to review requirements first)
         </label>
+      )}
+
+      {advice && (
+        <div className="copilot-advice">
+          <span className="copilot-review-label">
+            <Lightbulb size={13} /> Recommended changes (advisory — nothing was run)
+          </span>
+          {advice.summary && <p className="copilot-advice-summary">{advice.summary}</p>}
+          <ul className="copilot-advice-list">
+            {advice.key_changes.map((change, index) => (
+              <li key={index}>
+                <span className={`copilot-advice-tag tag-${change.category}`}>{change.category}</span>
+                {change.description}
+                {change.value !== null && change.value !== "" ? <em> ({change.value})</em> : null}
+              </li>
+            ))}
+          </ul>
+          <button type="button" className="primary-action" onClick={() => onSendToChat(extractionToRequirements(advice))}>
+            <MessageSquare size={16} />
+            Send to Chat
+          </button>
+        </div>
       )}
 
       {stagedSummary !== null && (
@@ -765,16 +909,16 @@ export function VoiceAgentCopilot({ onStartDesign, getDesignStatus, onSendToChat
       <div className="copilot-transcript" aria-live="polite">
         {turns.length === 0 ? (
           <span className="voice-empty">
-            {interactionMode === "capture"
-              ? "Capture mode: describe your full design without questions. End the conversation to edit and submit, or say you're done."
-              : "Start a conversation and describe the system you want to design. Nova will ask questions, then run the simulation for you."}
+            {mode === "dictate"
+              ? "Dictate mode: describe your full design without questions. End the conversation to edit and submit, or say you're done."
+              : mode === "advise"
+              ? "Advise mode: talk through your design with Nova. She'll recommend changes out loud and on screen — she won't run anything."
+              : "Start a conversation and describe the system you want to design. Nova will confirm, run the simulation, and read the results aloud."}
           </span>
         ) : (
           turns.map((turn, index) => (
             <div key={index} className={`copilot-turn ${turn.role}`}>
-              <span className="copilot-avatar">
-                {turn.role === "user" ? <User size={13} /> : <Bot size={13} />}
-              </span>
+              <span className="copilot-avatar">{turn.role === "user" ? <User size={13} /> : <Bot size={13} />}</span>
               <p>{turn.text}</p>
             </div>
           ))

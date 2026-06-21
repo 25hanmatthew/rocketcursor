@@ -581,6 +581,35 @@ export default function App() {
     return `Still running. Currently ${stage} on ${iter}.`;
   }
 
+  // Design-mode narration feed: the latest thing worth speaking aloud, keyed for
+  // dedup so the copilot reads each iteration verdict (and the final result) once.
+  function getDesignNarration(): { key: string; text: string } | null {
+    const state = designState;
+    if (!state) return null;
+    const sid = designSessionId ?? "run";
+    if (state.status === "error") {
+      return { key: `${sid}:error`, text: `The run hit an error: ${state.error ?? "unknown error"}.` };
+    }
+    const iters = state.iterations_used || state.iterations.length;
+    if (state.status === "passed" || state.passed) {
+      return { key: `${sid}:done`, text: `Done. The design passed all checks after ${iters} iteration${iters === 1 ? "" : "s"}.` };
+    }
+    if (state.status === "failed") {
+      const verdict = state.iterations[state.iterations.length - 1]?.verdict;
+      return { key: `${sid}:done`, text: `The run finished without passing after ${iters} iterations.${verdict ? ` ${verdict.summary}` : ""}` };
+    }
+    const latest = state.iterations[state.iterations.length - 1];
+    const verdict = latest?.verdict;
+    if (latest && verdict) {
+      const checks = verdict.checks ?? [];
+      const passed = checks.filter((check) => check.passed).length;
+      const firstFail = checks.find((check) => !check.passed);
+      const tail = firstFail ? ` Revising ${firstFail.id || "a failing check"}.` : "";
+      return { key: `${sid}:i${latest.iteration}`, text: `Iteration ${latest.iteration + 1}: ${passed} of ${checks.length} checks passed.${tail}` };
+    }
+    return null;
+  }
+
   const selected = selectedName(selectedId);
   const isConnection = selectedId?.startsWith("connection:") ?? false;
   const selectedRows = selectedId?.startsWith("node:") ? nodeSamples[selected ?? ""] : connectionSamples[selected ?? ""];
@@ -712,6 +741,7 @@ export default function App() {
             onStartDesign={(summary) => void submitChatMessage(summary)}
             getDesignStatus={getDesignStatus}
             onSendToChat={handleVoiceSendToChat}
+            getDesignNarration={getDesignNarration}
           />
         )}
 
