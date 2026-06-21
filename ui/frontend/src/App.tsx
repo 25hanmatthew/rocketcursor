@@ -9,6 +9,7 @@ import {
   Flame,
   Gauge,
   MessageSquare,
+  Mic,
   Pause,
   Play,
   RotateCcw,
@@ -19,6 +20,8 @@ import {
   XCircle
 } from "lucide-react";
 import { PidCanvas } from "./components/PidCanvas";
+import { ConversationRecorder } from "./components/ConversationRecorder";
+import type { DesignChange } from "./components/ConversationRecorder";
 import { buildDiagram } from "./lib/diagram";
 import { parseSamplesCsv } from "./lib/csv";
 import { interpolateSample, numericValue, rowsByComponent, timeRange } from "./lib/telemetry";
@@ -122,7 +125,23 @@ function messageText(item: unknown): string {
 }
 
 type Tone = "ok" | "warn" | "danger" | "idle";
-type InputMode = "chat" | "json";
+type InputMode = "chat" | "json" | "voice";
+
+/* Turn structured design changes from the voice recorder into a plain-text
+   requirements block so the existing chat field (and the agent loop behind it)
+   consumes it exactly like a typed request. */
+function changesToRequirements(changes: DesignChange[]): string {
+  if (changes.length === 0) return "";
+  const lines = changes.map((change) => {
+    const category = change.category ? `[${change.category}] ` : "";
+    const value =
+      change.value !== null && change.value !== undefined && `${change.value}`.trim() !== ""
+        ? ` (value: ${change.value})`
+        : "";
+    return `- ${category}${change.description}${value}`;
+  });
+  return `Design change requests:\n${lines.join("\n")}`;
+}
 type ActivityTone = "done" | "current" | "upcoming" | "danger";
 
 function StatusBadge({ tone, label }: { tone: Tone; label: string }) {
@@ -453,6 +472,19 @@ export default function App() {
     }
   }
 
+  function handleChangesExtracted(changes: DesignChange[]) {
+    const requirements = changesToRequirements(changes);
+    if (requirements) {
+      setChatText(requirements);
+      setInputMode("chat");
+    }
+  }
+
+  function handleRawTranscript(transcript: string) {
+    setChatText(transcript);
+    setInputMode("chat");
+  }
+
   const selected = selectedName(selectedId);
   const isConnection = selectedId?.startsWith("connection:") ?? false;
   const selectedRows = selectedId?.startsWith("node:") ? nodeSamples[selected ?? ""] : connectionSamples[selected ?? ""];
@@ -549,9 +581,17 @@ export default function App() {
             <FileJson size={15} />
             JSON
           </button>
+          <button
+            type="button"
+            className={inputMode === "voice" ? "selected" : ""}
+            onClick={() => setInputMode("voice")}
+          >
+            <Mic size={15} />
+            Voice
+          </button>
         </div>
 
-        {inputMode === "chat" ? (
+        {inputMode === "chat" && (
           <form
             className="chat-runner"
             onSubmit={(event) => {
@@ -571,11 +611,20 @@ export default function App() {
               {busy && designSessionId ? "Loop running..." : "Run design loop"}
             </button>
           </form>
-        ) : (
+        )}
+
+        {inputMode === "json" && (
           <button className="primary-action" type="button" onClick={() => fileInput.current?.click()} disabled={busy}>
             <Upload size={18} />
             {busy ? "Running simulation..." : "Submit network JSON"}
           </button>
+        )}
+
+        {inputMode === "voice" && (
+          <ConversationRecorder
+            onChangesExtracted={handleChangesExtracted}
+            onRawTranscript={handleRawTranscript}
+          />
         )}
 
         {error && <pre className="error-box">{error}</pre>}
