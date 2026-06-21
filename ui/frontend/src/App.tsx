@@ -21,7 +21,7 @@ import {
 } from "lucide-react";
 import { PidCanvas } from "./components/PidCanvas";
 import { ConversationRecorder } from "./components/ConversationRecorder";
-import type { DesignChange } from "./components/ConversationRecorder";
+import type { DesignChangeExtraction } from "./components/ConversationRecorder";
 import { buildDiagram } from "./lib/diagram";
 import { parseSamplesCsv } from "./lib/csv";
 import { interpolateSample, numericValue, rowsByComponent, timeRange } from "./lib/telemetry";
@@ -128,11 +128,12 @@ function messageText(item: unknown): string {
 type Tone = "ok" | "warn" | "danger" | "idle";
 type InputMode = "chat" | "json" | "voice";
 
-/* Turn structured design changes from the voice recorder into a plain-text
-   requirements block so the existing chat field (and the agent loop behind it)
-   consumes it exactly like a typed request. */
-function changesToRequirements(changes: DesignChange[]): string {
-  if (changes.length === 0) return "";
+/* Turn structured voice extraction into a plain-text requirements block so the
+   existing chat/revision endpoint consumes it exactly like a typed request. */
+export function changesToRequirements(extraction: DesignChangeExtraction): string {
+  const changes = extraction.key_changes ?? [];
+  const summary = extraction.summary.trim();
+  if (changes.length === 0 && !summary) return "";
   const lines = changes.map((change) => {
     const category = change.category ? `[${change.category}] ` : "";
     const value =
@@ -141,7 +142,10 @@ function changesToRequirements(changes: DesignChange[]): string {
         : "";
     return `- ${category}${change.description}${value}`;
   });
-  return `Design change requests:\n${lines.join("\n")}`;
+  const sections = [];
+  if (summary) sections.push(`Voice summary:\n${summary}`);
+  if (lines.length) sections.push(`Key design changes:\n${lines.join("\n")}`);
+  return sections.join("\n\n");
 }
 type ActivityTone = "done" | "current" | "upcoming" | "danger";
 type ChatTarget = { kind: "revision"; url: string; iteration: number } | { kind: "new"; url: string };
@@ -575,9 +579,15 @@ export default function App() {
     }
   }
 
-  async function submitChatRequest() {
-    const message = chatText.trim();
-    if (!message) return;
+  async function submitChatMessage(messageText: string): Promise<boolean> {
+    const message = messageText.trim();
+    if (!message) return false;
+    if (busy) {
+      setChatText(message);
+      setInputMode("chat");
+      setError("A design loop is already running. The voice revision is ready in chat and can be submitted when the run finishes.");
+      return false;
+    }
     const target = chatSubmissionTarget(designSessionId, latestLoadedDesignKey, Boolean(config));
     const parentSessionId = designSessionId;
     const userItem = createUserChatItem(message, target, parentSessionId);
@@ -609,6 +619,7 @@ export default function App() {
       }
       setChatHistory((history) => [...history, createRunStatusChatItem(payload.session_id, target, parentSessionId)]);
       setDesignSessionId(payload.session_id);
+      return true;
     } catch (exc) {
       setBusy(false);
       const failureMessage = exc instanceof Error ? exc.message : String(exc);
@@ -624,20 +635,29 @@ export default function App() {
           createdAt: Date.now()
         }
       ]);
+      setChatText(message);
+      return false;
     }
   }
 
-  function handleChangesExtracted(changes: DesignChange[]) {
-    const requirements = changesToRequirements(changes);
+  async function submitChatRequest() {
+    await submitChatMessage(chatText);
+  }
+
+  function handleChangesExtracted(extraction: DesignChangeExtraction) {
+    const requirements = changesToRequirements(extraction);
     if (requirements) {
-      setChatText(requirements);
       setInputMode("chat");
+      void submitChatMessage(requirements);
     }
   }
 
   function handleRawTranscript(transcript: string) {
-    setChatText(transcript);
-    setInputMode("chat");
+    const message = transcript.trim();
+    if (message) {
+      setInputMode("chat");
+      void submitChatMessage(message);
+    }
   }
 
   const selected = selectedName(selectedId);
@@ -668,6 +688,16 @@ export default function App() {
   }, [designState, latestLoadedDesignKey]);
   const loopActivity = currentActivity(designState);
   const loopSteps = activitySteps(designState);
+  const overlaySteps = loopSteps.length > 0
+    ? loopSteps
+    : [
+        {
+          key: "starting",
+          label: designSessionId ? "Starting design loop" : "Starting simulation",
+          detail: designSessionId ? "Waiting for requirements status" : "Submitting JSON to simulator",
+          tone: "current" as ActivityTone
+        }
+      ];
   const statusTone: Tone = designState?.status === "error"
     ? "danger"
     : designState?.status === "running"
@@ -1089,8 +1119,19 @@ export default function App() {
               </span>
               <div>
                 <strong>{designSessionId ? "Running design loop" : "Running simulation"}</strong>
-                <span>Generating result artifacts and P&amp;ID playback data.</span>
+                <span>{loopActivity || "Starting run and waiting for status."}</span>
               </div>
+            </div>
+            <div className="run-step-list" aria-label="Current run steps">
+              {overlaySteps.map((step) => (
+                <div key={step.key} className={`run-step tone-${step.tone}`}>
+                  <span className="activity-dot" />
+                  <div>
+                    <strong>{step.label}</strong>
+                    <span>{step.detail}</span>
+                  </div>
+                </div>
+              ))}
             </div>
             <div className="progress-track" aria-label="Simulation in progress">
               <div className="progress-bar" />

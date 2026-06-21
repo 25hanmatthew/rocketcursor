@@ -8,8 +8,8 @@ records and design history; agents never touch Redis keys directly.
 
 ```bash
 pip install -r memory/requirements.txt
-cp memory/.env.example memory/.env   # fill in keys
-export $(grep -v '^#' memory/.env | xargs)   # or use direnv / your shell loader
+cp .env.example .env   # fill in repo-root keys
+export $(grep -v '^#' .env | xargs)   # or use direnv / your shell loader
 ```
 
 Run scripts as modules so imports resolve:

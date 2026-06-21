@@ -14,13 +14,13 @@ const ANTHROPIC_MODEL = "claude-sonnet-4-6";
 const AUDIO_CHUNK_MS = 250;
 const WS_RETRY_DELAY_MS = 2000;
 
-const SUMMARY_SYSTEM_PROMPT =
-  "You are a rocket propulsion design assistant. Extract all design change requests " +
-  "from this conversation transcript. Return a JSON array where each item has: " +
-  "category (one of: pressure, geometry, material, constraint, general), " +
-  "description (plain english), and value (specific number or spec if mentioned, otherwise null). " +
-  "Respond with ONLY the raw JSON array and nothing else — no reasoning, explanations, " +
-  "commentary, preamble, or markdown code fences.";
+const CHANGE_EXTRACTION_SYSTEM_PROMPT =
+  "You are a rocket propulsion design assistant. Summarize this conversation transcript " +
+  "and extract the key design change requests. Return a JSON object with exactly these keys: " +
+  "summary (one concise sentence) and key_changes (an array where each item has category " +
+  "(one of: pressure, geometry, material, constraint, general), description (plain english), " +
+  "and value (specific number or spec if mentioned, otherwise null)). Respond with ONLY the raw " +
+  "JSON object and nothing else - no reasoning, explanations, commentary, preamble, or markdown code fences.";
 
 export type DesignChangeCategory = "pressure" | "geometry" | "material" | "constraint" | "general";
 
@@ -30,8 +30,13 @@ export interface DesignChange {
   value: string | number | null;
 }
 
+export interface DesignChangeExtraction {
+  summary: string;
+  key_changes: DesignChange[];
+}
+
 interface ConversationRecorderProps {
-  onChangesExtracted: (changes: DesignChange[]) => void;
+  onChangesExtracted: (extraction: DesignChangeExtraction) => void;
   /* Fallback hook used when Anthropic returns malformed JSON: the caller can still
      populate the requirements field with the raw transcript. */
   onRawTranscript?: (transcript: string) => void;
@@ -53,19 +58,35 @@ function pickTranscript(message: DeepgramMessage): string {
   return message.channel?.alternatives?.[0]?.transcript?.trim() ?? "";
 }
 
-/* Anthropic may wrap the JSON array in prose or a ```json fence. Pull the first
-   bracketed array out before parsing so well-formed answers aren't rejected. */
-function extractJsonArray(raw: string): DesignChange[] {
+/* Anthropic may wrap JSON in prose or a ```json fence. Pull the first JSON
+   object out before parsing so well-formed answers aren't rejected. Older array
+   responses are still accepted for compatibility. */
+export function extractChangeExtraction(raw: string): DesignChangeExtraction {
+  const objectStart = raw.indexOf("{");
+  const objectEnd = raw.lastIndexOf("}");
+  if (objectStart !== -1 && objectEnd > objectStart) {
+    const parsed = JSON.parse(raw.slice(objectStart, objectEnd + 1)) as {
+      summary?: unknown;
+      key_changes?: unknown;
+    };
+    if (Array.isArray(parsed.key_changes)) {
+      return {
+        summary: typeof parsed.summary === "string" ? parsed.summary : "",
+        key_changes: parsed.key_changes as DesignChange[]
+      };
+    }
+  }
+
   const start = raw.indexOf("[");
   const end = raw.lastIndexOf("]");
   if (start === -1 || end === -1 || end < start) {
-    throw new Error("No JSON array found in Anthropic response");
+    throw new Error("No design changes JSON found in Anthropic response");
   }
   const parsed = JSON.parse(raw.slice(start, end + 1));
   if (!Array.isArray(parsed)) {
     throw new Error("Anthropic response was not a JSON array");
   }
-  return parsed as DesignChange[];
+  return { summary: "", key_changes: parsed as DesignChange[] };
 }
 
 export function ConversationRecorder({ onChangesExtracted, onRawTranscript }: ConversationRecorderProps) {
@@ -123,7 +144,7 @@ export function ConversationRecorder({ onChangesExtracted, onRawTranscript }: Co
   const startStreaming = useCallback(async () => {
     const apiKey = import.meta.env.VITE_DEEPGRAM_API_KEY;
     if (!apiKey) {
-      const message = "Missing VITE_DEEPGRAM_API_KEY. Add it to your .env file to enable voice capture.";
+      const message = "Missing VITE_DEEPGRAM_API_KEY. Add it to the repo-root .env file to enable voice capture.";
       setError(message);
       setStatus("idle");
       Sentry.captureException(new Error(message));
@@ -267,9 +288,10 @@ export function ConversationRecorder({ onChangesExtracted, onRawTranscript }: Co
 
     const apiKey = import.meta.env.VITE_ANTHROPIC_API_KEY;
     if (!apiKey) {
-      const message = "Missing VITE_ANTHROPIC_API_KEY. Add it to your .env file to enable summarization.";
+      const message = "Missing VITE_ANTHROPIC_API_KEY. Add it to the repo-root .env file to enable summarization.";
       setError(message);
       Sentry.captureException(new Error(message));
+      onRawTranscript?.(transcript);
       return;
     }
 
@@ -288,7 +310,7 @@ export function ConversationRecorder({ onChangesExtracted, onRawTranscript }: Co
         body: JSON.stringify({
           model: ANTHROPIC_MODEL,
           max_tokens: 1024,
-          system: SUMMARY_SYSTEM_PROMPT,
+          system: CHANGE_EXTRACTION_SYSTEM_PROMPT,
           messages: [{ role: "user", content: transcript }]
         })
       });
@@ -301,8 +323,8 @@ export function ConversationRecorder({ onChangesExtracted, onRawTranscript }: Co
       const raw = payload.content?.map((block) => block.text ?? "").join("") ?? "";
 
       try {
-        const changes = extractJsonArray(raw);
-        onChangesExtracted(changes);
+        const extraction = extractChangeExtraction(raw);
+        onChangesExtracted(extraction);
       } catch (parseExc) {
         // Malformed JSON: fall back to the raw transcript so the requirements
         // field is still populated and the agent loop can proceed.

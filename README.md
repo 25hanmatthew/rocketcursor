@@ -79,7 +79,7 @@ Use the UI in either mode:
 
 The UI lives under `ui/` and keeps the simulator pipeline unchanged. The backend shells out to `python -m simulator.run_network`, writes manual JSON runs under `results/ui_runs/<run_id>/`, writes chat design runs under `results/ui_design_runs/<session_id>/`, and the frontend renders the latest simulated design as a generated 2D P&ID with animated flow from `nodes.csv` and `connections.csv`.
 
-For chat-driven design, create `.env` from `.env.example` and set the required LLM API key for your selected provider. Manual JSON upload does not need an LLM key.
+For chat-driven design, create `.env` at the repository root from `.env.example` and set the required LLM API key for your selected provider. The frontend also reads this root `.env`; only `VITE_` variables are exposed to browser code. Manual JSON upload does not need an LLM key.
 
 ## Simulator CLI
 

@@ -5,6 +5,7 @@ import {
   ChatTranscript,
   chatRequestBody,
   chatSubmissionTarget,
+  changesToRequirements,
   createRunStatusChatItem,
   createUserChatItem,
   loadedIterationForSession,
@@ -40,6 +41,32 @@ describe("chat submission routing", () => {
       message: "make it smaller",
       iteration: 2
     });
+  });
+});
+
+describe("voice change formatting", () => {
+  it("formats a voice summary and key changes as one revision message", () => {
+    const message = changesToRequirements({
+      summary: "Make the loaded design smaller while preserving pressure targets.",
+      key_changes: [
+        {
+          category: "geometry",
+          description: "Reduce the LOX tank volume",
+          value: "20%"
+        },
+        {
+          category: "constraint",
+          description: "Keep the same pressure targets",
+          value: null
+        }
+      ]
+    });
+
+    expect(message).toContain("Voice summary:");
+    expect(message).toContain("Make the loaded design smaller");
+    expect(message).toContain("Key design changes:");
+    expect(message).toContain("[geometry] Reduce the LOX tank volume (value: 20%)");
+    expect(message).toContain("[constraint] Keep the same pressure targets");
   });
 });
 

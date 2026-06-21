@@ -1,0 +1,18 @@
+{
+  "session_id": "f8428c8ed664412da5907784888bfabf",
+  "request": "change lox tank pressure to 600 psi",
+  "status": "completed",
+  "source": "revision",
+  "created_at": 1782013398.7550368,
+  "parent_session_id": "c18b669282804aa5917f6dd5ece73f51",
+  "parent_iteration": 0,
+  "revision_request": "change lox tank pressure to 600 psi",
+  "revision_of_spec": "C:\\Users\\25han\\OneDrive\\Documents\\GitHub\\rocketcursor\\results\\ui_design_runs\\c18b669282804aa5917f6dd5ece73f51\\spec.json",
+  "parent_spec_name": "pressure_fed_lox_kerosene_system_c18b6692",
+  "original_spec_name": "pressure_fed_lox_kerosene_system_c18b6692",
+  "spec_name": "pressure_fed_lox_kerosene_system_c18b6692_f8428c8e",
+  "spec_path": "C:\\Users\\25han\\OneDrive\\Documents\\GitHub\\rocketcursor\\results\\ui_design_runs\\f8428c8ed664412da5907784888bfabf\\spec.json",
+  "loop_run_root": "C:\\Users\\25han\\OneDrive\\Documents\\GitHub\\rocketcursor\\results\\loop_runs\\pressure_fed_lox_kerosene_system_c18b6692_f8428c8e",
+  "started_at": 1782013422.976775,
+  "completed_at": 1782013481.2099552
+}

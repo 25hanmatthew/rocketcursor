@@ -1492,6 +1492,63 @@ select:hover {
   font-size: 12px;
 }
 
+.run-step-list {
+  display: grid;
+  gap: var(--sp-2);
+  margin-bottom: var(--sp-4);
+  padding: var(--sp-3);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--r-md);
+  background: var(--surface-2);
+}
+
+.run-step {
+  display: grid;
+  grid-template-columns: 14px 1fr;
+  gap: var(--sp-2);
+  align-items: start;
+  color: var(--text-3);
+}
+
+.run-step > div {
+  display: grid;
+  gap: 2px;
+}
+
+.run-step strong {
+  color: var(--text-2);
+  font-size: 12px;
+}
+
+.run-step span:not(.activity-dot) {
+  font-size: 11px;
+  line-height: 1.35;
+}
+
+.run-step.tone-done .activity-dot {
+  background: var(--ok);
+  box-shadow: 0 0 0 3px var(--ok-soft);
+}
+
+.run-step.tone-current .activity-dot {
+  background: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-soft);
+  animation: pulse-dot 1.6s var(--ease) infinite;
+}
+
+.run-step.tone-danger .activity-dot {
+  background: var(--danger);
+  box-shadow: 0 0 0 3px var(--danger-soft);
+}
+
+.run-step.tone-current strong {
+  color: var(--accent);
+}
+
+.run-step.tone-danger strong {
+  color: var(--danger);
+}
+
 .progress-track {
   height: 8px;
   overflow: hidden;

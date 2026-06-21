@@ -1,0 +1,241 @@
+{
+  "name": "pressure_fed_lox_kerosene_system_c18b6692_f8428c8e",
+  "description": "Design a pressure-fed rocket engine feed system using LOX (liquid oxygen) and kerosene as propellants, with nitrogen (GN2) as the pressurant gas. The system consists of three tanks (GN2, LOX, kerosene), pressurization lines from GN2 to each propellant tank, and feed lines from each propellant tank to the engine. The GN2 tank provides pressurization to maintain propellant tank pressures, forcing propellants through the feed lines to the engine. FIXED quantities: component architecture (GN2 tank, LOX tank, kerosene tank, engine, pressurization lines, feed lines), LOX tank initial pressure at 600 psi (4.13686 MPa, +/- 5%). TUNABLE quantities: GN2 tank initial pressure and volume, kerosene tank initial pressure and volume, tank temperatures; line diameters and lengths; engine flow characteristics. The design must achieve stable propellant flow to the engine with physically realistic pressures and temperatures throughout.",
+  "design_guidance": {
+    "design_seed": "pressure_fed_lox_kerosene",
+    "must_include_nodes": [
+      "gn2_tank",
+      "lox_tank",
+      "kerosene_tank",
+      "engine"
+    ],
+    "must_include_connections": [
+      "gn2_to_lox_pressurization",
+      "gn2_to_kerosene_pressurization",
+      "lox_feed_line",
+      "kerosene_feed_line"
+    ],
+    "fixed_constraints": {
+      "architecture": "pressure-fed with GN2 pressurant",
+      "lox_tank_initial_pressure": "600 psi (4.13686 MPa +/- 5%)"
+    },
+    "tunable": [
+      "gn2_tank_initial_pressure",
+      "gn2_tank_volume",
+      "kerosene_tank_initial_pressure",
+      "kerosene_tank_volume",
+      "tank_temperatures",
+      "line_diameters",
+      "line_lengths",
+      "engine_flow_characteristics",
+      "feed CdA values",
+      "engine throat/exit area"
+    ],
+    "notes": [
+      "Use the pressure_fed_lox_kerosene seed as the baseline design",
+      "LOX tank initial pressure is FIXED at 600 psi (4.13686 MPa) with +/- 5% tolerance",
+      "Ensure GN2 tank pressure exceeds LOX tank pressure for pressurization",
+      "Propellant feed lines must deliver mass flow to the engine",
+      "All pressures and temperatures must remain within physically realistic ranges",
+      "Preserve the Engine node and the two feed Series connections into it.",
+      "Tune feed CdA values before changing topology.",
+      "If physical warnings mention a component, fix that component first."
+    ]
+  },
+  "checks": [
+    {
+      "id": "ran",
+      "description": "Simulation must complete without crashing or invalid configuration",
+      "type": "status",
+      "op": "==",
+      "value": "ok"
+    },
+    {
+      "id": "physical",
+      "description": "No nonphysical or degenerate warnings during simulation",
+      "type": "no_warnings",
+      "op": "==",
+      "value": true
+    },
+    {
+      "id": "lox_flow",
+      "description": "LOX feed line must deliver propellant to the engine (nonzero mass flow)",
+      "type": "component",
+      "component": "lox_feed_line",
+      "field": "mdot",
+      "stat": "nonzero_count",
+      "op": ">",
+      "value": 0
+    },
+    {
+      "id": "kerosene_flow",
+      "description": "Kerosene feed line must deliver propellant to the engine (nonzero mass flow)",
+      "type": "component",
+      "component": "kerosene_feed_line",
+      "field": "mdot",
+      "stat": "nonzero_count",
+      "op": ">",
+      "value": 0
+    },
+    {
+      "id": "gn2_pressurization_lox",
+      "description": "GN2 to LOX pressurization line must have flow to pressurize LOX tank",
+      "type": "component",
+      "component": "gn2_to_lox_pressurization",
+      "field": "mdot",
+      "stat": "nonzero_count",
+      "op": ">",
+      "value": 0
+    },
+    {
+      "id": "gn2_pressurization_kerosene",
+      "description": "GN2 to kerosene pressurization line must have flow to pressurize kerosene tank",
+      "type": "component",
+      "component": "gn2_to_kerosene_pressurization",
+      "field": "mdot",
+      "stat": "nonzero_count",
+      "op": ">",
+      "value": 0
+    },
+    {
+      "id": "gn2_tank_pressure_positive",
+      "description": "GN2 tank pressure must remain positive throughout simulation",
+      "type": "component",
+      "component": "gn2_tank",
+      "field": "P",
+      "stat": "min",
+      "op": ">",
+      "value": 0
+    },
+    {
+      "id": "lox_tank_pressure_positive",
+      "description": "LOX tank pressure must remain positive throughout simulation",
+      "type": "component",
+      "component": "lox_tank",
+      "field": "P",
+      "stat": "min",
+      "op": ">",
+      "value": 0
+    },
+    {
+      "id": "kerosene_tank_pressure_positive",
+      "description": "Kerosene tank pressure must remain positive throughout simulation",
+      "type": "component",
+      "component": "kerosene_tank",
+      "field": "P",
+      "stat": "min",
+      "op": ">",
+      "value": 0
+    },
+    {
+      "id": "engine_pressure_positive",
+      "description": "Engine inlet pressure must remain positive throughout simulation",
+      "type": "component",
+      "component": "engine",
+      "field": "P",
+      "stat": "min",
+      "op": ">",
+      "value": 0
+    },
+    {
+      "id": "lox_tank_temp_cryogenic",
+      "description": "LOX tank temperature should remain in cryogenic range (below 150 K)",
+      "type": "component",
+      "component": "lox_tank",
+      "field": "T",
+      "stat": "max",
+      "op": "<",
+      "value": 150
+    },
+    {
+      "id": "kerosene_tank_temp_ambient",
+      "description": "Kerosene tank temperature should be in ambient range (200-350 K)",
+      "type": "component",
+      "component": "kerosene_tank",
+      "field": "T",
+      "stat": "min",
+      "op": ">",
+      "value": 200
+    },
+    {
+      "id": "kerosene_tank_temp_max",
+      "description": "Kerosene tank temperature should not exceed 350 K",
+      "type": "component",
+      "component": "kerosene_tank",
+      "field": "T",
+      "stat": "max",
+      "op": "<",
+      "value": 350
+    },
+    {
+      "id": "gn2_tank_mass_decrease",
+      "description": "GN2 tank mass should decrease as pressurant is consumed",
+      "type": "component",
+      "component": "gn2_tank",
+      "field": "m",
+      "stat": "delta",
+      "op": "<",
+      "value": 0
+    },
+    {
+      "id": "lox_tank_mass_decrease",
+      "description": "LOX tank mass should decrease as propellant is consumed",
+      "type": "component",
+      "component": "lox_tank",
+      "field": "m",
+      "stat": "delta",
+      "op": "<",
+      "value": 0
+    },
+    {
+      "id": "kerosene_tank_mass_decrease",
+      "description": "Kerosene tank mass should decrease as propellant is consumed",
+      "type": "component",
+      "component": "kerosene_tank",
+      "field": "m",
+      "stat": "delta",
+      "op": "<",
+      "value": 0
+    },
+    {
+      "id": "lox_tank_initial_pressure_min",
+      "description": "LOX tank initial pressure must be at least 600 psi - 5% (3.93 MPa)",
+      "type": "component",
+      "component": "lox_tank",
+      "field": "P",
+      "stat": "first",
+      "op": ">=",
+      "value": 3930000
+    },
+    {
+      "id": "lox_tank_initial_pressure_max",
+      "description": "LOX tank initial pressure must not exceed 600 psi + 5% (4.34 MPa)",
+      "type": "component",
+      "component": "lox_tank",
+      "field": "P",
+      "stat": "first",
+      "op": "<=",
+      "value": 4340000
+    },
+    {
+      "id": "lox_feed_flow",
+      "description": "LOX feed line delivers non-zero mass flow to the engine.",
+      "type": "component",
+      "component": "lox_feed_line",
+      "field": "mdot",
+      "stat": "nonzero_count",
+      "op": ">",
+      "value": 0
+    },
+    {
+      "id": "kerosene_feed_flow",
+      "description": "Kerosene feed line delivers non-zero mass flow to the engine.",
+      "type": "component",
+      "component": "kerosene_feed_line",
+      "field": "mdot",
+      "stat": "nonzero_count",
+      "op": ">",
+      "value": 0
+    }
+  ]
+}

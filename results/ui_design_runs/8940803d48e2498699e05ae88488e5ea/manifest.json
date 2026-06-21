@@ -1,0 +1,18 @@
+{
+  "session_id": "8940803d48e2498699e05ae88488e5ea",
+  "request": "Voice summary:\nUser requested a change to the auxiliary tank pressure setting.\n\nKey design changes:\n- [pressure] Change aux tank pressure (value: 600 PSI)",
+  "status": "completed",
+  "source": "revision",
+  "created_at": 1782014280.6619859,
+  "parent_session_id": "8ba12874683b45e8945dba72b2caaaec",
+  "parent_iteration": 0,
+  "revision_request": "Voice summary:\nUser requested a change to the auxiliary tank pressure setting.\n\nKey design changes:\n- [pressure] Change aux tank pressure (value: 600 PSI)",
+  "revision_of_spec": "C:\\Users\\25han\\OneDrive\\Documents\\GitHub\\rocketcursor\\results\\ui_design_runs\\8ba12874683b45e8945dba72b2caaaec\\spec.json",
+  "parent_spec_name": "pressure_fed_lox_kerosene_system_8ba12874",
+  "original_spec_name": "pressure_fed_lox_kerosene_system_8ba12874",
+  "spec_name": "pressure_fed_lox_kerosene_system_8ba12874_8940803d",
+  "spec_path": "C:\\Users\\25han\\OneDrive\\Documents\\GitHub\\rocketcursor\\results\\ui_design_runs\\8940803d48e2498699e05ae88488e5ea\\spec.json",
+  "loop_run_root": "C:\\Users\\25han\\OneDrive\\Documents\\GitHub\\rocketcursor\\results\\loop_runs\\pressure_fed_lox_kerosene_system_8ba12874_8940803d",
+  "started_at": 1782014286.7540221,
+  "completed_at": 1782014366.980279
+}
