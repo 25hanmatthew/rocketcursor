@@ -77,6 +77,12 @@ referencing==0.37.0
 requests==2.34.2
 # rocketcea==1.2.3  -- engine path only; on Apple Silicon it needs a special
 # arm64 build (it does NOT install cleanly via this file). See BUILDING.md.
+# Note: the wheel builds on arm64 but the f2py extension fails to LOAD with
+# "symbol not found in flat namespace '_allcon_'" (a Fortran COMMON-block link
+# issue with gfortran 15). Unresolved locally; works in the Linux/CI env. The
+# backend propulsion package therefore falls back to an analytic engine estimate
+# (backend/propulsion_package/propellant_estimate.py) when CEA can't load, and
+# prefers real solver engine history wherever rocketcea works.
 rocketpy==1.12.1
 rpds-py==2026.5.1
 scipy==1.17.1

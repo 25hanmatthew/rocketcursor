@@ -381,7 +381,7 @@ def run_loop(spec_path: str | Path, max_iters: int = 4, use_compression: bool = 
     run_root.mkdir(parents=True, exist_ok=True)
 
     protect = _get_protect(use_compression)
-    session = ToolLoopSession(system_prompt, SUBMIT_DESIGN_TOOL, tool_name="submit_design")
+    session = ToolLoopSession(system_prompt, SUBMIT_DESIGN_TOOL, tool_name="submit_design", task="design")
     _maybe_enable_compression(session, use_compression)
     trace = {"spec": spec["name"], "provider": session.provider, "model": session.model,
              "compression": use_compression, "restarts": 0, "iterations": []}
@@ -485,7 +485,7 @@ def run_loop(spec_path: str | Path, max_iters: int = 4, use_compression: bool = 
             line = []
             state["stage"] = "design"; store.write(state)
             # fresh design line, but tell the model which approaches already failed
-            session = ToolLoopSession(system_prompt, SUBMIT_DESIGN_TOOL, tool_name="submit_design")
+            session = ToolLoopSession(system_prompt, SUBMIT_DESIGN_TOOL, tool_name="submit_design", task="design")
             _maybe_enable_compression(session, use_compression)
             restart_msg = first_msg + "\n\n" + protect(
                 "Your earlier design approaches FAILED — do NOT repeat them; try a "

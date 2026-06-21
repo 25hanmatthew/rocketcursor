@@ -90,20 +90,20 @@ export function Tank3D({ node, fillLevel, temperatureK, selected, status, showLa
           <meshStandardMaterial
             color={fluidColor}
             emissive={fluidColor}
-            emissiveIntensity={selected ? 0.45 : 0.26}
-            roughness={0.25}
+            emissiveIntensity={selected ? 0.14 : 0.05}
+            roughness={0.18}
             metalness={0.0}
             transparent
-            opacity={0.9}
+            opacity={0.92}
           />
         </mesh>
       )}
 
-      {/* Bright liquid surface line at the interface. */}
+      {/* Liquid surface line at the interface — a thin opaque ring, not a glow. */}
       {fill > 0.001 && fill < 0.999 && (
         <mesh position={[0, liquid.surfaceY, 0]} rotation={[Math.PI / 2, 0, 0]}>
           <cylinderGeometry args={[r * 0.93, r * 0.93, 0.012, 32, 1, true]} />
-          <meshStandardMaterial color="#ffffff" emissive={fluidColor} emissiveIntensity={1.4} side={DoubleSide} />
+          <meshStandardMaterial color="#eaf2ff" roughness={0.4} metalness={0.1} side={DoubleSide} />
         </mesh>
       )}
 

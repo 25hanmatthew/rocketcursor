@@ -1,7 +1,8 @@
 import { useMemo } from "react";
 import { Canvas } from "@react-three/fiber";
-import { GizmoHelper, GizmoViewport, Grid, OrbitControls } from "@react-three/drei";
-import { Bloom, EffectComposer } from "@react-three/postprocessing";
+import { ContactShadows, Environment, GizmoHelper, GizmoViewport, Grid, Lightformer, OrbitControls } from "@react-three/drei";
+import { EffectComposer, SMAA } from "@react-three/postprocessing";
+import * as THREE from "three";
 import type { DiagramModel, SampleRow } from "../types";
 import { interpolateSample, numericValue } from "../lib/telemetry";
 import { buildSceneModel } from "../lib/sceneModel";
@@ -54,16 +55,22 @@ export default function Twin3D({
     <Canvas
       camera={{ position: [camDist * 0.7, camDist * 0.25, camDist], fov: 42, near: 0.1, far: 200 }}
       dpr={[1, 2]}
-      gl={{ antialias: true }}
+      shadows
+      gl={{ antialias: true, toneMapping: THREE.ACESFilmicToneMapping }}
       onPointerMissed={() => onSelect("")}
       style={{ width: "100%", height: "100%", background: "#070b12" }}
     >
-      {/* Explicit lights only — no CDN HDRI dependency, so the twin renders
-          identically offline (important for a live demo). */}
-      <ambientLight intensity={0.75} />
-      <hemisphereLight args={["#9fc0ff", "#0a0f18", 0.6]} />
-      <directionalLight position={[6, 10, 8]} intensity={1.2} />
-      <directionalLight position={[-8, 4, -6]} intensity={0.5} color="#7da7ff" />
+      {/* Procedural studio lighting (Lightformers, no CDN HDRI) gives the metal
+          real PBR highlights so the twin reads as hardware, not neon. */}
+      <ambientLight intensity={0.3} />
+      <hemisphereLight args={["#9fc0ff", "#0a0f18", 0.4]} />
+      <directionalLight position={[6, 12, 8]} intensity={1.1} castShadow shadow-mapSize={[2048, 2048]} />
+      <directionalLight position={[-8, 4, -6]} intensity={0.35} color="#7da7ff" />
+      <Environment resolution={256} frames={1}>
+        <Lightformer intensity={1.8} position={[0, 6, -5]} scale={[12, 6, 1]} color="#cfe0ff" />
+        <Lightformer intensity={1.1} position={[6, 2, 3]} scale={[3, 8, 1]} color="#ffffff" />
+        <Lightformer intensity={0.7} position={[-6, 1, 2]} scale={[3, 8, 1]} color="#9bb6ff" />
+      </Environment>
 
       <Grid
         position={[0, -scene.extent, 0]}
@@ -127,8 +134,13 @@ export default function Twin3D({
         <GizmoViewport axisColors={["#ff6b6b", "#34d399", "#4d8dff"]} labelColor="#0b1220" />
       </GizmoHelper>
 
-      <EffectComposer>
-        <Bloom mipmapBlur luminanceThreshold={0.25} luminanceSmoothing={0.4} intensity={0.9} />
+      <ContactShadows position={[0, -scene.extent, 0]} scale={scene.extent * 3} blur={2.5} opacity={0.45} far={scene.extent * 2} />
+
+      {/* No bloom in the systems view — it read as flashing neon. This is an
+          engineering schematic in 3D: matte hardware lit by the environment,
+          antialiased only. */}
+      <EffectComposer multisampling={0}>
+        <SMAA />
       </EffectComposer>
     </Canvas>
   );

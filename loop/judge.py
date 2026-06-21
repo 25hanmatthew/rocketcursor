@@ -87,7 +87,7 @@ def judge_design(requirements: dict, design: dict, outcome: str) -> dict:
     )
     return one_tool_call(
         "You are a meticulous propulsion design reviewer.",
-        prompt, SUBMIT_JUDGEMENT_TOOL, tool_name="submit_judgement", max_tokens=2000)
+        prompt, SUBMIT_JUDGEMENT_TOOL, tool_name="submit_judgement", max_tokens=2000, task="judge")
 
 
 def judge_run(trace_path: str | Path) -> dict:

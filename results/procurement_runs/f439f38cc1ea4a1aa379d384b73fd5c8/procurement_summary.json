@@ -1,0 +1,46 @@
+{
+  "ok": true,
+  "projectName": "Rocketcursor — tank_blowdown",
+  "bomPath": "/Users/tazeemmahashin/rocketcursor/results/procurement_runs/f439f38cc1ea4a1aa379d384b73fd5c8/bom.json",
+  "rfqDrafts": [
+    {
+      "item": "GN2 supply_tank",
+      "supplier": "McMaster-Carr",
+      "partNumber": "7822A12",
+      "productUrl": "https://www.mcmaster.com/7822A12",
+      "draftPath": "rfqs/gn2_supply_tank_rfq.txt",
+      "approvalRequired": true,
+      "sent": false,
+      "transport": "portal"
+    }
+  ],
+  "approvalRequired": true,
+  "sent": false,
+  "portalQuotes": {
+    "ok": true,
+    "parked": true,
+    "sent": false,
+    "parkedAt": "2026-06-21T12:34:30.417Z",
+    "results": [
+      {
+        "item": "GN2 supply_tank",
+        "supplier": "McMaster-Carr",
+        "partNumber": "7822A12",
+        "productUrl": "https://www.mcmaster.com/7822A12",
+        "transport": "portal",
+        "parked": true,
+        "ok": true,
+        "quoteStatus": "parked",
+        "quoteConfirmation": null,
+        "quotedPrice": null,
+        "quotedLeadTime": null,
+        "draftParked": true,
+        "hasNotesBox": true,
+        "mockFieldsFilled": true,
+        "screenshotPath": "/Users/tazeemmahashin/rocketcursor/results/procurement_runs/f439f38cc1ea4a1aa379d384b73fd5c8/portal_gn2_supply_tank_mcmaster_carr.png",
+        "parkedAt": "2026-06-21T12:31:43.333Z"
+      }
+    ]
+  },
+  "parked": true
+}

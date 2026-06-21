@@ -319,7 +319,7 @@ def nl_to_spec(request: str) -> dict:
     seed_hint = f"\nLikely design_seed: {seed_name}\n" if seed_name else ""
     user = (f"Translate this design request into a requirements spec:\n\n{request}\n"
             f"{seed_hint}\nCall submit_spec now.")
-    spec = one_tool_call(SPEC_WRITER_SYSTEM, user, SUBMIT_SPEC_TOOL, tool_name="submit_spec")
+    spec = one_tool_call(SPEC_WRITER_SYSTEM, user, SUBMIT_SPEC_TOOL, tool_name="submit_spec", task="spec")
     return apply_seed_guidance(spec, request)
 
 
@@ -343,7 +343,7 @@ def revise_spec(base_spec: dict, revision_message: str, base_design: dict, base_
         f"{json.dumps(_compact_report(base_report), indent=2)}\n\n"
         "Emit the complete revised spec with submit_spec now."
     )
-    spec = one_tool_call(REVISION_SPEC_WRITER_SYSTEM, user, SUBMIT_SPEC_TOOL, tool_name="submit_spec")
+    spec = one_tool_call(REVISION_SPEC_WRITER_SYSTEM, user, SUBMIT_SPEC_TOOL, tool_name="submit_spec", task="spec")
     return spec
 
 

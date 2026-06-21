@@ -1,0 +1,142 @@
+{
+  "generatedAt": "2026-06-21T12:31:27.659Z",
+  "projectName": "Rocketcursor — tank_blowdown",
+  "items": [
+    {
+      "item": "GN2 supply_tank",
+      "quantity": 1,
+      "requirements": {
+        "fluid": "Nitrogen",
+        "compatible_with": [
+          "Nitrogen"
+        ],
+        "minimum_pressure_rating_pa": 7500000,
+        "minimum_volume_l": 50
+      },
+      "candidates": [
+        {
+          "item": "GN2 supply_tank",
+          "supplier": "McMaster-Carr",
+          "productName": "Empty High-Pressure Inert Gas Tanks — HP40",
+          "partNumber": "7822A12",
+          "productUrl": "https://www.mcmaster.com/7822A12",
+          "price": "$228.56",
+          "leadTime": null,
+          "pressure_rating_pa": 13892350,
+          "volume_l": 1132.67,
+          "minimum_cda_m2": null,
+          "fluid_compatibility": [
+            "Argon",
+            "Argon/Carbon Dioxide Blend",
+            "Helium",
+            "Nitrogen"
+          ],
+          "oxygen_clean": null,
+          "cryogenic_compatible": null,
+          "matched_requirements": [
+            "pressure_rating_pa",
+            "volume_l",
+            "fluid_compatibility",
+            "compatible_with:Nitrogen"
+          ],
+          "missing_requirements": [],
+          "failed_requirements": [],
+          "confidence": 1,
+          "notes": "Cylinder Size: HP40, Cap.: 40 cu. ft. (~1132.67 L water volume), Dia.: 7\", Ht.: 18 1/4\", Empty Tank Wt.: 22 lb., Max. Pressure: 2,015 psi (~13,892,350 Pa), Material: Steel, CGA Number: 580, Outlet Gender: Female, D.O.T. Cylinder Specification: 3AA. For Use With Argon, Argon/Carbon Dioxide Blend, Helium, and Nitrogen.",
+          "quoteStatus": "parked"
+        },
+        {
+          "item": "GN2 supply_tank",
+          "supplier": "McMaster-Carr",
+          "productName": "Empty High-Pressure Inert Gas Tanks — HP55",
+          "partNumber": "7822A13",
+          "productUrl": "https://www.mcmaster.com/7822A13",
+          "price": "$299.02",
+          "leadTime": null,
+          "pressure_rating_pa": 13892350,
+          "volume_l": 1557.42,
+          "minimum_cda_m2": null,
+          "fluid_compatibility": [
+            "Argon",
+            "Argon/Carbon Dioxide Blend",
+            "Helium",
+            "Nitrogen"
+          ],
+          "oxygen_clean": null,
+          "cryogenic_compatible": null,
+          "matched_requirements": [
+            "pressure_rating_pa",
+            "volume_l",
+            "fluid_compatibility",
+            "compatible_with:Nitrogen"
+          ],
+          "missing_requirements": [],
+          "failed_requirements": [],
+          "confidence": 1,
+          "notes": "Cylinder Size: HP55, Cap.: 55 cu. ft. (~1557.42 L water volume), Dia.: 7\", Ht.: 23 1/2\", Empty Tank Wt.: 26.5 lb., Max. Pressure: 2,015 psi (~13,892,350 Pa), Material: Steel, CGA Number: 580, Outlet Gender: Female, D.O.T. Cylinder Specification: 3AA. For Use With Argon, Argon/Carbon Dioxide Blend, Helium, and Nitrogen."
+        },
+        {
+          "item": "GN2 supply_tank",
+          "supplier": "McMaster-Carr",
+          "productName": "Empty High-Pressure Inert Gas Tanks — HP80",
+          "partNumber": "7822A14",
+          "productUrl": "https://www.mcmaster.com/7822A14",
+          "price": "$330.17",
+          "leadTime": null,
+          "pressure_rating_pa": 13892350,
+          "volume_l": 2265.35,
+          "minimum_cda_m2": null,
+          "fluid_compatibility": [
+            "Argon",
+            "Argon/Carbon Dioxide Blend",
+            "Helium",
+            "Nitrogen"
+          ],
+          "oxygen_clean": null,
+          "cryogenic_compatible": null,
+          "matched_requirements": [
+            "pressure_rating_pa",
+            "volume_l",
+            "fluid_compatibility",
+            "compatible_with:Nitrogen"
+          ],
+          "missing_requirements": [],
+          "failed_requirements": [],
+          "confidence": 1,
+          "notes": "Cylinder Size: HP80, Cap.: 80 cu. ft. (~2265.35 L water volume), Dia.: 7\", Ht.: 31 1/2\", Empty Tank Wt.: 40 lb., Max. Pressure: 2,015 psi (~13,892,350 Pa), Material: Steel, CGA Number: 580, Outlet Gender: Female, D.O.T. Cylinder Specification: 3AA. For Use With Argon, Argon/Carbon Dioxide Blend, Helium, and Nitrogen."
+        },
+        {
+          "item": "GN2 supply_tank",
+          "supplier": "McMaster-Carr",
+          "productName": "Empty High-Pressure Inert Gas Tanks — HP20",
+          "partNumber": "7822A11",
+          "productUrl": "https://www.mcmaster.com/7822A11",
+          "price": "$170.33",
+          "leadTime": null,
+          "pressure_rating_pa": 13892350,
+          "volume_l": 566.34,
+          "minimum_cda_m2": null,
+          "fluid_compatibility": [
+            "Argon",
+            "Helium",
+            "Nitrogen"
+          ],
+          "oxygen_clean": null,
+          "cryogenic_compatible": null,
+          "matched_requirements": [
+            "pressure_rating_pa",
+            "volume_l",
+            "fluid_compatibility",
+            "compatible_with:Nitrogen"
+          ],
+          "missing_requirements": [],
+          "failed_requirements": [],
+          "confidence": 1,
+          "notes": "Cylinder Size: HP20, Cap.: 20 cu. ft. (~566.34 L water volume), Dia.: 5 1/4\", Ht.: 13 3/4\", Empty Tank Wt.: 10.5 lb., Max. Pressure: 2,015 psi (~13,892,350 Pa), Material: Steel, CGA Number: 580, Outlet Gender: Female, D.O.T. Cylinder Specification: 3AA. For Use With Argon, Helium, and Nitrogen. Does NOT meet minimum volume requirement of 50 L (water vol.), but listed as candidate."
+        }
+      ]
+    }
+  ],
+  "approvalRequired": true,
+  "sent": false
+}

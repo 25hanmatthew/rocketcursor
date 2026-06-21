@@ -1,0 +1,19 @@
+{
+  "projectName": "Rocketcursor \u2014 tank_blowdown",
+  "materials": [
+    {
+      "item": "GN2 supply_tank",
+      "quantity": 1,
+      "requirements": {
+        "fluid": "Nitrogen",
+        "compatible_with": [
+          "Nitrogen"
+        ],
+        "minimum_pressure_rating_pa": 7500000,
+        "minimum_volume_l": 50.0
+      }
+    }
+  ],
+  "designPath": "/Users/tazeemmahashin/rocketcursor/results/loop_runs/nitrogen_blowdown_vent_00e38096/iter_00/design.json",
+  "reportPath": "/Users/tazeemmahashin/rocketcursor/results/loop_runs/nitrogen_blowdown_vent_00e38096/iter_00/report.json"
+}

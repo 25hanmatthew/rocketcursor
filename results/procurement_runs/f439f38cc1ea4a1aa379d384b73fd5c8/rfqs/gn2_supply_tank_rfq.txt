@@ -1,0 +1,50 @@
+Subject: RFQ Request — GN2 supply_tank
+
+Hello,
+
+We are requesting a quotation for the following component:
+
+Item: GN2 supply_tank
+Quantity: 1
+Candidate product: Empty High-Pressure Inert Gas Tanks — HP40
+Part number: 7822A12
+Supplier: McMaster-Carr
+Product URL: https://www.mcmaster.com/7822A12
+
+Required specifications:
+{
+  "fluid": "Nitrogen",
+  "compatible_with": [
+    "Nitrogen"
+  ],
+  "minimum_pressure_rating_pa": 7500000,
+  "minimum_volume_l": 50
+}
+
+Extracted candidate specifications:
+Pressure rating: 13892350 Pa
+Volume: 1132.67 L
+Minimum CdA: not found m^2
+Fluid compatibility: Argon, Argon/Carbon Dioxide Blend, Helium, Nitrogen
+Oxygen clean: not found
+Cryogenic compatible: not found
+
+Requirement check:
+Matched: pressure_rating_pa, volume_l, fluid_compatibility, compatible_with:Nitrogen
+Missing: none
+Failed: none
+
+Please include:
+- Unit pricing
+- Lead time
+- Datasheet
+- Pressure rating documentation
+- Fluid compatibility documentation
+- Cleaning/compliance documentation where applicable
+- Any minimum order quantity
+- Shipping options
+
+Note: This RFQ draft was generated automatically from a simulation-derived BOM and requires engineering review before purchase or use.
+
+Best,
+Engineering Team

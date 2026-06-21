@@ -10,7 +10,7 @@ import uuid
 from pathlib import Path
 from typing import Optional
 
-from fastapi import FastAPI, File, Form, HTTPException, UploadFile
+from fastapi import FastAPI, File, Form, HTTPException, Response, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, JSONResponse
 from pydantic import BaseModel
@@ -721,6 +721,54 @@ def get_flight_artifact(session_id: str, iteration: int, stage: str, name: str):
     return FileResponse(target, media_type="text/csv", filename=name)
 
 
+@app.get("/api/design-runs/{session_id}/report.pdf")
+def get_design_report_pdf(session_id: str):
+    """A 'design rationale' PDF: propellant/pressure/sizing choices, the synthesized
+    vehicle's stability, the 6DOF flight, validation findings, and every assumption
+    with its recorded reason. Pulls in flight-pipeline artifacts when present."""
+    from ui.backend.report_pdf import compose_report_pdf
+
+    manifest = _load_manifest(session_id)
+    state = _design_run_state(session_id, manifest)
+    playable = _latest_playable(manifest, state)
+    if not playable:
+        raise HTTPException(status_code=400, detail="No completed design to report on yet")
+
+    iter_dir = _iteration_artifact_dir(manifest, playable["iteration"])
+    design_path = iter_dir / "design.json"
+    if not design_path.exists():
+        raise HTTPException(status_code=404, detail="Design artifacts not found")
+    design = _read_json(design_path)
+    report = _read_json(iter_dir / "report.json") if (iter_dir / "report.json").exists() else {}
+
+    # latest flight-pipeline run for this session, if Build & Fly has been used
+    package = vehicle = flight_report = validation = None
+    flight_base = FLIGHT_RUN_ROOT / session_id
+    if flight_base.exists():
+        for d in sorted((p for p in flight_base.iterdir() if p.is_dir()), reverse=True):
+            pkg_p, veh_p = d / "package" / "propulsion_package.json", d / "vehicle" / "vehicle_model.json"
+            if pkg_p.exists() and veh_p.exists():
+                package, vehicle = _read_json(pkg_p), _read_json(veh_p)
+                fr_p = d / "flight" / "flight_report.json"
+                if fr_p.exists():
+                    flight_report = _read_json(fr_p)
+                man_p = d / "pipeline_manifest.json"
+                if man_p.exists():
+                    validation = _read_json(man_p).get("stages", {}).get("validation")
+                break
+
+    pdf_bytes = compose_report_pdf(
+        request=str(manifest.get("request", "")),
+        design=design, verdict=report, package=package,
+        vehicle=vehicle, flight_report=flight_report, validation=validation,
+    )
+    return Response(
+        content=pdf_bytes,
+        media_type="application/pdf",
+        headers={"Content-Disposition": 'inline; filename="rocketcursor_design_report.pdf"'},
+    )
+
+
 @app.post("/api/runs")
 async def create_run(
     file: UploadFile = File(...),
@@ -903,9 +951,55 @@ def _collect_park_screenshots(run_id: str, portal: dict) -> list[dict]:
     return shots
 
 
+# A prior real procurement run whose McMaster-Carr RFQ was parked in the supplier
+# portal (BOM + portal_quotes.json + screenshot on disk). Served by the demo path.
+DEMO_PROCUREMENT_RUN = "f439f38cc1ea4a1aa379d384b73fd5c8"
+
+
+def _run_procure_and_quote_demo(session_id: str, design_path: str) -> None:
+    """Offline procurement: derive the BOM deterministically from the design, then
+    replay a cached portal result (a real McMaster RFQ parked in an earlier live
+    run) instead of driving Browserbase. Lets the one-button flow work locally
+    without supplier credentials. Enabled by RC_PROCUREMENT_DEMO."""
+    try:
+        design = _read_json(Path(design_path))
+        materials = materials_from_design(design)
+        _write_procurement_status(session_id, stage="sourcing", status="running", materials=materials, demo=True)
+        time.sleep(2.0)
+
+        run_dir = ROOT / "results" / "procurement_runs" / DEMO_PROCUREMENT_RUN
+        portal = _read_json(run_dir / "portal_quotes.json") if (run_dir / "portal_quotes.json").exists() else {}
+        _write_procurement_status(
+            session_id, stage="requesting_quotes", status="running",
+            run_id=DEMO_PROCUREMENT_RUN, materials=materials, demo=True)
+        time.sleep(3.0)
+
+        results = portal.get("results", []) or []
+        first = results[0] if results else {}
+        shots = []
+        for png in sorted(run_dir.glob("portal_*.png")):
+            if _SCREENSHOT_NAME_RE.match(png.name):
+                shots.append({
+                    "supplier": first.get("supplier", "McMaster-Carr"),
+                    "item": first.get("item", png.stem.replace("portal_", "").replace("_", " ")),
+                    "quoteStatus": "parked",
+                    "url": f"/api/procurement-runs/{DEMO_PROCUREMENT_RUN}/screenshot/{png.name}",
+                })
+        _write_procurement_status(
+            session_id, stage="done", status="done", run_id=DEMO_PROCUREMENT_RUN,
+            sent=False, screenshots=shots, parked=portal.get("parked", True),
+            supplier_results=results, demo=True)
+    except Exception as exc:  # noqa: BLE001 - surface to UI, never crash the server
+        sentry_capture(exc)
+        _write_procurement_status(session_id, stage="error", status="error", error=str(exc))
+
+
 def _run_procure_and_quote_background(
     session_id: str, design_path: str, report_path: str, project_name: str
 ) -> None:
+    if os.environ.get("RC_PROCUREMENT_DEMO"):
+        _run_procure_and_quote_demo(session_id, design_path)
+        return
     try:
         design = _read_json(Path(design_path))
         materials = materials_from_design(design)

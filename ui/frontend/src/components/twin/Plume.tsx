@@ -72,7 +72,8 @@ export function Plume({ thrust, isp, chamberPressure, chamberTempK, exitRadius }
     const exitSpeed = ((isp ?? 220) * G0) / 900 * (0.6 + 0.4 * drive);
     const lifetime = 0.45 + drive * 0.5;
     const pc = chamberPressure ?? 0;
-    const brightness = 0.5 + Math.min(1, pc / 2_000_000) * 1.3;
+    // Steady, physical exhaust — kept below the old neon levels (no bloom now).
+    const brightness = 0.35 + Math.min(1, pc / 2_000_000) * 0.45;
     const { core, edge } = plumeColors(chamberTempK);
 
     // Spawn proportional to thrust.

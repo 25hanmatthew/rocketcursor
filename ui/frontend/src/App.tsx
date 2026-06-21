@@ -1,5 +1,5 @@
 import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Box, Gauge, Layers, MessageSquare, Mic, Pause, Play, Rocket, RotateCcw, Send, Workflow } from "lucide-react";
+import { Box, FileText, Gauge, Layers, MessageSquare, Mic, Moon, PanelLeft, Pause, Play, Rocket, RotateCcw, Send, Sun, Workflow } from "lucide-react";
 import { PidCanvas } from "./components/PidCanvas";
 
 /* The 3D twin pulls in three.js (~600 KB) — lazy-load it so the default P&ID
@@ -13,7 +13,7 @@ import type { DesignChangeExtraction } from "./components/ConversationRecorder";
 import { buildDiagram } from "./lib/diagram";
 import { parseSamplesCsv } from "./lib/csv";
 import { interpolateSample, numericValue, rowsByComponent, timeRange } from "./lib/telemetry";
-import { FlightEvents, FlightRow, flightTimeRange, parseFlightCsv } from "./lib/flightModel";
+import { FlightEvents, FlightRow, flightTimeRange, interpolateFlight, parseFlightCsv } from "./lib/flightModel";
 import { classifyFluid, nodeFluidName } from "./lib/pidViewModel";
 import type {
   ChatHistoryItem,
@@ -364,6 +364,15 @@ function procurementStageLabel(state: ProcurementUiState | null): string {
   }
 }
 
+// Left sidebar resize/collapse limits. Dragging the divider narrower than
+// SIDEBAR_COLLAPSE_AT collapses the panel to a thin rail; expanding snaps back
+// to at least SIDEBAR_MIN (hysteresis so it doesn't flicker around the edge).
+const SIDEBAR_DEFAULT = 380;
+const SIDEBAR_MIN = 280;
+const SIDEBAR_MAX = 560;
+const SIDEBAR_COLLAPSE_AT = 200;
+const SIDEBAR_RAIL = 40;
+
 export default function App() {
   const [inputMode, setInputMode] = useState<InputMode>("chat");
   const [chatText, setChatText] = useState("");
@@ -384,6 +393,67 @@ export default function App() {
   const [speed, setSpeed] = useState(1);
   const [phase, setPhase] = useState(0);
   const [showPartLabels, setShowPartLabels] = useState(false);
+  const [theme, setTheme] = useState<"dark" | "light">(
+    () => (typeof localStorage !== "undefined" && (localStorage.getItem("rc-theme") as "dark" | "light")) || "dark"
+  );
+  useEffect(() => {
+    document.documentElement.dataset.theme = theme;
+    try {
+      localStorage.setItem("rc-theme", theme);
+    } catch {
+      /* ignore */
+    }
+  }, [theme]);
+  // Resizable / collapsible left sidebar, persisted across reloads.
+  const [sidebarWidth, setSidebarWidth] = useState<number>(() => {
+    const stored = typeof localStorage !== "undefined" ? Number(localStorage.getItem("rc-sidebar-w")) : NaN;
+    return Number.isFinite(stored) && stored >= SIDEBAR_MIN && stored <= SIDEBAR_MAX ? stored : SIDEBAR_DEFAULT;
+  });
+  const [sidebarCollapsed, setSidebarCollapsed] = useState<boolean>(
+    () => typeof localStorage !== "undefined" && localStorage.getItem("rc-sidebar-collapsed") === "1"
+  );
+  const sidebarDrag = useRef<{ startX: number; startW: number; moved: boolean } | null>(null);
+  useEffect(() => {
+    try {
+      localStorage.setItem("rc-sidebar-w", String(sidebarWidth));
+      localStorage.setItem("rc-sidebar-collapsed", sidebarCollapsed ? "1" : "0");
+    } catch {
+      /* ignore */
+    }
+  }, [sidebarWidth, sidebarCollapsed]);
+
+  const onSidebarResizeStart = useCallback(
+    (event: React.PointerEvent<HTMLDivElement>) => {
+      event.preventDefault();
+      event.currentTarget.setPointerCapture(event.pointerId);
+      sidebarDrag.current = { startX: event.clientX, startW: sidebarCollapsed ? SIDEBAR_RAIL : sidebarWidth, moved: false };
+    },
+    [sidebarCollapsed, sidebarWidth]
+  );
+  const onSidebarResizeMove = useCallback((event: React.PointerEvent<HTMLDivElement>) => {
+    const drag = sidebarDrag.current;
+    if (!drag) return;
+    const raw = drag.startW + (event.clientX - drag.startX);
+    if (Math.abs(event.clientX - drag.startX) > 3) drag.moved = true;
+    if (raw < SIDEBAR_COLLAPSE_AT) {
+      setSidebarCollapsed(true);
+      return;
+    }
+    setSidebarCollapsed(false);
+    setSidebarWidth(Math.min(SIDEBAR_MAX, Math.max(SIDEBAR_MIN, raw)));
+  }, []);
+  const onSidebarResizeEnd = useCallback((event: React.PointerEvent<HTMLDivElement>) => {
+    const drag = sidebarDrag.current;
+    sidebarDrag.current = null;
+    try {
+      event.currentTarget.releasePointerCapture(event.pointerId);
+    } catch {
+      /* ignore */
+    }
+    // A click without drag on the rail expands the collapsed sidebar.
+    if (drag && !drag.moved && sidebarCollapsed) setSidebarCollapsed(false);
+  }, [sidebarCollapsed]);
+
   const [view, setView] = useState<"2d" | "3d" | "vehicle" | "flight">(() =>
     typeof window !== "undefined" && /[?&]view=3d\b/.test(window.location.search) ? "3d" : "2d"
   );
@@ -818,16 +888,31 @@ export default function App() {
     };
   }, [designSessionId, procurementRunning]);
 
+  const shellStyle = {
+    ["--sidebar-w" as string]: `${sidebarCollapsed ? SIDEBAR_RAIL : sidebarWidth}px`
+  } as React.CSSProperties;
+
   return (
-    <div className="app-shell">
-      <aside className="side-panel">
+    <div className={`app-shell${config ? "" : " no-inspector"}`} style={shellStyle}>
+      <aside className={`side-panel${sidebarCollapsed ? " is-collapsed" : ""}`}>
+        {sidebarCollapsed ? (
+          <button
+            type="button"
+            className="sidebar-rail"
+            onClick={() => setSidebarCollapsed(false)}
+            title="Expand sidebar"
+            aria-label="Expand sidebar"
+          >
+            <PanelLeft size={16} />
+          </button>
+        ) : (
+          <>
         <div className="brand-row">
           <span className="brand-mark">
-            <Gauge size={20} />
+            <img src="/rocketcursor_logo.png" alt="RocketCursor" />
           </span>
           <div>
-            <h1>Fluid Network Viewer</h1>
-            <span>P&amp;ID telemetry playback</span>
+            <h1>RocketCursor</h1>
           </div>
         </div>
 
@@ -887,19 +972,27 @@ export default function App() {
         )}
 
         {error && <pre className="error-box">{error}</pre>}
+          </>
+        )}
 
+        <div
+          className="sidebar-resizer"
+          role="separator"
+          aria-orientation="vertical"
+          aria-label="Resize sidebar"
+          title="Drag to resize · drag left to collapse · double-click to reset"
+          onPointerDown={onSidebarResizeStart}
+          onPointerMove={onSidebarResizeMove}
+          onPointerUp={onSidebarResizeEnd}
+          onDoubleClick={() => {
+            setSidebarCollapsed(false);
+            setSidebarWidth(SIDEBAR_DEFAULT);
+          }}
+        />
       </aside>
 
       <main className="workspace">
         <div className="canvas-toolbar">
-          <div className="toolbar-title">
-            <strong>{config ? "Network P&ID" : "No run loaded"}</strong>
-            <span>
-              {config
-                ? `${config.nodes.length} nodes · ${config.connections.length} connections`
-                : "Start a chat design loop or use voice input."}
-            </span>
-          </div>
           <div className="toolbar-controls">
             <div className="view-switch" role="tablist" aria-label="Diagram view">
               <button
@@ -967,6 +1060,15 @@ export default function App() {
               />
               Labels
             </label>
+            <button
+              type="button"
+              className="theme-toggle"
+              onClick={() => setTheme((t) => (t === "dark" ? "light" : "dark"))}
+              title={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
+              aria-label="Toggle color theme"
+            >
+              {theme === "dark" ? <Sun size={15} /> : <Moon size={15} />}
+            </button>
           </div>
         </div>
 
@@ -1068,20 +1170,102 @@ export default function App() {
         </div>
       </main>
 
+      {config && (
       <aside className="inspector">
         <div className="inspector-head">
           <div>
-            <h2 className="section-label">Inspector</h2>
-            <div className="selected-title">{selected ?? "System summary"}</div>
-            {selected ? (
+            <div className="selected-title">
+              {view === "flight"
+                ? "Flight summary"
+                : view === "vehicle"
+                  ? "Vehicle summary"
+                  : selected ?? "System summary"}
+            </div>
+            {selected && view !== "flight" && view !== "vehicle" && (
               <span className="selected-sub">{isConnection ? "Connection" : selectedNode?.type ?? "Node"}</span>
-            ) : (
-              <span className="selected-sub">Live at {formatValue(time)} s · click a component to inspect</span>
             )}
           </div>
         </div>
 
-        {selected ? (
+        {view === "flight" && flightRows.length ? (
+          (() => {
+            // Flight Twin: trajectory metrics, live at the scrub time + run maxima.
+            const base = flightRows[0]?.altitude ?? 0;
+            const s = interpolateFlight(flightRows, time);
+            const speed = s ? Math.hypot(s.velocity_x, s.velocity_y, s.velocity_z) : undefined;
+            const cells = [
+              summaryCell("Altitude", s ? s.altitude - base : undefined, (v) => `${v.toFixed(0)} m`),
+              summaryCell("Velocity", speed, (v) => `${v.toFixed(0)} m/s`),
+              summaryCell("Mach", s?.mach, (v) => v.toFixed(2)),
+              summaryCell("Thrust", s?.thrust, (v) => `${(v / 1000).toFixed(2)} kN`),
+              summaryCell("Mass", s?.mass, (v) => `${v.toFixed(1)} kg`),
+              summaryCell("Apogee", flightReport?.apogee_m, (v) => `${v.toFixed(0)} m`),
+              summaryCell("Max velocity", flightReport?.max_velocity_ms, (v) => `${v.toFixed(0)} m/s`),
+              summaryCell("Max Mach", flightReport?.max_mach, (v) => v.toFixed(2)),
+            ].filter((cell) => cell.value !== "—");
+            return (
+              <div className="inspector-block">
+                <h2 className="section-label">Flight summary</h2>
+                <div className="summary-grid">
+                  {cells.map((cell) => (
+                    <div key={cell.label} className="summary-cell">
+                      <span className="summary-cell-label">{cell.label}</span>
+                      <strong className="summary-cell-value">{cell.value}</strong>
+                    </div>
+                  ))}
+                </div>
+                {flightReport && (
+                  <div className="summary-status">
+                    <span className={`summary-pill ${flightReport.stable ? "ok" : "warn"}`}>
+                      {flightReport.stable ? "Stable" : "Unstable"}
+                    </span>
+                    {flightReport.apogee_vs_target_m != null && (
+                      <span className="summary-pill warn">
+                        {flightReport.apogee_vs_target_m >= 0 ? "+" : ""}
+                        {Number(flightReport.apogee_vs_target_m).toFixed(0)} m vs target
+                      </span>
+                    )}
+                  </div>
+                )}
+              </div>
+            );
+          })()
+        ) : view === "vehicle" && vehicleModel ? (
+          (() => {
+            // Vehicle Studio: as-built mass, balance and stability (static).
+            const g = vehicleModel.geometry ?? {};
+            const mp = vehicleModel.mass_properties ?? {};
+            const a = vehicleModel.aerodynamics ?? {};
+            const stable = (a.static_margin_cal ?? 0) >= 1.0;
+            const cells = [
+              summaryCell("Length", g.total_length_m, (v) => `${v.toFixed(2)} m`),
+              summaryCell("Diameter", g.body_diameter_m, (v) => `${(v * 1000).toFixed(0)} mm`),
+              summaryCell("Loaded mass", mp.loaded_mass_kg, (v) => `${v.toFixed(1)} kg`),
+              summaryCell("Dry mass", mp.dry_mass_kg, (v) => `${v.toFixed(1)} kg`),
+              summaryCell("CG", mp.loaded_cg_z_m, (v) => `${v.toFixed(2)} m`),
+              summaryCell("CP", a.cp_z_m, (v) => `${v.toFixed(2)} m`),
+              summaryCell("Static margin", a.static_margin_cal, (v) => `${v.toFixed(2)} cal`),
+            ].filter((cell) => cell.value !== "—");
+            return (
+              <div className="inspector-block">
+                <h2 className="section-label">Vehicle summary</h2>
+                <div className="summary-grid">
+                  {cells.map((cell) => (
+                    <div key={cell.label} className="summary-cell">
+                      <span className="summary-cell-label">{cell.label}</span>
+                      <strong className="summary-cell-value">{cell.value}</strong>
+                    </div>
+                  ))}
+                </div>
+                <div className="summary-status">
+                  <span className={`summary-pill ${stable ? "ok" : "warn"}`}>
+                    {stable ? "Statically stable" : "Unstable"}
+                  </span>
+                </div>
+              </div>
+            );
+          })()
+        ) : selected ? (
           <>
             {selectedFillLevel !== undefined && (
               <div className="fill-gauge">
@@ -1180,7 +1364,25 @@ export default function App() {
             )}
           </div>
         )}
+
+        <div className="inspector-block report-block">
+          <h2 className="section-label">Design report</h2>
+          <p className="procurement-hint">
+            A written rationale for every sizing choice — propellants, pressures, tank &amp; engine
+            sizing, stability, flight and validation — with the assumptions behind each.
+          </p>
+          <a
+            className={`report-button${designSessionId ? "" : " is-disabled"}`}
+            href={designSessionId ? `/api/design-runs/${designSessionId}/report.pdf` : undefined}
+            target="_blank"
+            rel="noreferrer"
+            aria-disabled={!designSessionId}
+          >
+            <FileText size={16} /> Download report (PDF)
+          </a>
+        </div>
       </aside>
+      )}
 
       {showReceipts && procurement && (
         <div className="run-overlay" role="dialog" aria-label="Procurement receipts">
