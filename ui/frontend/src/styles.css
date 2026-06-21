@@ -124,7 +124,7 @@ select {
   position: fixed;
   inset: 0;
   display: grid;
-  grid-template-columns: 300px minmax(520px, 1fr) 340px;
+  grid-template-columns: 380px minmax(480px, 1fr) 340px;
   min-height: 0;
   overflow: hidden;
   background:
@@ -456,7 +456,8 @@ select {
 
 .voice-empty {
   color: var(--text-3);
-  font-size: 12px;
+  font-size: 13px;
+  line-height: 1.5;
 }
 
 .voice-error {
@@ -480,21 +481,23 @@ select {
 .copilot-transcript {
   display: grid;
   gap: var(--sp-2);
-  min-height: 96px;
-  max-height: 280px;
+  align-content: start;
+  min-height: 160px;
+  max-height: 420px;
   overflow: auto;
-  padding: var(--sp-3);
+  padding: var(--sp-4);
   background: var(--surface-inset);
   border: 1px solid var(--border-strong);
   border-radius: var(--r-md);
+  line-height: 1.5;
 }
 
 .copilot-turn {
   display: flex;
   align-items: flex-start;
   gap: var(--sp-2);
-  font-size: 13px;
-  line-height: 1.45;
+  font-size: 14px;
+  line-height: 1.5;
 }
 
 .copilot-turn p {

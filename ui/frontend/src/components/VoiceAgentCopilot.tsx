@@ -34,6 +34,8 @@ const INPUT_SAMPLE_RATE = 16000;
 const OUTPUT_SAMPLE_RATE = 24000;
 const KEEPALIVE_MS = 8000;
 const NARRATION_POLL_MS = 2500;
+// Play Nova's speech slightly faster — snappier without sounding rushed.
+const PLAYBACK_RATE = 1.12;
 
 const DESIGN_PROMPT = [
   "## CRITICAL: YOU ARE A TEXT GENERATOR FOR A VOICE SYSTEM",
@@ -60,6 +62,10 @@ const DESIGN_PROMPT = [
   "## STATUS",
   "When the engineer asks how the run is going, call check_design_status and read the result back conversationally.",
   "Do not claim you can fix backend or API authentication errors — tell the engineer to check server API keys.",
+  "",
+  "## ITERATE — YOU CAN REVISE, JUST LIKE THE CHAT TAB",
+  "After a run finishes, the engineer can ask for changes. When they do (for example 'make the LOX tank smaller' or 'raise chamber pressure to two megapascals'), call revise_design with just the requested change in plain text.",
+  "This iterates on the current design using the same loop the chat uses — you absolutely can keep refining. Wait until the current run has finished before revising; check_design_status tells you when it's done.",
   "",
   "## SPEAKING STYLE",
   "Read pressures in plain units, for example 'five hundred psi'. Read numbers naturally.",
@@ -249,10 +255,12 @@ export function VoiceAgentCopilot({
     buffer.copyToChannel(float32, 0);
     const source = ctx.createBufferSource();
     source.buffer = buffer;
+    source.playbackRate.value = PLAYBACK_RATE;
     source.connect(ctx.destination);
     const startAt = Math.max(ctx.currentTime, playbackCursorRef.current);
     source.start(startAt);
-    playbackCursorRef.current = startAt + buffer.duration;
+    // Scheduled frames are shorter at higher playback rate — keep the gapless queue tight.
+    playbackCursorRef.current = startAt + buffer.duration / PLAYBACK_RATE;
     scheduledSourcesRef.current.push(source);
     source.onended = () => {
       scheduledSourcesRef.current = scheduledSourcesRef.current.filter((item) => item !== source);
@@ -384,6 +392,21 @@ export function VoiceAgentCopilot({
             "Call to launch the design loop once requirements are gathered AND confirmed by the engineer. Pass a concise plain-text requirements summary.",
           parameters: requirementsSummaryParam,
         },
+        {
+          name: "revise_design",
+          description:
+            "Call to ITERATE on the current design after a run has finished. Use this when the engineer asks for a change (e.g. 'make the tank smaller', 'raise the chamber pressure'). Pass just the requested change in plain text. Same loop as the chat tab's revision.",
+          parameters: {
+            type: "object",
+            properties: {
+              change_request: {
+                type: "string",
+                description: "The specific change to apply to the current design, in plain text.",
+              },
+            },
+            required: ["change_request"],
+          },
+        },
         statusFn,
       ];
     }
@@ -461,6 +484,16 @@ export function VoiceAgentCopilot({
             setPostConversationDraft(summary);
             content =
               "I've put the requirements on screen for you to review. Edit them if you like, then press run design loop.";
+          }
+        } else if (call.name === "revise_design") {
+          const change = String(args.change_request ?? "").trim();
+          if (!change) {
+            content = "Tell me what to change and I'll revise the design.";
+          } else {
+            setPostConversationDraft(change);
+            launch = change; // submitChatMessage auto-routes to a revision when a design is loaded
+            content =
+              "Revising the current design with that change now. I'll read you the new verdict as it iterates.";
           }
         } else if (call.name === "submit_requirements") {
           const summary = String(args.requirements_summary ?? "").trim();
