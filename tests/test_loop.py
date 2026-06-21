@@ -388,5 +388,54 @@ class TestAgentPrompt(unittest.TestCase):
         self.assertIn("Preserve component names", prompt)
 
 
+class TestMemoryHook(unittest.TestCase):
+    """The memory hook is lazy/guarded; test its logic with a fake Memory so we
+    don't need Redis or Voyage."""
+
+    def _patch(self, fake):
+        from loop import memory_hook
+        self._orig = memory_hook.get_memory
+        memory_hook.get_memory = lambda: fake
+        self.addCleanup(lambda: setattr(memory_hook, "get_memory", self._orig))
+        return memory_hook
+
+    def test_retrieve_formats_and_compacts(self):
+        class FakeMem:
+            def search_failures(self, q, k=5):
+                return [
+                    {"failure_mode": "Injector instability", "root_cause": "combustion coupling",
+                     "corrective_action": "add baffles", "score": 0.12},
+                    {"failure_mode": "LOX cavitation", "root_cause": "low inlet pressure",
+                     "corrective_action": "raise tank pressure", "score": 0.2},
+                ]
+        mh = self._patch(FakeMem())
+        block, compact = mh.retrieve_failure_context("LOX/methane engine", k=2)
+        self.assertIn("RELEVANT PRIOR FAILURES", block)
+        self.assertIn("Injector instability", block)
+        self.assertIn("root cause: low inlet pressure", block)
+        self.assertEqual(len(compact), 2)
+        self.assertEqual(compact[0]["failure_mode"], "Injector instability")
+
+    def test_retrieve_noop_when_unavailable(self):
+        mh = self._patch(None)
+        block, compact = mh.retrieve_failure_context("anything")
+        self.assertEqual(block, "")
+        self.assertEqual(compact, [])
+
+    def test_record_failure_writes_internal(self):
+        captured = {}
+        class FakeMem:
+            def write_failure(self, source, id_, fields):
+                captured["call"] = (source, id_, fields)
+        mh = self._patch(FakeMem())
+        ok = mh.record_failure("spec_abcd1234", {"failure_mode": "x"})
+        self.assertTrue(ok)
+        self.assertEqual(captured["call"][0], "internal")
+
+    def test_record_failure_noop_when_unavailable(self):
+        mh = self._patch(None)
+        self.assertFalse(mh.record_failure("id", {"failure_mode": "x"}))
+
+
 if __name__ == "__main__":
     unittest.main()

@@ -26,6 +26,7 @@ from loop.classifier import IterationOutcome, classify
 from loop.design_seeds import get_design_seed
 from loop.evaluator import evaluate
 from loop.llm import ToolLoopSession
+from loop.memory_hook import record_failure, retrieve_failure_context, memory_status
 from loop.monitoring import capture as sentry_capture
 from loop.monitoring import init_sentry
 from loop.session_state import (
@@ -283,6 +284,19 @@ def run_loop(spec_path: str | Path, max_iters: int = 4, use_compression: bool = 
     if seed_name and seed is None:
         print(f"[loop] unknown design_seed {seed_name!r}; continuing without seed")
     first_msg = _first_user_message(spec, protect, seed=seed)
+
+    # Ground the design in real prior failures (PRD "memory retrieval"). Guarded:
+    # no-op without the memory layer (Redis + VOYAGE_API_KEY). Prose, so it's safe
+    # to compress -- no protect() needed.
+    mem_query = spec.get("description") or spec.get("name", "")
+    mem_block, mem_results = retrieve_failure_context(mem_query, k=5)
+    if mem_block:
+        first_msg = mem_block + "\n\n" + first_msg
+        state["memory"] = {"query": mem_query[:200], "count": len(mem_results), "results": mem_results}
+        print(f"[memory] grounded design in {len(mem_results)} prior failure(s)")
+        store.write(state)
+    else:
+        print(f"[memory] no failure context injected ({memory_status() or 'no matches'})")
     final_verdict = None
     final_design = None
     line: list[IterationOutcome] = []   # outcomes since the last restart
@@ -379,6 +393,21 @@ def run_loop(spec_path: str | Path, max_iters: int = 4, use_compression: bool = 
             print(f"[judge] soundness: {quality['label']} ({quality['score']}) — {quality['explanation'][:120]}")
         except Exception as exc:  # noqa: BLE001 - eval must never break the run
             print(f"[judge] skipped ({type(exc).__name__}: {exc})")
+
+    # Write this run's failure back to memory so the system learns across sessions
+    # (PRD "write failures back"). Only on a genuine non-pass; guarded -> no-op
+    # without the memory layer.
+    if not trace["passed"] and final_verdict is not None:
+        unmet = [c for c in final_verdict.checks if not c.passed]
+        wrote = record_failure(f"{spec['name']}_{session_id[:8]}", {
+            "failure_mode": f"Design for {spec['name']!r} failed verdict: {final_verdict.summary}",
+            "system_config": spec.get("description", spec["name"])[:600],
+            "operating_conditions": f"{trace['iterations_used']} iteration(s), {trace['restarts']} restart(s)",
+            "root_cause": "; ".join(f"{c.id}: expected {c.op} {c.expected}, got {c.actual}" for c in unmet)[:600],
+            "corrective_action": "",
+        })
+        if wrote:
+            print("[memory] wrote internal failure record for cross-session learning")
 
     print(f"\n{'PASSED' if trace['passed'] else 'DID NOT PASS'} "
           f"after {trace['iterations_used']} iteration(s). Trace: {run_root / 'loop_trace.json'}")
