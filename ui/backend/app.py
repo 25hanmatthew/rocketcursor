@@ -58,6 +58,19 @@ ALLOWED_ARTIFACTS = {
 ALLOWED_DESIGN_ARTIFACTS = ALLOWED_ARTIFACTS | {"design.json", "simulation_result.json"}
 DESIGN_MAX_ITERS = int(os.environ.get("UI_DESIGN_MAX_ITERS", "8"))
 
+# P&ID -> flight pipeline (propulsion package -> vehicle -> 6DOF flight).
+FLIGHT_RUN_ROOT = ROOT / "results" / "flight_runs"
+DEFAULT_MISSION_SPEC = ROOT / "shared" / "examples" / "mission_spec.pressure_fed_kero_lox.json"
+FLIGHT_STAGES = {"package", "vehicle", "flight", ""}
+ALLOWED_FLIGHT_ARTIFACTS = {
+    "pipeline_manifest.json",
+    "propulsion_package.json", "convergence.json",
+    "thrust_curve.csv", "package_mass.csv", "package_cg.csv", "package_inertia.csv",
+    "vehicle_model.json", "vehicle_report.json",
+    "vehicle_mass.csv", "vehicle_cg.csv", "vehicle_inertia.csv",
+    "flight.csv", "flight_events.json", "flight_report.json",
+}
+
 
 class DesignRunRequest(BaseModel):
     message: str
@@ -72,6 +85,11 @@ class ProcurementRunRequest(BaseModel):
     iteration: int
     materials: list[dict]
     project_name: str = "Rocketcursor procurement run"
+
+
+class FlightRunRequest(BaseModel):
+    iteration: int
+    mission_spec: Optional[dict] = None
 
 
 app = FastAPI(title="General Fluid Network UI API")
@@ -652,6 +670,55 @@ def get_design_run_artifact(session_id: str, iteration: int, name: str):
         return _json_response_file(target)
     media_type = "text/csv" if target.suffix == ".csv" else "text/markdown"
     return FileResponse(target, media_type=media_type, filename=name)
+
+
+@app.post("/api/design-runs/{session_id}/flight")
+def create_flight_run(session_id: str, request: FlightRunRequest):
+    """Run the P&ID -> flight pipeline for one design iteration.
+
+    Physicalizes the validated design into a propulsion package, synthesizes a
+    vehicle around it, and flies it in 6DOF (RocketPy). Synchronous (~seconds);
+    writes artifacts under results/flight_runs/{session_id}/iter_{n}/.
+    """
+    manifest = _load_manifest(session_id)
+    run_root = Path(manifest.get("loop_run_root", "")).resolve()
+    iter_dir = (run_root / f"iter_{request.iteration:02d}").resolve()
+    design_path = iter_dir / "design.json"
+    if not design_path.exists():
+        raise HTTPException(status_code=404, detail="Design artifacts not found")
+
+    design = _json_response_file(design_path)
+    mission = request.mission_spec or _json_response_file(DEFAULT_MISSION_SPEC)
+    out_dir = FLIGHT_RUN_ROOT / session_id / f"iter_{request.iteration:02d}"
+
+    try:
+        from backend.pipeline import run_pipeline  # lazy: pulls rocketpy/CoolProp
+
+        pipeline_manifest = run_pipeline(design, mission, out_dir)
+    except Exception as exc:  # surface a clean error, keep the server alive
+        sentry_capture(exc)
+        raise HTTPException(status_code=400, detail=f"Flight pipeline failed: {exc}") from exc
+
+    return {"ok": True, "session_id": session_id, "iteration": request.iteration, "manifest": pipeline_manifest}
+
+
+@app.get("/api/flight-runs/{session_id}/{iteration}/{stage}/{name}")
+def get_flight_artifact(session_id: str, iteration: int, stage: str, name: str):
+    if stage not in FLIGHT_STAGES or name not in ALLOWED_FLIGHT_ARTIFACTS or iteration < 0:
+        raise HTTPException(status_code=404, detail="Artifact not found")
+    _design_session_dir(session_id)  # validates the session id format
+
+    base = (FLIGHT_RUN_ROOT / session_id / f"iter_{iteration:02d}" / stage).resolve()
+    target = (base / name).resolve()
+    try:
+        target.relative_to(base)
+    except ValueError as exc:
+        raise HTTPException(status_code=404, detail="Artifact not found") from exc
+    if not target.exists():
+        raise HTTPException(status_code=404, detail="Artifact not found")
+    if target.suffix == ".json":
+        return _json_response_file(target)
+    return FileResponse(target, media_type="text/csv", filename=name)
 
 
 @app.post("/api/runs")
