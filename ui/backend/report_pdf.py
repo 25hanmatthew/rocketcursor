@@ -9,12 +9,98 @@ so the core fonts never choke.
 
 from __future__ import annotations
 
+import os
+import tempfile
 from typing import Any
 
 from fpdf import FPDF
 
 ACCENT = (59, 109, 170)
 MUTED = (90, 100, 115)
+
+
+def _fluid_color(fluid: str) -> str:
+    f = str(fluid).lower()
+    if f in {"oxygen", "lox", "o2"}:
+        return "#bcd4f2"
+    if "nitrogen" in f or f in {"n2", "gn2"}:
+        return "#d7e0e8"
+    if any(k in f for k in ("dodecane", "kerosene", "rp-1", "rp1", "methane", "ch4")):
+        return "#f6c79a"
+    return "#dfe6ee"
+
+
+def render_pid_png(design: dict) -> str:
+    """Draw a schematic P&ID from the design's node coordinates -> temp PNG path.
+
+    Pressurant/tanks/engine as labelled hardware blocks, feed lines as arrows, and
+    valve-like connections (regulators / bang-bang / throttle) as bow-tie valve
+    symbols. Matplotlib Agg backend so it renders headless/offline."""
+    import matplotlib
+    matplotlib.use("Agg")
+    import matplotlib.pyplot as plt
+    from matplotlib.patches import Circle, FancyBboxPatch, Polygon
+
+    nodes = design.get("nodes", [])
+    conns = design.get("connections", [])
+    pos: dict[int, tuple[float, float]] = {}
+    for i, n in enumerate(nodes):
+        pos[n["id"]] = (float(n.get("x", 0.0)), -float(n.get("y", i * 140.0)))
+
+    fig, ax = plt.subplots(figsize=(7.0, 6.2))
+    fig.patch.set_facecolor("white")
+
+    for c in conns:
+        if c.get("start_id") not in pos or c.get("end_id") not in pos:
+            continue
+        x0, y0 = pos[c["start_id"]]
+        x1, y1 = pos[c["end_id"]]
+        ax.annotate("", xy=(x1, y1), xytext=(x0, y0),
+                    arrowprops=dict(arrowstyle="-|>", color="#64748b", lw=1.8,
+                                    shrinkA=46, shrinkB=46), zorder=1)
+        if c.get("type") in ("Regulator", "BangBang", "ThrottleValve"):
+            mx, my = (x0 + x1) / 2, (y0 + y1) / 2
+            s = 24
+            ax.add_patch(Polygon([(mx - s, my - s), (mx + s, my + s), (mx - s, my + s),
+                                  (mx + s, my - s)], closed=True, facecolor="#cdd6e4",
+                                 edgecolor="#334155", lw=1.2, zorder=3))
+
+    for n in nodes:
+        x, y = pos[n["id"]]
+        p, t, name = n.get("params", {}), n.get("type"), n.get("params", {}).get("name", "")
+        if t == "Engine":
+            ax.add_patch(Polygon([(x - 55, y + 32), (x + 55, y + 32), (x + 30, y - 8),
+                                  (x - 30, y - 8)], closed=True, facecolor="#d7dbe0",
+                                 edgecolor="#334155", lw=1.5, zorder=2))
+            ax.add_patch(Polygon([(x - 30, y - 8), (x + 30, y - 8), (x + 52, y - 62),
+                                  (x - 52, y - 62)], closed=True, facecolor="#c2693f",
+                                 edgecolor="#334155", lw=1.5, zorder=2))
+            label = f"{name}\n{p.get('fuel', '')}/{p.get('oxidizer', '')}"
+            ly = y + 10
+        elif t == "Tank":
+            fluid = p.get("fluid_liq", "")
+            ax.add_patch(FancyBboxPatch((x - 62, y - 46), 124, 92,
+                                        boxstyle="round,pad=2,rounding_size=20",
+                                        facecolor=_fluid_color(fluid), edgecolor="#334155",
+                                        lw=1.6, zorder=2))
+            label, ly = f"{name}\n{p.get('m_liq', '')} kg {fluid}", y
+        else:  # gas Node / Ambient
+            fluid = p.get("fluid", "")
+            ax.add_patch(Circle((x, y), 50, facecolor=_fluid_color(fluid),
+                                edgecolor="#334155", lw=1.6, zorder=2))
+            label, ly = f"{name}\n{fluid}", y
+        ax.text(x, ly, label, ha="center", va="center", fontsize=7,
+                color="#0f2030", zorder=4)
+
+    ax.set_aspect("equal")
+    ax.margins(0.16)
+    ax.axis("off")
+    fig.tight_layout(pad=0.2)
+    fd, path = tempfile.mkstemp(suffix=".png")
+    os.close(fd)
+    fig.savefig(path, dpi=150, bbox_inches="tight", facecolor="white")
+    plt.close(fig)
+    return path
 
 
 def _a(s: Any) -> str:
@@ -125,7 +211,17 @@ def compose_report_pdf(
     pdf.ln(4)
 
     # --- the fluid system ---
-    pdf.h1("1. Fluid system & propellant choices")
+    pdf.h1("1. Piping & instrumentation (P&ID)")
+    try:
+        pid_png = render_pid_png(design)
+        img_w = 116
+        if pdf.get_y() > 150:
+            pdf.add_page()
+        pdf.image(pid_png, x=(pdf.w - img_w) / 2, w=img_w)
+        os.remove(pid_png)
+        pdf.ln(3)
+    except Exception:
+        pass  # never fail the whole report over the diagram
     eng = _engine(design)
     tanks = _tanks(design)
     gas = _gas_nodes(design)
