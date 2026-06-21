@@ -600,7 +600,7 @@ export function VoiceAgentCopilot({
   const start = useCallback(async () => {
     const apiKey = import.meta.env.VITE_DEEPGRAM_API_KEY;
     if (!apiKey) {
-      const message = "Missing VITE_DEEPGRAM_API_KEY. Add it to ui/frontend/.env to enable the voice copilot.";
+      const message = "Missing VITE_DEEPGRAM_API_KEY. Add it to the repo-root .env (Vite envDir) to enable the voice copilot.";
       setError(message);
       Sentry.captureException(new Error(message));
       return;

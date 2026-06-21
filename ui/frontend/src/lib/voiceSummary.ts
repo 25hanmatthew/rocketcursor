@@ -110,7 +110,7 @@ export async function summarizeTranscript(transcript: string): Promise<{ require
 
   const apiKey = import.meta.env.VITE_ANTHROPIC_API_KEY;
   if (!apiKey) {
-    throw new Error("Missing VITE_ANTHROPIC_API_KEY. Add it to ui/frontend/.env to enable summarization.");
+    throw new Error("Missing VITE_ANTHROPIC_API_KEY. Add it to the repo-root .env (Vite envDir) to enable summarization.");
   }
 
   const response = await fetch(ANTHROPIC_URL, {

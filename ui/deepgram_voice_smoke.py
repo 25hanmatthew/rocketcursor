@@ -26,11 +26,17 @@ AGENT_URL = "wss://agent.deepgram.com/v1/agent/converse"
 
 
 def load_key() -> str:
-    for line in open("ui/frontend/.env"):
-        m = re.match(r"\s*VITE_DEEPGRAM_API_KEY\s*=\s*(\S+)", line)
-        if m:
-            return m.group(1)
-    raise SystemExit("no VITE_DEEPGRAM_API_KEY in ui/frontend/.env")
+    # Vite's envDir is the repo root, so the canonical location is ./.env;
+    # fall back to ui/frontend/.env for older setups.
+    import os
+    for path in (".env", "ui/frontend/.env"):
+        if not os.path.exists(path):
+            continue
+        for line in open(path):
+            m = re.match(r"\s*VITE_DEEPGRAM_API_KEY\s*=\s*(\S+)", line)
+            if m:
+                return m.group(1)
+    raise SystemExit("no VITE_DEEPGRAM_API_KEY in .env or ui/frontend/.env")
 
 
 SETTINGS = {
