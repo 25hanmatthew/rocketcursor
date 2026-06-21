@@ -2164,3 +2164,78 @@ select:hover {
   width: 100%;
   height: auto;
 }
+
+/* ── P&ID → flight pipeline: Build & Fly, Vehicle Studio, Flight Twin ── */
+.build-fly-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-left: 10px;
+  padding: 6px 12px;
+  border: 1px solid var(--accent, #38bdf8);
+  border-radius: 8px;
+  background: linear-gradient(180deg, rgba(56, 189, 248, 0.22), rgba(56, 189, 248, 0.08));
+  color: var(--text, #e5e7eb);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.build-fly-button:disabled { opacity: 0.45; cursor: default; }
+.build-fly-button:not(:disabled):hover { background: rgba(56, 189, 248, 0.3); }
+
+.vehicle-inspector,
+.flight-hud {
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  min-width: 210px;
+  padding: 14px 16px;
+  border-radius: 12px;
+  background: rgba(8, 12, 20, 0.78);
+  border: 1px solid rgba(148, 163, 184, 0.18);
+  backdrop-filter: blur(8px);
+  color: #e5e7eb;
+  font-size: 13px;
+  pointer-events: auto;
+}
+.flight-hud { left: auto; right: 16px; }
+.vehicle-inspector__title,
+.flight-hud__phase {
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  margin-bottom: 10px;
+  color: #93c5fd;
+}
+.flight-hud__phase { color: #38bdf8; font-size: 15px; }
+.vehicle-inspector__toggle {
+  width: 100%;
+  margin-bottom: 12px;
+  padding: 5px 10px;
+  border-radius: 7px;
+  border: 1px solid rgba(148, 163, 184, 0.25);
+  background: rgba(148, 163, 184, 0.1);
+  color: #e5e7eb;
+  cursor: pointer;
+  font-size: 12px;
+}
+.vehicle-inspector__stats,
+.flight-hud dl { margin: 0; display: grid; gap: 6px; }
+.vehicle-inspector__stats > div,
+.flight-hud dl > div {
+  display: flex;
+  justify-content: space-between;
+  gap: 14px;
+}
+.vehicle-inspector__stats dt,
+.flight-hud dt { color: #94a3b8; display: inline-flex; align-items: center; gap: 6px; }
+.vehicle-inspector__stats dd,
+.flight-hud dd { margin: 0; font-variant-numeric: tabular-nums; font-weight: 600; }
+.vehicle-inspector__stats dd.ok { color: #22c55e; }
+.vehicle-inspector__stats dd.warn { color: #f59e0b; }
+.dot { width: 9px; height: 9px; border-radius: 50%; display: inline-block; }
+.dot--cg { background: #22c55e; }
+.dot--cp { background: #ef4444; }
+.vehicle-inspector__assumptions { margin-top: 12px; font-size: 11px; color: #94a3b8; }
+.vehicle-inspector__assumptions summary { cursor: pointer; }
+.vehicle-inspector__assumptions ul { margin: 8px 0 0; padding-left: 14px; }
+.vehicle-inspector__assumptions code { color: #cbd5e1; }

@@ -1,16 +1,19 @@
 import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Box, Gauge, MessageSquare, Mic, Pause, Play, RotateCcw, Send, Workflow } from "lucide-react";
+import { Box, Gauge, Layers, MessageSquare, Mic, Pause, Play, Rocket, RotateCcw, Send, Workflow } from "lucide-react";
 import { PidCanvas } from "./components/PidCanvas";
 
 /* The 3D twin pulls in three.js (~600 KB) — lazy-load it so the default P&ID
    view stays light and only pays the cost when the user opens the 3D tab. */
 const Twin3D = lazy(() => import("./components/Twin3D"));
+const VehicleStudio = lazy(() => import("./features/vehicleStudio/VehicleStudio"));
+const FlightTwin = lazy(() => import("./features/flightTwin/FlightTwin"));
 import { VoiceAgentCopilot } from "./components/VoiceAgentCopilot";
 import { TelemetryPlots } from "./components/TelemetryPlots";
 import type { DesignChangeExtraction } from "./components/ConversationRecorder";
 import { buildDiagram } from "./lib/diagram";
 import { parseSamplesCsv } from "./lib/csv";
 import { interpolateSample, numericValue, rowsByComponent, timeRange } from "./lib/telemetry";
+import { FlightEvents, FlightRow, flightTimeRange, parseFlightCsv } from "./lib/flightModel";
 import { classifyFluid, nodeFluidName } from "./lib/pidViewModel";
 import type {
   ChatHistoryItem,
@@ -381,9 +384,15 @@ export default function App() {
   const [speed, setSpeed] = useState(1);
   const [phase, setPhase] = useState(0);
   const [showPartLabels, setShowPartLabels] = useState(false);
-  const [view, setView] = useState<"2d" | "3d">(() =>
+  const [view, setView] = useState<"2d" | "3d" | "vehicle" | "flight">(() =>
     typeof window !== "undefined" && /[?&]view=3d\b/.test(window.location.search) ? "3d" : "2d"
   );
+  // P&ID -> flight pipeline artifacts (Vehicle Studio + Flight Twin)
+  const [vehicleModel, setVehicleModel] = useState<any | null>(null);
+  const [flightRows, setFlightRows] = useState<FlightRow[]>([]);
+  const [flightEvents, setFlightEvents] = useState<FlightEvents | null>(null);
+  const [flightReport, setFlightReport] = useState<any | null>(null);
+  const [flightBusy, setFlightBusy] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [procurement, setProcurement] = useState<ProcurementUiState | null>(null);
@@ -392,8 +401,47 @@ export default function App() {
   const nodeSamples = useMemo(() => rowsByComponent(nodeRows), [nodeRows]);
   const connectionSamples = useMemo(() => rowsByComponent(connectionRows), [connectionRows]);
   const range = useMemo(() => timeRange(nodeRows, connectionRows), [nodeRows, connectionRows]);
+  const flightRange = useMemo(() => flightTimeRange(flightRows), [flightRows]);
+  // Flight Twin replays flight time; the other views replay thermofluid time.
+  const activeRange = view === "flight" && flightRows.length ? flightRange : range;
   const loadedIteration = loadedIterationForSession(latestLoadedDesignKey, designSessionId);
   const canReviseDesign = Boolean(designSessionId && loadedIteration !== null && config && !busy);
+  const hasFlight = flightRows.length > 0 && vehicleModel != null;
+  const timelineEnabled = view === "flight" ? hasFlight : Boolean(report);
+
+  // Run the P&ID -> propulsion package -> vehicle -> 6DOF flight pipeline for the
+  // loaded design iteration, then load the artifacts and jump to the Flight Twin.
+  const buildAndFly = useCallback(async () => {
+    if (!designSessionId || loadedIteration == null || flightBusy) return;
+    setFlightBusy(true);
+    setError(null);
+    try {
+      const res = await fetch(`/api/design-runs/${designSessionId}/flight`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ iteration: loadedIteration }),
+      });
+      if (!res.ok) throw new Error((await res.json().catch(() => ({}))).detail ?? `Flight failed (${res.status})`);
+      const base = `/api/flight-runs/${designSessionId}/${loadedIteration}`;
+      const [vehicle, flightCsv, eventsJson, reportJson] = await Promise.all([
+        fetch(`${base}/vehicle/vehicle_model.json`).then((r) => r.json()),
+        fetch(`${base}/flight/flight.csv`).then((r) => r.text()),
+        fetch(`${base}/flight/flight_events.json`).then((r) => r.json()),
+        fetch(`${base}/flight/flight_report.json`).then((r) => r.json()),
+      ]);
+      const rows = parseFlightCsv(flightCsv);
+      setVehicleModel(vehicle);
+      setFlightRows(rows);
+      setFlightEvents(eventsJson);
+      setFlightReport(reportJson);
+      setTime(0);
+      setView("flight");
+    } catch (exc) {
+      setError(exc instanceof Error ? exc.message : "Flight pipeline failed");
+    } finally {
+      setFlightBusy(false);
+    }
+  }, [designSessionId, loadedIteration, flightBusy]);
 
   function loadRunArtifacts(parsed: NetworkConfig, runReport: RunReport, nodesCsv: string, connectionsCsv: string) {
     const built = buildDiagram(parsed);
@@ -442,16 +490,16 @@ export default function App() {
       const elapsed = ((now - previous) / 1000) * speed;
       previous = now;
       setTime((current) => {
-        if (range.max <= range.min) return current;
+        if (activeRange.max <= activeRange.min) return current;
         const next = current + elapsed;
-        return next > range.max ? range.min : next;
+        return next > activeRange.max ? activeRange.min : next;
       });
       setPhase((current) => (current + elapsed * 0.7) % 1);
       frame = requestAnimationFrame(tick);
     };
     frame = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(frame);
-  }, [playing, range.max, range.min, speed]);
+  }, [playing, activeRange.max, activeRange.min, speed]);
 
   async function loadDesignIteration(sessionId: string, latest: LatestPlayableRun) {
     const key = `${sessionId}:${latest.iteration}`;
@@ -724,8 +772,8 @@ export default function App() {
           tone: "current" as ActivityTone
         }
       ];
-  const timeSpan = range.max - range.min;
-  const timePct = timeSpan > 0 ? ((time - range.min) / timeSpan) * 100 : 0;
+  const timeSpan = activeRange.max - activeRange.min;
+  const timePct = timeSpan > 0 ? ((time - activeRange.min) / timeSpan) * 100 : 0;
   const scrubberStyle = {
     background: `linear-gradient(90deg, var(--accent) ${timePct}%, var(--surface-3) ${timePct}%)`
   };
@@ -871,12 +919,46 @@ export default function App() {
                 aria-selected={view === "3d"}
                 className={view === "3d" ? "selected" : ""}
                 onClick={() => setView("3d")}
-                title="3D physics twin"
+                title="Systems twin — internal plumbing"
               >
                 <Box size={14} />
-                3D Twin
+                Systems
+              </button>
+              <button
+                type="button"
+                role="tab"
+                aria-selected={view === "vehicle"}
+                className={view === "vehicle" ? "selected" : ""}
+                onClick={() => setView("vehicle")}
+                disabled={!vehicleModel}
+                title="Vehicle Studio — full generated rocket"
+              >
+                <Layers size={14} />
+                Vehicle
+              </button>
+              <button
+                type="button"
+                role="tab"
+                aria-selected={view === "flight"}
+                className={view === "flight" ? "selected" : ""}
+                onClick={() => setView("flight")}
+                disabled={!hasFlight}
+                title="Flight Twin — 6DOF trajectory playback"
+              >
+                <Rocket size={14} />
+                Flight
               </button>
             </div>
+            <button
+              type="button"
+              className="build-fly-button"
+              onClick={buildAndFly}
+              disabled={loadedIteration == null || flightBusy}
+              title="Physicalize, build the vehicle, and fly it in 6DOF"
+            >
+              <Rocket size={14} />
+              {flightBusy ? "Building & flying…" : "Build & Fly"}
+            </button>
             <label className="checkbox-control">
               <input
                 type="checkbox"
@@ -902,8 +984,8 @@ export default function App() {
               nodeStatus={diagramNodeStatus}
               onSelect={setSelectedId}
             />
-          ) : (
-            <Suspense fallback={<div className="twin-empty">Loading 3D twin…</div>}>
+          ) : view === "3d" ? (
+            <Suspense fallback={<div className="twin-empty">Loading systems twin…</div>}>
               <Twin3D
                 diagram={diagram}
                 nodeSamples={nodeSamples}
@@ -916,6 +998,28 @@ export default function App() {
                 onSelect={setSelectedId}
               />
             </Suspense>
+          ) : view === "vehicle" ? (
+            <Suspense fallback={<div className="twin-empty">Loading vehicle studio…</div>}>
+              {vehicleModel ? (
+                <VehicleStudio vehicle={vehicleModel} />
+              ) : (
+                <div className="twin-empty">Run “Build &amp; Fly” to generate the vehicle.</div>
+              )}
+            </Suspense>
+          ) : (
+            <Suspense fallback={<div className="twin-empty">Loading flight twin…</div>}>
+              {hasFlight && flightEvents ? (
+                <FlightTwin
+                  rows={flightRows}
+                  events={flightEvents}
+                  render={vehicleModel.geometry.render}
+                  totalLength={vehicleModel.geometry.total_length_m}
+                  time={time}
+                />
+              ) : (
+                <div className="twin-empty">Run “Build &amp; Fly” to fly the rocket.</div>
+              )}
+            </Suspense>
           )}
         </div>
 
@@ -924,7 +1028,7 @@ export default function App() {
             type="button"
             className={`icon-button${playing ? " is-active" : ""}`}
             onClick={() => setPlaying((value) => !value)}
-            disabled={!report}
+            disabled={!timelineEnabled}
             title={playing ? "Pause" : "Play"}
           >
             {playing ? <Pause size={18} /> : <Play size={18} />}
@@ -933,21 +1037,21 @@ export default function App() {
             type="button"
             className="icon-button"
             onClick={() => {
-              setTime(range.min);
+              setTime(activeRange.min);
               setPhase(0);
             }}
-            disabled={!report}
+            disabled={!timelineEnabled}
             title="Reset to start"
           >
             <RotateCcw size={18} />
           </button>
           <input
             type="range"
-            min={range.min}
-            max={range.max}
-            step={report?.dt ?? 0.01}
+            min={activeRange.min}
+            max={activeRange.max}
+            step={view === "flight" ? 0.1 : report?.dt ?? 0.01}
             value={time}
-            disabled={!report}
+            disabled={!timelineEnabled}
             style={scrubberStyle}
             onChange={(event) => setTime(Number(event.target.value))}
           />
