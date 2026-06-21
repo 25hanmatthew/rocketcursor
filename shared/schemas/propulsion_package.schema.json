@@ -1,0 +1,81 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://rocketcursor.local/shared/schemas/propulsion_package.schema.json",
+  "title": "Propulsion Package",
+  "description": "Physically sized and packaged propulsion system derived from a validated P&ID thermofluid run. Coordinate frame origin is the nozzle exit, +Z toward the nose, right-handed. Units are SI. Every numeric field carries provenance pointing back to the solver, a deterministic model, or a packaging rule.",
+  "type": "object",
+  "required": ["schema_version", "coordinate_frame", "components", "performance"],
+  "additionalProperties": true,
+  "properties": {
+    "schema_version": {"type": "string"},
+    "source_design_ref": {"type": "string", "description": "Path to the NetworkConfig design.json this package was built from."},
+    "coordinate_frame": {"$ref": "https://rocketcursor.local/shared/schemas/coordinate_frame.schema.json"},
+    "components": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "type", "geometry", "position_m", "dry_mass_kg", "provenance"],
+        "additionalProperties": true,
+        "properties": {
+          "id": {"type": "string", "description": "Persistent package-component id, e.g. tank.lox.01."},
+          "source_pid_id": {"type": "string", "description": "Name of the originating P&ID component."},
+          "type": {
+            "type": "string",
+            "enum": ["propellant_tank", "pressurant_bottle", "engine", "feed_line", "valve", "regulator"]
+          },
+          "geometry": {
+            "type": "object",
+            "additionalProperties": true,
+            "properties": {
+              "diameter_m": {"type": "number", "minimum": 0},
+              "length_m": {"type": "number", "minimum": 0},
+              "wall_thickness_m": {"type": "number", "minimum": 0},
+              "end_cap": {"type": "string", "enum": ["hemispherical", "ellipsoidal", "flat"]},
+              "nozzle_exit_diameter_m": {"type": "number", "minimum": 0}
+            }
+          },
+          "position_m": {
+            "description": "[x, y, z] position of the component reference point in the vehicle frame.",
+            "type": "array", "items": {"type": "number"}, "minItems": 3, "maxItems": 3
+          },
+          "dry_mass_kg": {"type": "number", "minimum": 0},
+          "initial_fluid_mass_kg": {"type": "number", "minimum": 0},
+          "material": {"type": "string"},
+          "pressure_rating_pa": {"type": "number", "minimum": 0},
+          "provenance": {"$ref": "https://rocketcursor.local/shared/schemas/provenance.schema.json"}
+        }
+      }
+    },
+    "performance": {
+      "type": "object",
+      "required": ["thrust_curve", "burn_time_s"],
+      "additionalProperties": true,
+      "properties": {
+        "thrust_curve": {"type": "string", "description": "Path to a 2-column (time_s, thrust_N) CSV; no header."},
+        "burn_time_s": {"type": "number", "minimum": 0},
+        "nozzle_exit_area_m2": {"type": "number", "minimum": 0},
+        "reference_ambient_pressure_pa": {"type": "number", "minimum": 0, "description": "Ambient pressure the thrust curve was computed at (Engine.Pa). Used later for altitude thrust correction."},
+        "total_impulse_ns": {"type": "number", "minimum": 0},
+        "mean_thrust_n": {"type": "number", "minimum": 0},
+        "peak_thrust_n": {"type": "number", "minimum": 0}
+      }
+    },
+    "time_series": {
+      "type": "object",
+      "additionalProperties": true,
+      "properties": {
+        "total_mass": {"type": "string", "description": "CSV: time_s, mass_kg (propellant + package dry)."},
+        "center_of_mass": {"type": "string", "description": "CSV: time_s, cg_z_m (along axis)."},
+        "inertia": {"type": "string", "description": "CSV: time_s, I11, I22, I33 about the package CG."}
+      }
+    },
+    "constraints": {
+      "type": "object",
+      "additionalProperties": true,
+      "properties": {
+        "minimum_vehicle_inner_diameter_m": {"type": "number", "minimum": 0}
+      }
+    },
+    "assumptions": {"$ref": "https://rocketcursor.local/shared/schemas/assumption.schema.json"}
+  }
+}

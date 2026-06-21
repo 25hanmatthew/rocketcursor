@@ -1,0 +1,59 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://rocketcursor.local/shared/schemas/flight_result.schema.json",
+  "title": "Flight Result",
+  "description": "Output contract for a 6DOF flight. flight.csv is a time series with the columns listed here; flight_events.json marks named events; flight_report.json summarizes. Units SI; angles in degrees unless noted; quaternion is scalar-first (w,x,y,z).",
+  "type": "object",
+  "required": ["columns", "events", "report"],
+  "additionalProperties": true,
+  "properties": {
+    "columns": {
+      "type": "array",
+      "description": "Required column order for flight.csv.",
+      "items": {"type": "string"},
+      "default": [
+        "time", "position_x", "position_y", "position_z",
+        "latitude", "longitude", "altitude",
+        "quaternion_w", "quaternion_x", "quaternion_y", "quaternion_z",
+        "roll", "pitch", "yaw",
+        "velocity_x", "velocity_y", "velocity_z",
+        "angular_rate_x", "angular_rate_y", "angular_rate_z",
+        "acceleration_x", "acceleration_y", "acceleration_z",
+        "mass", "cg", "mach", "dynamic_pressure", "angle_of_attack",
+        "thrust", "drag", "normal_force", "wind"
+      ]
+    },
+    "events": {
+      "type": "object",
+      "description": "flight_events.json — time (s) of each event, or null if not reached.",
+      "additionalProperties": true,
+      "properties": {
+        "ignition": {"type": ["number", "null"]},
+        "rail_departure": {"type": ["number", "null"]},
+        "maximum_dynamic_pressure": {"type": ["number", "null"]},
+        "burnout": {"type": ["number", "null"]},
+        "apogee": {"type": ["number", "null"]},
+        "parachute_deployment": {"type": ["number", "null"]},
+        "landing": {"type": ["number", "null"]}
+      }
+    },
+    "report": {
+      "type": "object",
+      "description": "flight_report.json — scalar summary.",
+      "additionalProperties": true,
+      "properties": {
+        "apogee_m": {"type": "number"},
+        "max_velocity_ms": {"type": "number"},
+        "max_mach": {"type": "number"},
+        "max_acceleration_ms2": {"type": "number"},
+        "rail_departure_velocity_ms": {"type": "number"},
+        "max_dynamic_pressure_pa": {"type": "number"},
+        "flight_time_s": {"type": "number"},
+        "apogee_vs_target_m": {"type": "number"},
+        "stable": {"type": "boolean"},
+        "backend": {"type": "string", "default": "rocketpy"}
+      }
+    },
+    "assumptions": {"$ref": "https://rocketcursor.local/shared/schemas/assumption.schema.json"}
+  }
+}

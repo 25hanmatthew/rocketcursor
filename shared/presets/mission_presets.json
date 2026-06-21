@@ -1,0 +1,26 @@
+{
+  "description": "Defaults used to fill missing mission_spec fields. Every applied value must be recorded in the mission_spec assumption ledger with source 'preset:<name>'.",
+  "presets": {
+    "small_sounding_rocket": {
+      "mission": {"stage_count": 1},
+      "constraints": {"maximum_diameter_m": 0.2, "maximum_length_m": 3.0, "maximum_launch_mass_kg": 40},
+      "launch": {"rail_length_m": 4.0, "elevation_deg": 85, "heading_deg": 0, "altitude_m": 0, "latitude_deg": 32.99, "longitude_deg": -106.97},
+      "recovery": {"mode": "parachute", "main_cd_s_m2": 1.5},
+      "vehicle_mode": "passive_fin_stabilized"
+    },
+    "university_liquid_rocket": {
+      "mission": {"stage_count": 1},
+      "constraints": {"maximum_diameter_m": 0.4, "maximum_length_m": 6.0, "maximum_launch_mass_kg": 150},
+      "launch": {"rail_length_m": 6.0, "elevation_deg": 88, "heading_deg": 0, "altitude_m": 0, "latitude_deg": 32.99, "longitude_deg": -106.97},
+      "recovery": {"mode": "dual_deploy", "drogue_cd_s_m2": 0.8, "main_cd_s_m2": 9.0},
+      "vehicle_mode": "passive_fin_stabilized"
+    },
+    "high_altitude_demonstrator": {
+      "mission": {"stage_count": 1},
+      "constraints": {"maximum_diameter_m": 0.5, "maximum_length_m": 8.0, "maximum_launch_mass_kg": 350},
+      "launch": {"rail_length_m": 9.0, "elevation_deg": 90, "heading_deg": 0, "altitude_m": 1400, "latitude_deg": 32.99, "longitude_deg": -106.97},
+      "recovery": {"mode": "dual_deploy", "drogue_cd_s_m2": 1.2, "main_cd_s_m2": 16.0},
+      "vehicle_mode": "passive_fin_stabilized"
+    }
+  }
+}

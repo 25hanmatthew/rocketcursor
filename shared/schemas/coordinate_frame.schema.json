@@ -1,0 +1,15 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://rocketcursor.local/shared/schemas/coordinate_frame.schema.json",
+  "title": "Coordinate Frame",
+  "description": "Documented, fixed coordinate convention shared across the pipeline.",
+  "type": "object",
+  "required": ["name", "origin", "long_axis"],
+  "additionalProperties": true,
+  "properties": {
+    "name": {"type": "string", "default": "vehicle_body"},
+    "origin": {"type": "string", "default": "nozzle_exit"},
+    "long_axis": {"type": "string", "default": "+z_toward_nose", "description": "Axis pointing from nozzle exit toward the nose."},
+    "handedness": {"type": "string", "enum": ["right", "left"], "default": "right"}
+  }
+}

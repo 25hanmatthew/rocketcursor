@@ -1,0 +1,27 @@
+{
+  "name": "pressure_fed_kero_lox",
+  "preset": "university_liquid_rocket",
+  "payload": {
+    "mass_kg": 5.0,
+    "diameter_m": 0.2,
+    "length_m": 0.4
+  },
+  "mission": {
+    "target_apogee_m": 10000,
+    "stage_count": 1
+  },
+  "constraints": {
+    "maximum_diameter_m": 0.4,
+    "maximum_length_m": 6.0,
+    "maximum_launch_mass_kg": 150
+  },
+  "launch": {
+    "rail_length_m": 6.0,
+    "elevation_deg": 90,
+    "altitude_m": 0
+  },
+  "recovery": {
+    "mode": "parachute"
+  },
+  "vehicle_mode": "passive_fin_stabilized"
+}

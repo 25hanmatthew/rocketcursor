@@ -1,0 +1,101 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://rocketcursor.local/shared/schemas/vehicle_model.schema.json",
+  "title": "Vehicle Model",
+  "description": "Simulator-independent canonical engineering model of the complete rocket: geometry, mass properties, aerodynamics, recovery, environment. RocketPy/OpenRocket objects are generated from this by adapters, never the reverse. Coordinate frame origin is the nozzle exit, +Z toward nose. Units SI.",
+  "type": "object",
+  "required": ["schema_version", "coordinate_frame", "geometry", "mass_properties", "aerodynamics", "propulsion_package_ref"],
+  "additionalProperties": true,
+  "properties": {
+    "schema_version": {"type": "string"},
+    "name": {"type": "string"},
+    "coordinate_frame": {"$ref": "https://rocketcursor.local/shared/schemas/coordinate_frame.schema.json"},
+    "propulsion_package_ref": {"type": "string"},
+    "component_tree": {
+      "type": "array",
+      "description": "Hierarchical vehicle components with persistent ids traceable to package/P&ID where applicable.",
+      "items": {
+        "type": "object",
+        "required": ["id", "type"],
+        "additionalProperties": true,
+        "properties": {
+          "id": {"type": "string"},
+          "type": {"type": "string", "enum": ["nose", "body_tube", "fin_set", "transition", "bay", "engine_mount", "bulkhead", "coupler", "recovery", "payload", "propulsion_package"]},
+          "source_package_id": {"type": "string"},
+          "geometry": {"type": "object", "additionalProperties": true},
+          "position_m": {"type": "array", "items": {"type": "number"}, "minItems": 3, "maxItems": 3},
+          "mass_kg": {"type": "number", "minimum": 0},
+          "material": {"type": "string"},
+          "provenance": {"$ref": "https://rocketcursor.local/shared/schemas/provenance.schema.json"}
+        }
+      }
+    },
+    "geometry": {
+      "type": "object",
+      "required": ["body_diameter_m", "total_length_m"],
+      "additionalProperties": true,
+      "properties": {
+        "body_diameter_m": {"type": "number", "minimum": 0},
+        "total_length_m": {"type": "number", "minimum": 0},
+        "reference_area_m2": {"type": "number", "minimum": 0},
+        "nose": {
+          "type": "object", "additionalProperties": true,
+          "properties": {
+            "kind": {"type": "string", "enum": ["von karman", "ogive", "conical", "ellipsoid", "lvhaack", "power_series"]},
+            "length_m": {"type": "number", "minimum": 0}
+          }
+        },
+        "fins": {
+          "type": "object", "additionalProperties": true,
+          "properties": {
+            "count": {"type": "integer", "minimum": 3},
+            "root_chord_m": {"type": "number", "minimum": 0},
+            "tip_chord_m": {"type": "number", "minimum": 0},
+            "span_m": {"type": "number", "minimum": 0},
+            "sweep_length_m": {"type": "number"},
+            "position_z_m": {"type": "number", "description": "Axial position of the fin root leading edge (nozzle-exit origin)."},
+            "thickness_m": {"type": "number", "minimum": 0}
+          }
+        },
+        "render": {
+          "description": "Procedural R3F geometry hints (no glTF). Frontend builds nose/body/fins from these primitives.",
+          "type": "object", "additionalProperties": true
+        }
+      }
+    },
+    "mass_properties": {
+      "type": "object",
+      "additionalProperties": true,
+      "properties": {
+        "dry_mass_kg": {"type": "number", "minimum": 0},
+        "loaded_mass_kg": {"type": "number", "minimum": 0},
+        "dry_cg_z_m": {"type": "number"},
+        "loaded_cg_z_m": {"type": "number"},
+        "time_series": {
+          "type": "object", "additionalProperties": true,
+          "properties": {
+            "total_mass": {"type": "string"},
+            "center_of_mass": {"type": "string"},
+            "inertia": {"type": "string"}
+          }
+        }
+      }
+    },
+    "aerodynamics": {
+      "type": "object",
+      "additionalProperties": true,
+      "properties": {
+        "cp_z_m": {"type": "number", "description": "Center of pressure along axis (Barrowman)."},
+        "static_margin_cal": {"type": "number", "description": "(CG - CP) / body_diameter at loaded condition; positive = stable."},
+        "cd_power_off": {"type": "number", "minimum": 0},
+        "cd_mach_table": {"type": "string", "description": "Optional CSV: mach, cd."},
+        "method": {"type": "string", "default": "barrowman_v1 + rocketpy"}
+      }
+    },
+    "recovery": {"type": "object", "additionalProperties": true},
+    "controls": {"type": "object", "additionalProperties": true},
+    "environment_defaults": {"type": "object", "additionalProperties": true},
+    "assumptions": {"$ref": "https://rocketcursor.local/shared/schemas/assumption.schema.json"},
+    "provenance": {"$ref": "https://rocketcursor.local/shared/schemas/provenance.schema.json"}
+  }
+}

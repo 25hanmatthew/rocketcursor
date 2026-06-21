@@ -1,0 +1,11 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://rocketcursor.local/shared/schemas/provenance.schema.json",
+  "title": "Provenance",
+  "description": "Per-field origin map. Each key is a field name on the parent object; each value names the producer of that field's value (a solver output, a named deterministic model, or a packaging/synthesis rule). No engineering value should be unattributed.",
+  "type": "object",
+  "additionalProperties": {
+    "type": "string",
+    "examples": ["thermofluid_solver", "tank_mass_model_v1", "engine_mass_model_v1", "packaging_rule", "barrowman_v1", "preset", "llm_proposal"]
+  }
+}

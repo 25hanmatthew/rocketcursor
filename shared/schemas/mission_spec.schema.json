@@ -1,0 +1,72 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://rocketcursor.local/shared/schemas/mission_spec.schema.json",
+  "title": "Mission Specification",
+  "description": "Top-level mission/vehicle requirements that, combined with a validated propulsion package, drive vehicle synthesis. Units are SI. Missing fields are filled from a named preset and recorded in the assumption ledger; an LLM may propose values but every assumption must be explicit.",
+  "type": "object",
+  "required": ["payload", "mission"],
+  "additionalProperties": true,
+  "properties": {
+    "name": {"type": "string"},
+    "preset": {
+      "description": "Named preset used to fill any missing fields.",
+      "type": "string",
+      "enum": ["small_sounding_rocket", "university_liquid_rocket", "high_altitude_demonstrator"]
+    },
+    "payload": {
+      "type": "object",
+      "required": ["mass_kg"],
+      "additionalProperties": true,
+      "properties": {
+        "mass_kg": {"type": "number", "minimum": 0},
+        "diameter_m": {"type": "number", "minimum": 0},
+        "length_m": {"type": "number", "minimum": 0}
+      }
+    },
+    "mission": {
+      "type": "object",
+      "required": ["target_apogee_m"],
+      "additionalProperties": true,
+      "properties": {
+        "target_apogee_m": {"type": "number", "minimum": 0},
+        "stage_count": {"type": "integer", "minimum": 1, "default": 1}
+      }
+    },
+    "constraints": {
+      "type": "object",
+      "additionalProperties": true,
+      "properties": {
+        "maximum_diameter_m": {"type": "number", "minimum": 0},
+        "maximum_length_m": {"type": "number", "minimum": 0},
+        "maximum_launch_mass_kg": {"type": "number", "minimum": 0}
+      }
+    },
+    "launch": {
+      "type": "object",
+      "additionalProperties": true,
+      "properties": {
+        "rail_length_m": {"type": "number", "minimum": 0},
+        "elevation_deg": {"type": "number", "minimum": 0, "maximum": 90},
+        "heading_deg": {"type": "number", "minimum": 0, "maximum": 360},
+        "altitude_m": {"type": "number"},
+        "latitude_deg": {"type": "number", "minimum": -90, "maximum": 90},
+        "longitude_deg": {"type": "number", "minimum": -180, "maximum": 180}
+      }
+    },
+    "recovery": {
+      "type": "object",
+      "additionalProperties": true,
+      "properties": {
+        "mode": {"type": "string", "enum": ["parachute", "ballistic", "dual_deploy"]},
+        "main_cd_s_m2": {"type": "number", "minimum": 0},
+        "drogue_cd_s_m2": {"type": "number", "minimum": 0}
+      }
+    },
+    "vehicle_mode": {
+      "type": "string",
+      "enum": ["passive_fin_stabilized", "actively_guided"],
+      "default": "passive_fin_stabilized"
+    },
+    "assumptions": {"$ref": "https://rocketcursor.local/shared/schemas/assumption.schema.json"}
+  }
+}

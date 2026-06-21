@@ -77,6 +77,7 @@ referencing==0.37.0
 requests==2.34.2
 # rocketcea==1.2.3  -- engine path only; on Apple Silicon it needs a special
 # arm64 build (it does NOT install cleanly via this file). See BUILDING.md.
+rocketpy==1.12.1
 rpds-py==2026.5.1
 scipy==1.17.1
 six==1.17.0

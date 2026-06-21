@@ -1,0 +1,26 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://rocketcursor.local/shared/schemas/assumption.schema.json",
+  "title": "Assumption Ledger",
+  "description": "An ordered list of assumptions made by any pipeline stage. Every value that was not directly supplied by the user or computed from an upstream artifact must appear here. The LLM may propose values, but deterministic code records them as assumptions.",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "required": ["field", "value", "source"],
+    "additionalProperties": true,
+    "properties": {
+      "field": {"type": "string", "description": "Dotted path to the assumed field, e.g. launch.rail_length_m."},
+      "value": {"description": "The assumed value (any JSON type)."},
+      "source": {
+        "type": "string",
+        "description": "Where the value came from.",
+        "examples": ["preset:small_sounding_rocket", "tank_mass_model_v1", "packaging_rule", "llm_proposal", "default"]
+      },
+      "rationale": {"type": "string"},
+      "stage": {
+        "type": "string",
+        "enum": ["mission_spec", "propulsion_package", "vehicle_synthesis", "flight"]
+      }
+    }
+  }
+}
