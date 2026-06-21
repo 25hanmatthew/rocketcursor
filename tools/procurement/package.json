@@ -5,8 +5,7 @@
   "type": "module",
   "scripts": {
     "procure": "tsx src/runProcurement.ts",
-    "send-rfqs": "tsx src/runSendRfqs.ts",
-    "submit-quotes": "tsx src/runSubmitQuotes.ts",
+    "park-quotes": "tsx src/runSubmitQuotes.ts",
     "create-context": "tsx src/createBrowserbaseContext.ts"
   },
   "dependencies": {

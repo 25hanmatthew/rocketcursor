@@ -53,13 +53,13 @@ Across 3 real multi-iteration design runs (14 iterations), measured by
 
 | spec | iters | raw tokens | sent tokens | reduction |
 |---|---:|---:|---:|---:|
-| lox_methane_engine | 6 | 334,882 | 1,232 | 99.63% |
+| lox_methane_engine | 6 | 334,882 | 1,491 | 99.55% |
 | nitrogen_blowdown_vent | 2 | 1,286,112 | 226 | 99.98% |
 | pressure_window_blowdown | 6 | 758,135 | 1,348 | 99.82% |
-| **TOTAL** | **14** | **2,379,129** | **2,806** | **99.88%** |
+| **TOTAL** | **14** | **2,379,129** | **3,065** | **99.87%** |
 
-**~2.38M tokens of raw simulator output compressed to ~2,806 — a 99.88% reduction**,
-averaging ~170k raw → ~200 sent per iteration. (Token counts estimated at 4
+**~2.38M tokens of raw simulator output compressed to ~3,065 — a 99.87% reduction**,
+averaging ~170k raw → ~220 sent per iteration. (Token counts estimated at 4
 chars/token; the *ratio* is tokenizer-robust.)
 
 ## It improves downstream performance — not just shrinks input
@@ -84,7 +84,7 @@ We benchmarked our compression directly against TTC's own general-purpose compre
 
 | compressor | raw → out (tokens) | reduction |
 |---|---|---|
-| **Ours (requirement-aware)** | 198,358 → 365 | **99.82% (543×)** |
+| **Ours (requirement-aware)** | 198,358 → 433 | **99.78% (458×)** |
 | TTC `bear-2` on raw, aggr 0.5 | 198,358 → 198,356 | 0.00% |
 | TTC `bear-2` on raw, aggr 0.9 (max) | 198,358 → 197,466 | 0.45% |
 
@@ -98,7 +98,7 @@ simulator output has almost none, so TTC correctly gets ~0%. Requirement-aware
 compression removes *irrelevance* — ~99.8% of that output doesn't bear on any check.
 
 **They compose.** TTC gets ~36% on prose (e.g. this document), and it can shave our
-already-tiny verdict a further ~25% (365 → 272). So the right architecture uses both:
+already-tiny verdict a further ~27% (433 → 315). So the right architecture uses both:
 ours for the heavy numeric tool-output (~99.8%), TTC for the prose system prompt
 (~44%) and as a polish pass. We ship both; this document's compression solution is the
 requirement-aware layer.

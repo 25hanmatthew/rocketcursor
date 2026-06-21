@@ -477,6 +477,7 @@ export async function ensureLoggedInWithRetry(params: {
   stagehand: Stagehand;
   supplier: SupplierTarget;
   runId?: string;
+  force?: boolean;
 }): Promise<LoginResult> {
   const attempts = supplierLoginRetries();
   let last: LoginResult = { ok: false, reason: "login_failed" };
@@ -507,16 +508,23 @@ export async function ensureLoggedIn(params: {
   stagehand: Stagehand;
   supplier: SupplierTarget;
   runId?: string;
+  /** Force a login even when supplier.requiresLogin is false (e.g. parking a
+   * quote needs an authenticated cart/quote form). No-op if no creds are set. */
+  force?: boolean;
 }): Promise<LoginResult> {
-  const { bb, stagehand, supplier, runId } = params;
+  const { bb, stagehand, supplier, runId, force } = params;
 
-  if (!supplier.requiresLogin) {
+  if (!supplier.requiresLogin && !force) {
     return { ok: true, reason: "not_required" };
   }
 
   const username = resolveEnv(supplier.usernameEnv);
   const password = resolveEnv(supplier.passwordEnv);
   if (!username || !password) {
+    // Forced login with no creds: proceed unauthenticated rather than blocking.
+    if (force && !supplier.requiresLogin) {
+      return { ok: true, reason: "not_required" };
+    }
     return { ok: false, reason: "missing_credentials" };
   }
 

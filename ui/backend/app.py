@@ -1,5 +1,7 @@
 import json
 import os
+import re
+import shutil
 import subprocess
 import sys
 import threading
@@ -16,8 +18,18 @@ from pydantic import BaseModel
 from loop.agent import _load_dotenv, run_loop
 from loop.monitoring import capture as sentry_capture
 from loop.monitoring import init_sentry
-from loop.procurement import run_procurement, send_rfqs_via_poke
-from loop.session_state import FileSessionStore, new_state
+from loop.procurement import (
+    materials_from_design,
+    park_quotes_in_portal,
+    run_procurement,
+)
+from loop.session_state import (
+    FileSessionStore,
+    new_state,
+    node_status_from_verdict,
+    report_view,
+    requirements_view,
+)
 from loop.spec_writer import drop_atmospheric_pressure_component_checks, nl_to_spec, revise_spec
 
 # Initialize Sentry BEFORE the FastAPI app is created so it auto-instruments
@@ -30,6 +42,10 @@ RUN_ROOT = ROOT / "results" / "ui_runs"
 DESIGN_RUN_ROOT = ROOT / "results" / "ui_design_runs"
 LOOP_RUN_ROOT = ROOT / "results" / "loop_runs"
 SPECS_DIR = ROOT / "loop" / "specs"
+# Pre-baked design runs keyed by an exact prompt (see results/cached_designs/*/meta.json).
+# ONLY a prompt that normalizes to a baked meta.prompt is served from cache; every
+# other prompt runs the normal LLM design loop untouched.
+CACHED_DESIGN_ROOT = ROOT / "results" / "cached_designs"
 ALLOWED_ARTIFACTS = {
     "report.json",
     "nodes.csv",
@@ -247,9 +263,96 @@ def _revision_inputs(parent_session_id: str, iteration: Optional[int]) -> dict:
     }
 
 
+def _normalize_prompt(text: str) -> str:
+    """Case/whitespace/trailing-period-insensitive key for exact prompt matching."""
+    return re.sub(r"\s+", " ", (text or "").strip().lower()).rstrip(".")
+
+
+def _cached_design_for(message: str) -> Optional[Path]:
+    """Return the cache dir whose baked meta.prompt matches this message exactly,
+    or None. Strictly one prompt per baked entry — never a catch-all."""
+    if not CACHED_DESIGN_ROOT.exists():
+        return None
+    key = _normalize_prompt(message)
+    if not key:
+        return None
+    for cache_dir in sorted(CACHED_DESIGN_ROOT.iterdir()):
+        meta_path = cache_dir / "meta.json"
+        if not meta_path.exists():
+            continue
+        try:
+            meta = _read_json(meta_path)
+        except (json.JSONDecodeError, OSError):
+            continue
+        if _normalize_prompt(meta.get("prompt", "")) == key:
+            return cache_dir
+    return None
+
+
+def _serve_cached_design(session_id: str, message: str, cache_dir: Path) -> None:
+    """Replay a pre-baked design run as if the loop had just produced it: copy its
+    artifacts into a per-session loop_run_root and write a passed session_state +
+    manifest the existing GET endpoints serve unchanged. No LLM, no solver."""
+    session_dir = _design_session_dir(session_id)
+    session_dir.mkdir(parents=True, exist_ok=True)
+    src_iter = cache_dir / "loop_run" / "iter_00"
+    spec = _read_json(cache_dir / "spec.json")
+    verdict = _read_json(cache_dir / "verdict.json")
+    report = _read_json(src_iter / "report.json")
+    design = _read_json(src_iter / "design.json")
+
+    # Per-session run root so concurrent cache hits never collide.
+    spec_name = f"cached_{spec.get('name', 'design')}_{session_id[:8]}"
+    loop_run_root = LOOP_RUN_ROOT / spec_name
+    iter_dir = loop_run_root / "iter_00"
+    iter_dir.mkdir(parents=True, exist_ok=True)
+    for name in ("design.json", "report.json", "nodes.csv", "connections.csv"):
+        shutil.copy(src_iter / name, iter_dir / name)
+
+    spec_for_session = dict(spec)
+    spec_for_session["name"] = spec_name
+    spec_path = session_dir / "spec.json"
+    spec_path.write_text(json.dumps(spec_for_session, indent=2), encoding="utf-8")
+
+    iteration = {
+        "iteration": 0,
+        "status": "ok",
+        "node_status": node_status_from_verdict(report, verdict),
+        "verdict": verdict,
+    }
+    state = new_state(session_id, message, "cached", "cached")
+    state["requirements"] = requirements_view(spec_for_session)
+    state["stage"] = "report"
+    state["status"] = "passed"
+    state["current_iteration"] = 0
+    state["iterations"] = [iteration]
+    state["passed"] = True
+    state["iterations_used"] = 1
+    state["report"] = report_view(True, verdict, design, 1)
+    FileSessionStore(root=DESIGN_RUN_ROOT).write(state)
+
+    _write_manifest(session_dir, {
+        "status": "completed",
+        "source": "cached",
+        "cached": True,
+        "original_spec_name": spec.get("name"),
+        "spec_name": spec_name,
+        "spec_path": str(spec_path),
+        "loop_run_root": str(loop_run_root),
+        "started_at": time.time(),
+        "completed_at": time.time(),
+    })
+
+
 def _run_design_loop_background(session_id: str, message: str) -> None:
     session_dir = _design_session_dir(session_id)
     try:
+        cache_dir = _cached_design_for(message)
+        if cache_dir is not None:
+            _design_log(session_id, f"matched cached prompt; serving baked design from {cache_dir.name} (no LLM loop)")
+            _serve_cached_design(session_id, message, cache_dir)
+            _design_log(session_id, "cached design served")
+            return
         _design_log(session_id, "resolving request into a requirements spec")
         spec, source = _resolve_design_spec(message)
         spec, dropped_checks = drop_atmospheric_pressure_component_checks(spec)
@@ -678,14 +781,154 @@ def get_procurement_summary(run_id: str):
     return _json_response_file(summary_path)
 
 
-@app.post("/api/procurement-runs/{run_id}/send-rfqs")
-def send_procurement_rfqs(run_id: str):
+@app.post("/api/procurement-runs/{run_id}/park-quotes")
+def park_procurement_quotes(run_id: str):
+    """Park RFQ draft text into each supplier's on-site quote box (no sending)."""
     run_dir = ROOT / "results" / "procurement_runs" / run_id
     if not run_dir.exists():
         raise HTTPException(status_code=404, detail="Procurement run not found")
 
-    result = send_rfqs_via_poke(run_dir)
+    result = park_quotes_in_portal(run_dir)
     if not result["ok"]:
         return JSONResponse(status_code=400, content=result)
 
     return result
+
+
+# --------------------------------------------------------------------------- #
+# One-button procurement: derive BOM from the finished design → source parts →
+# park RFQ drafts into each supplier's quote form → return receipt screenshots.
+# Long-running + live-browser, so it runs in a background thread with a polled
+# status file (mirrors the design-loop pattern).
+# --------------------------------------------------------------------------- #
+
+_SCREENSHOT_NAME_RE = re.compile(r"^portal_[a-z0-9_]+\.png$")
+
+
+def _procurement_status_path(session_id: str) -> Path:
+    return _design_session_dir(session_id) / "procurement_status.json"
+
+
+def _write_procurement_status(session_id: str, **fields) -> None:
+    path = _procurement_status_path(session_id)
+    current = _read_json(path) if path.exists() else {}
+    current.update(fields)
+    current["updated_at"] = time.time()
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(current, indent=2), encoding="utf-8")
+
+
+def _collect_park_screenshots(run_id: str, portal: dict) -> list[dict]:
+    shots: list[dict] = []
+    for row in portal.get("results", []) or []:
+        sp = row.get("screenshotPath")
+        if not sp:
+            continue
+        name = Path(sp).name
+        if not Path(sp).exists() or not _SCREENSHOT_NAME_RE.match(name):
+            continue
+        shots.append({
+            "supplier": row.get("supplier"),
+            "item": row.get("item"),
+            "quoteStatus": row.get("quoteStatus"),
+            "url": f"/api/procurement-runs/{run_id}/screenshot/{name}",
+        })
+    return shots
+
+
+def _run_procure_and_quote_background(
+    session_id: str, design_path: str, report_path: str, project_name: str
+) -> None:
+    try:
+        design = _read_json(Path(design_path))
+        materials = materials_from_design(design)
+        if not materials:
+            _write_procurement_status(
+                session_id, stage="error", status="error",
+                error="No procurable parts could be derived from the design.")
+            return
+        _write_procurement_status(session_id, stage="sourcing", status="running", materials=materials)
+
+        proc = run_procurement(
+            design_path=design_path,
+            report_path=report_path,
+            materials=materials,
+            project_name=project_name,
+        )
+        run_id = proc.get("run_id")
+        if not proc.get("ok") or not run_id:
+            _write_procurement_status(
+                session_id, stage="error", status="error", run_id=run_id,
+                error="Sourcing the bill of materials failed.", procurement=proc)
+            return
+
+        _write_procurement_status(session_id, stage="requesting_quotes", status="running", run_id=run_id)
+
+        park = park_quotes_in_portal(proc["output_dir"])
+        portal = park.get("result") or {}
+        shots = _collect_park_screenshots(run_id, portal)
+        _write_procurement_status(
+            session_id, stage="done", status="done", run_id=run_id,
+            sent=False, screenshots=shots,
+            parked=portal.get("parked", False),
+            supplier_results=portal.get("results", []))
+    except Exception as exc:  # noqa: BLE001 - surface to UI, never crash the server
+        sentry_capture(exc)
+        _write_procurement_status(session_id, stage="error", status="error", error=str(exc))
+
+
+@app.post("/api/design-runs/{session_id}/procure-and-quote")
+def start_procure_and_quote(session_id: str):
+    """Kick off the full procurement loop for a finished design (one button)."""
+    manifest = _load_manifest(session_id)
+    state = _design_run_state(session_id, manifest)
+    playable = _latest_playable(manifest, state)
+    if not playable:
+        raise HTTPException(status_code=400, detail="No completed design to procure from yet")
+
+    iter_dir = _iteration_artifact_dir(manifest, playable["iteration"])
+    design_path = iter_dir / "design.json"
+    report_path = iter_dir / "report.json"
+    if not design_path.exists():
+        raise HTTPException(status_code=404, detail="Design artifacts not found")
+
+    project_name = f"Rocketcursor — {str(manifest.get('request', 'design'))[:60]}"
+    _write_procurement_status(
+        session_id, stage="sourcing", status="running",
+        started_at=time.time(), run_id=None, screenshots=[], error=None)
+
+    thread = threading.Thread(
+        target=_run_procure_and_quote_background,
+        args=(session_id, str(design_path), str(report_path), project_name),
+        daemon=True,
+        name=f"procure-{session_id[:8]}",
+    )
+    thread.start()
+    return {"ok": True, "session_id": session_id}
+
+
+@app.get("/api/design-runs/{session_id}/procurement-status")
+def get_procurement_status(session_id: str):
+    path = _procurement_status_path(session_id)
+    if not path.exists():
+        return {"status": "idle", "stage": None}
+    return _read_json(path)
+
+
+@app.get("/api/procurement-runs/{run_id}/screenshot/{name}")
+def get_procurement_screenshot(run_id: str, name: str):
+    if not run_id or any(ch not in "0123456789abcdef" for ch in run_id):
+        raise HTTPException(status_code=404, detail="Procurement run not found")
+    if not _SCREENSHOT_NAME_RE.match(name):
+        raise HTTPException(status_code=404, detail="Screenshot not found")
+
+    base = (ROOT / "results" / "procurement_runs" / run_id).resolve()
+    target = (base / name).resolve()
+    try:
+        target.relative_to(base)
+    except ValueError as exc:
+        raise HTTPException(status_code=404, detail="Screenshot not found") from exc
+    if not target.exists():
+        raise HTTPException(status_code=404, detail="Screenshot not found")
+
+    return FileResponse(target, media_type="image/png", filename=name)

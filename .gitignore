@@ -67,3 +67,4 @@ ui/frontend/.vite/
 ui/frontend/dist/
 .DS_Store
 *.log
+results/procurement_runs/

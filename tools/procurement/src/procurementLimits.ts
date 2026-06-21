@@ -7,8 +7,10 @@ function envInt(name: string, fallback: number): number {
 /** Max catalog/search URLs to extract per supplier per material (default 4). Use 2 for faster smoke runs. */
 export const MAX_URLS_PER_SUPPLIER = envInt("PROCUREMENT_MAX_URLS", 4);
 
-/** Max product pages to drill from a listing (default 2). Use 1 for faster smoke runs. */
-export const MAX_DRILLDOWN_PRODUCTS = envInt("PROCUREMENT_MAX_DRILLDOWN", 2);
+/** Max product pages to drill from a listing (default 3). Deeper drilldown lands
+ * real part pages (part numbers/specs) instead of stopping on a category
+ * listing. Use 1 for faster smoke runs. */
+export const MAX_DRILLDOWN_PRODUCTS = envInt("PROCUREMENT_MAX_DRILLDOWN", 3);
 
 /** Browserbase web search result count (default 8). */
 export const SEARCH_RESULT_LIMIT = envInt("PROCUREMENT_SEARCH_RESULTS", 8);

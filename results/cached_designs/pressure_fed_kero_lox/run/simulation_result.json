@@ -1,0 +1,12 @@
+{
+  "status": "invalid_config",
+  "errors": [
+    "RuntimeError: rocketcea is required to instantiate Engine nodes."
+  ],
+  "design_path": "results/cached_designs/pressure_fed_kero_lox/run/design.json",
+  "output_dir": "results/cached_designs/pressure_fed_kero_lox/run",
+  "components": {},
+  "diagnostics": {},
+  "final_nodes": {},
+  "warnings": []
+}

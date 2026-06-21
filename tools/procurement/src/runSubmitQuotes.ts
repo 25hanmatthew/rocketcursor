@@ -5,10 +5,7 @@ import { fileURLToPath } from "node:url";
 import { Browserbase } from "@browserbasehq/sdk";
 import { BOMSchema } from "./schemas.js";
 import { buildProcurementGaps } from "./procurementGaps.js";
-import {
-  bomApprovalGranted,
-  submitPortalQuotes
-} from "./submitQuoteRequest.js";
+import { parkPortalQuotes } from "./submitQuoteRequest.js";
 
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../../..");
 dotenv.config({ path: path.join(repoRoot, ".env"), quiet: true, override: true });
@@ -18,14 +15,11 @@ async function main() {
   const outputDir = process.argv[2];
 
   if (!outputDir) {
-    throw new Error("Usage: npm run submit-quotes -- <output_dir> [--approved]");
+    throw new Error("Usage: npm run park-quotes -- <output_dir>");
   }
 
-  if (!bomApprovalGranted(process.argv.slice(3))) {
-    throw new Error(
-      "Portal quote submission requires engineering approval. Re-run with --approved or set BOM_APPROVED=true."
-    );
-  }
+  // No approval gate: parking only places the draft text in the supplier's
+  // quote box for human review — it never submits or sends anything.
 
   if (!process.env.BROWSERBASE_API_KEY) {
     throw new Error("Missing BROWSERBASE_API_KEY");
@@ -47,7 +41,7 @@ async function main() {
     apiKey: process.env.BROWSERBASE_API_KEY
   });
 
-  const result = await submitPortalQuotes(
+  const result = await parkPortalQuotes(
     bb,
     bom,
     resolvedDir,

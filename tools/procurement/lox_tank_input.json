@@ -1,0 +1,15 @@
+{
+  "projectName": "LOX tank drilldown re-test",
+  "materials": [
+    {
+      "item": "LOX tank",
+      "quantity": 1,
+      "requirements": {
+        "fluid": "Oxygen",
+        "cryogenic_compatible": true,
+        "minimum_volume_l": 50,
+        "minimum_pressure_rating_pa": 2000000
+      }
+    }
+  ]
+}
