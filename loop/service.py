@@ -288,9 +288,11 @@ def main(argv=None) -> int:
         return 0
 
     from loop.agent import _load_dotenv
+    from loop.monitoring import init_sentry
     from loop.tracing import enable_tracing
     _load_dotenv()
     enable_tracing(project_name="rocketcursor-service")
+    init_sentry(component="designer-agent")
     agent = build_agent()
     print(f"agent address: {agent.address}")
     print(f"mailbox={MAILBOX} port={PORT} compress={COMPRESS} max_iters={MAX_ITERS}")

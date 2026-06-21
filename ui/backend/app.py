@@ -13,9 +13,16 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, JSONResponse
 from pydantic import BaseModel
 
-from loop.agent import run_loop
+from loop.agent import _load_dotenv, run_loop
+from loop.monitoring import capture as sentry_capture
+from loop.monitoring import init_sentry
 from loop.session_state import FileSessionStore, new_state
 from loop.spec_writer import nl_to_spec
+
+# Initialize Sentry BEFORE the FastAPI app is created so it auto-instruments
+# every route + middleware. Guarded: no-op without SENTRY_DSN.
+_load_dotenv()
+init_sentry(component="ui-backend")
 
 ROOT = Path(__file__).resolve().parents[2]
 RUN_ROOT = ROOT / "results" / "ui_runs"
@@ -253,6 +260,8 @@ def _run_design_loop_background(session_id: str, message: str) -> None:
         _write_manifest(session_dir, {"status": "completed", "completed_at": time.time()})
     except Exception as exc:  # noqa: BLE001 - background jobs must report failures as state
         error = f"{type(exc).__name__}: {exc}"
+        # background-thread crash: FastAPI's Sentry hook won't see it, so report explicitly
+        sentry_capture(exc, session_id=session_id, request=message, stage="design-loop-background")
         _write_error_state(session_id, message, error)
         _write_manifest(session_dir, {"status": "error", "error": error, "completed_at": time.time()})
 
@@ -335,6 +344,14 @@ def run_uploaded_config(config: dict, duration: Optional[float] = None, dt: Opti
 @app.get("/api/schema")
 def get_schema():
     return _json_response_file(ROOT / "simulator" / "network_schema.json")
+
+
+@app.get("/api/sentry-debug")
+def sentry_debug():
+    """Verify Sentry is wired: this intentionally raises so the error shows up in
+    the Sentry dashboard (the standard Sentry setup check)."""
+    _ = 1 / 0  # noqa: F841 - deliberate
+    return {"ok": True}  # unreachable
 
 
 @app.post("/api/design-runs")

@@ -26,6 +26,8 @@ from loop.classifier import IterationOutcome, classify
 from loop.design_seeds import get_design_seed
 from loop.evaluator import evaluate
 from loop.llm import ToolLoopSession
+from loop.monitoring import capture as sentry_capture
+from loop.monitoring import init_sentry
 from loop.session_state import (
     SessionStore,
     get_store,
@@ -256,6 +258,7 @@ def run_loop(spec_path: str | Path, max_iters: int = 4, use_compression: bool = 
              soundness_guidance: bool = False) -> dict:
     _load_dotenv()
     enable_tracing()  # Arize AX: auto-traces ASI1/OpenAI calls if ARIZE_* creds are set
+    init_sentry(component="loop")  # error monitoring; no-op without SENTRY_DSN
     system_prompt = effective_system_prompt(soundness_guidance)
     spec = json.loads(Path(spec_path).read_text(encoding="utf-8"))
     run_root = REPO_ROOT / "results" / "loop_runs" / spec["name"]

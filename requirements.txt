@@ -97,3 +97,4 @@ wrapt==2.2.1
 yarl==1.24.2
 stagehand==3.21.0
 voyageai==0.4.1
+sentry-sdk==2.63.0

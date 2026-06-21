@@ -280,8 +280,10 @@ def main(argv=None) -> int:
                              "seed-derived address or SIM_AGENT_ADDRESS).")
     args = parser.parse_args(argv)
     _load_dotenv()
+    from loop.monitoring import init_sentry
     from loop.tracing import enable_tracing
     enable_tracing(project_name="rocketcursor-multiagent")
+    init_sentry(component="multiagent")
     print(f"LLM provider: {active_provider()} | model: {active_model()}")
 
     if args.role == "simulator":
