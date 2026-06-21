@@ -33,13 +33,17 @@ def _density_for(role: str) -> float:
     return {"lox": 1140.0, "kerosene": 800.0}.get(role, 1000.0)
 
 
-def build_environment(env_defaults: dict) -> Environment:
+def build_environment(env_defaults: dict, wind_mps: float = 0.0) -> Environment:
     env = Environment(
         latitude=env_defaults.get("latitude_deg", 0.0) or 0.0,
         longitude=env_defaults.get("longitude_deg", 0.0) or 0.0,
         elevation=env_defaults.get("altitude_m", 0.0) or 0.0,
     )
-    env.set_atmospheric_model(type="standard_atmosphere")
+    if wind_mps:
+        # Constant cross-wind on a standard atmosphere (Monte Carlo dispersion).
+        env.set_atmospheric_model(type="custom_atmosphere", wind_u=float(wind_mps), wind_v=0.0)
+    else:
+        env.set_atmospheric_model(type="standard_atmosphere")
     return env
 
 
@@ -104,7 +108,7 @@ def build_motor(package: dict, package_dir: Path, burn_time: float) -> LiquidMot
     return motor
 
 
-def build_rocket(vehicle: dict, package: dict, package_dir: Path) -> Rocket:
+def build_rocket(vehicle: dict, package: dict, package_dir: Path, mass_factor: float = 1.0) -> Rocket:
     geom = vehicle["geometry"]
     mp = vehicle["mass_properties"]
     body_radius = 0.5 * geom["body_diameter_m"]
@@ -112,7 +116,8 @@ def build_rocket(vehicle: dict, package: dict, package_dir: Path) -> Rocket:
 
     package_dry = sum(c["dry_mass_kg"] for c in package["components"])
     bottle_gas = sum(c.get("initial_fluid_mass_kg", 0.0) for c in package["components"] if c["type"] == "pressurant_bottle")
-    struct_mass = mp["dry_mass_kg"] - package_dry  # airframe only (motor excluded)
+    # mass_factor perturbs the dry airframe mass for Monte Carlo dispersion (default 1.0 = nominal).
+    struct_mass = (mp["dry_mass_kg"] - package_dry) * mass_factor  # airframe only (motor excluded)
 
     # structure CG: back out from vehicle loaded CG is complex; use body geometric proxy.
     struct_cg = 0.55 * total_length
@@ -150,9 +155,12 @@ def build_rocket(vehicle: dict, package: dict, package_dir: Path) -> Rocket:
     return rocket
 
 
-def fly(vehicle: dict, package: dict, package_dir: Path) -> tuple[Flight, Rocket]:
-    env = build_environment(vehicle.get("environment_defaults", {}))
-    rocket = build_rocket(vehicle, package, package_dir)
+def fly(
+    vehicle: dict, package: dict, package_dir: Path,
+    wind_mps: float = 0.0, mass_factor: float = 1.0,
+) -> tuple[Flight, Rocket]:
+    env = build_environment(vehicle.get("environment_defaults", {}), wind_mps=wind_mps)
+    rocket = build_rocket(vehicle, package, package_dir, mass_factor=mass_factor)
     envd = vehicle.get("environment_defaults", {})
     flight = Flight(
         rocket=rocket,

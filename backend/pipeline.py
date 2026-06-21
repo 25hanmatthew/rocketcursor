@@ -19,6 +19,7 @@ from typing import Any
 from backend.propulsion_package.convergence import converge_package
 from backend.vehicle_synthesis import synthesize_vehicle
 from backend.flight.run_flight import run_flight
+from backend.validation.design_rules import check_design_rules
 
 
 def run_pipeline(
@@ -44,6 +45,10 @@ def run_pipeline(
 
     flight = run_flight(vehicle, package, package_dir, flight_dir, target_apogee_m=target)
 
+    # Phase 6: deterministic design-rule validation (fast; no extra flights).
+    mission_dict = mission_spec if isinstance(mission_spec, dict) else json.loads(Path(mission_spec).read_text())
+    validation = check_design_rules(vehicle, package, flight["report"], mission_dict)
+
     manifest = {
         "run_dir": str(run_dir),
         "stages": {
@@ -65,6 +70,11 @@ def run_pipeline(
                 "path": str(flight_dir / "flight.csv"),
                 "events": flight["events"],
                 "report": flight["report"],
+            },
+            "validation": {
+                "passed": validation["passed"],
+                "summary": validation["summary"],
+                "findings": validation["findings"],
             },
         },
     }
