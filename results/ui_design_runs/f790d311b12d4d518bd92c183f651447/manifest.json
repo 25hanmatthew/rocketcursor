@@ -1,0 +1,12 @@
+{
+  "session_id": "f790d311b12d4d518bd92c183f651447",
+  "request": "Design a full pressure fed vehicle fluids system for a kerosene lox rocket with nitrogen as the pressurant",
+  "status": "running",
+  "created_at": 1782000083.0412307,
+  "source": "natural_language",
+  "original_spec_name": "pressure_fed_kerosene_lox_system",
+  "spec_name": "pressure_fed_kerosene_lox_system_f790d311",
+  "spec_path": "C:\\Users\\25han\\OneDrive\\Documents\\GitHub\\rocketcursor\\results\\ui_design_runs\\f790d311b12d4d518bd92c183f651447\\spec.json",
+  "loop_run_root": "C:\\Users\\25han\\OneDrive\\Documents\\GitHub\\rocketcursor\\results\\loop_runs\\pressure_fed_kerosene_lox_system_f790d311",
+  "started_at": 1782000099.688046
+}

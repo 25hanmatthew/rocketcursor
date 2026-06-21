@@ -1,0 +1,229 @@
+{
+  "name": "pressure_fed_kerosene_lox_system_f790d311",
+  "description": "Design a full pressure-fed vehicle fluids system for a kerosene/LOX rocket using nitrogen as the pressurant. The system must include: (1) Nitrogen pressurant tank at high pressure, (2) Kerosene fuel tank, (3) LOX oxidizer tank, (4) Pressurant feed lines to both propellant tanks, (5) Fuel feed line from kerosene tank to engine, (6) Oxidizer feed line from LOX tank to engine. FIXED quantities: nitrogen tank initial pressure (typically 20-30 MPa), propellant tank ullage pressures (typically 2-5 MPa), propellant tank temperatures (kerosene ~288K, LOX ~90K). TUNABLE quantities: component sizing, line diameters, exact pressure setpoints, flow rates, tank volumes. The system must maintain positive pressure differential from pressurant to propellant tanks throughout operation, deliver propellants to the engine at required pressures, and maintain cryogenic LOX temperature.",
+  "design_guidance": {
+    "must_include_nodes": [
+      "nitrogen_tank",
+      "kerosene_tank",
+      "lox_tank",
+      "engine_injector"
+    ],
+    "must_include_connections": [
+      "n2_to_kerosene_pressurant",
+      "n2_to_lox_pressurant",
+      "kerosene_feed",
+      "lox_feed"
+    ],
+    "fixed_constraints": {
+      "nitrogen_tank": {
+        "P_initial": "20-30 MPa range"
+      },
+      "kerosene_tank": {
+        "T_initial": "288K \u00b1 10K",
+        "P_ullage": "2-5 MPa range"
+      },
+      "lox_tank": {
+        "T_initial": "90K \u00b1 5K",
+        "P_ullage": "2-5 MPa range"
+      }
+    },
+    "tunable": [
+      "tank_volumes",
+      "line_diameters",
+      "exact_pressure_setpoints",
+      "flow_rates",
+      "valve_sizing"
+    ],
+    "notes": [
+      "Nitrogen pressurant must maintain higher pressure than both propellant tank ullage pressures throughout the simulation",
+      "Pressurant lines should include pressure regulation to maintain target ullage pressures",
+      "LOX tank must maintain cryogenic temperature (~90K) throughout operation",
+      "Kerosene tank at ambient temperature (~288K)",
+      "Engine injector receives both propellants at appropriate pressures for combustion"
+    ]
+  },
+  "checks": [
+    {
+      "id": "ran",
+      "description": "Simulation completed successfully without crash or invalid configuration",
+      "type": "status",
+      "op": "==",
+      "value": "ok"
+    },
+    {
+      "id": "flow_happens",
+      "description": "System has non-zero mass flow through connections",
+      "type": "sim",
+      "field": "has_nonzero_flow",
+      "op": "==",
+      "value": true
+    },
+    {
+      "id": "physical",
+      "description": "No nonphysical or degenerate warnings during simulation",
+      "type": "no_warnings",
+      "op": "==",
+      "value": true
+    },
+    {
+      "id": "n2_tank_initial_pressure",
+      "description": "Nitrogen tank starts at high pressure (20-30 MPa range)",
+      "type": "component",
+      "component": "nitrogen_tank",
+      "field": "P",
+      "stat": "first",
+      "op": ">=",
+      "value": 20000000.0
+    },
+    {
+      "id": "n2_tank_initial_pressure_max",
+      "description": "Nitrogen tank initial pressure not exceeding 30 MPa",
+      "type": "component",
+      "component": "nitrogen_tank",
+      "field": "P",
+      "stat": "first",
+      "op": "<=",
+      "value": 30000000.0
+    },
+    {
+      "id": "kerosene_temp_initial",
+      "description": "Kerosene tank starts at ambient temperature (~288K)",
+      "type": "component",
+      "component": "kerosene_tank",
+      "field": "T",
+      "stat": "first",
+      "op": ">=",
+      "value": 278.0
+    },
+    {
+      "id": "kerosene_temp_initial_max",
+      "description": "Kerosene tank initial temperature not exceeding 298K",
+      "type": "component",
+      "component": "kerosene_tank",
+      "field": "T",
+      "stat": "first",
+      "op": "<=",
+      "value": 298.0
+    },
+    {
+      "id": "lox_temp_initial",
+      "description": "LOX tank starts at cryogenic temperature (~90K)",
+      "type": "component",
+      "component": "lox_tank",
+      "field": "T",
+      "stat": "first",
+      "op": ">=",
+      "value": 85.0
+    },
+    {
+      "id": "lox_temp_initial_max",
+      "description": "LOX tank initial temperature not exceeding 95K",
+      "type": "component",
+      "component": "lox_tank",
+      "field": "T",
+      "stat": "first",
+      "op": "<=",
+      "value": 95.0
+    },
+    {
+      "id": "kerosene_ullage_pressure_min",
+      "description": "Kerosene tank ullage pressure maintained at minimum 2 MPa",
+      "type": "component",
+      "component": "kerosene_tank",
+      "field": "P",
+      "stat": "min",
+      "op": ">=",
+      "value": 2000000.0
+    },
+    {
+      "id": "kerosene_ullage_pressure_max",
+      "description": "Kerosene tank ullage pressure not exceeding 5 MPa",
+      "type": "component",
+      "component": "kerosene_tank",
+      "field": "P",
+      "stat": "max",
+      "op": "<=",
+      "value": 5000000.0
+    },
+    {
+      "id": "lox_ullage_pressure_min",
+      "description": "LOX tank ullage pressure maintained at minimum 2 MPa",
+      "type": "component",
+      "component": "lox_tank",
+      "field": "P",
+      "stat": "min",
+      "op": ">=",
+      "value": 2000000.0
+    },
+    {
+      "id": "lox_ullage_pressure_max",
+      "description": "LOX tank ullage pressure not exceeding 5 MPa",
+      "type": "component",
+      "component": "lox_tank",
+      "field": "P",
+      "stat": "max",
+      "op": "<=",
+      "value": 5000000.0
+    },
+    {
+      "id": "n2_to_kerosene_flow",
+      "description": "Pressurant flow from nitrogen to kerosene tank occurs",
+      "type": "component",
+      "component": "n2_to_kerosene_pressurant",
+      "field": "mdot",
+      "stat": "nonzero_count",
+      "op": ">",
+      "value": 0
+    },
+    {
+      "id": "n2_to_lox_flow",
+      "description": "Pressurant flow from nitrogen to LOX tank occurs",
+      "type": "component",
+      "component": "n2_to_lox_pressurant",
+      "field": "mdot",
+      "stat": "nonzero_count",
+      "op": ">",
+      "value": 0
+    },
+    {
+      "id": "kerosene_feed_flow",
+      "description": "Kerosene feed to engine has non-zero flow",
+      "type": "component",
+      "component": "kerosene_feed",
+      "field": "mdot",
+      "stat": "nonzero_count",
+      "op": ">",
+      "value": 0
+    },
+    {
+      "id": "lox_feed_flow",
+      "description": "LOX feed to engine has non-zero flow",
+      "type": "component",
+      "component": "lox_feed",
+      "field": "mdot",
+      "stat": "nonzero_count",
+      "op": ">",
+      "value": 0
+    },
+    {
+      "id": "n2_pressure_above_kerosene",
+      "description": "Nitrogen tank pressure always above kerosene ullage pressure",
+      "type": "component",
+      "component": "nitrogen_tank",
+      "field": "P",
+      "stat": "min",
+      "op": ">=",
+      "value": 2100000.0
+    },
+    {
+      "id": "lox_temp_maintained",
+      "description": "LOX tank temperature maintained near cryogenic throughout",
+      "type": "component",
+      "component": "lox_tank",
+      "field": "T",
+      "stat": "max",
+      "op": "<=",
+      "value": 100.0
+    }
+  ]
+}

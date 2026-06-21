@@ -11,6 +11,7 @@ The core solver lives in `simulator/general_fluid_network.py`. Networks can be b
 - Uses CoolProp for thermodynamic properties, with optional REFPROP support when installed.
 - Runs time-marching simulations with scheduled valve/controller actions.
 - Plots node and connection histories with Matplotlib.
+- Provides a local web UI for chat-driven design runs and manual JSON uploads.
 - Provides a command-line JSON runner for automated validation, simulation, and result export.
 
 ## Repository Layout
@@ -47,6 +48,43 @@ If `rocketcea` or `ctREFPROP` installation fails, install the solver dependencie
 
 ## Quick Start
 
+The main way to run this project is the local UI: start the FastAPI backend, start the Vite frontend, then open the frontend URL in your browser.
+
+Start the backend API from the repository root:
+
+```powershell
+python -m uvicorn ui.backend.app:app --reload --host 127.0.0.1 --port 8000
+```
+
+In a second terminal, start the frontend:
+
+```powershell
+cd ui\frontend
+npm install
+npm run dev
+```
+
+Open the Vite URL printed by `npm run dev`, usually:
+
+```powershell
+http://localhost:5173
+```
+
+Use the UI in either mode:
+
+- `Chat`: type a plain-English design request. Real chat runs require the LLM keys from `.env`.
+- `JSON`: upload a simulator JSON file, such as `simulator\network_configs\tank_vent_to_atmosphere.json`.
+
+## Local P&ID Run Viewer
+
+The UI lives under `ui/` and keeps the simulator pipeline unchanged. The backend shells out to `python -m simulator.run_network`, writes manual JSON runs under `results/ui_runs/<run_id>/`, writes chat design runs under `results/ui_design_runs/<session_id>/`, and the frontend renders the latest simulated design as a generated 2D P&ID with animated flow from `nodes.csv` and `connections.csv`.
+
+For chat-driven design, create `.env` from `.env.example` and set the required LLM API key for your selected provider. Manual JSON upload does not need an LLM key.
+
+## Simulator CLI
+
+Use the CLI for debugging configs or running simulations without the UI.
+
 Validate the tank vent example:
 
 ```powershell
@@ -72,27 +110,6 @@ Verify the project after copying or changing support files:
 python -m unittest tests.test_network_io tests.test_fluid_network_mcp
 python -m simulator.run_network simulator\network_configs\tank_vent_to_atmosphere.json --validate-only
 ```
-
-## Local P&ID Run Viewer
-
-The optional UI lives under `ui/` and keeps the simulator pipeline unchanged. The backend shells out to `python -m simulator.run_network`, writes runs under `results/ui_runs/<run_id>/`, and the frontend renders the submitted JSON as a generated 2D P&ID with animated flow from `nodes.csv` and `connections.csv`.
-
-Install the Python requirements, then start the API:
-
-```powershell
-python -m pip install -r requirements.txt
-python -m uvicorn ui.backend.app:app --reload --host 127.0.0.1 --port 8000
-```
-
-In another terminal, start the frontend:
-
-```powershell
-cd ui\frontend
-npm install
-npm run dev
-```
-
-Open the Vite URL, submit a network JSON such as `simulator\network_configs\tank_vent_to_atmosphere.json`, and use the timeline to inspect flow playback.
 
 ## Agent Usage
 
