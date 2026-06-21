@@ -11,6 +11,14 @@ __pycache__/
 # Loop run artifacts
 results/loop_runs/
 results/experiments/
+results/compression/
+results/ui_runs/
+results/ui_design_runs/
+
+# Large docs / binaries / scratch (not for the shared repo)
+*.pdf
+docs/
+mock.png
 
 # Local tooling / agent skills / editor state (not for the shared repo)
 .agents/
